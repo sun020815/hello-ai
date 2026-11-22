@@ -8,3 +8,7 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Secrets — 存放 API key 的文件，绝对不能提交
+.env
+.env.local
