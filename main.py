@@ -35,35 +35,80 @@ KB = {
 }
 
 
+def search_kb(q: str):
+    """在知识库里找出所有命中的条目，返回列表（可能 0 条，也可能多条）"""
+    hits = []
+    for key, text in KB.items():
+        if key in q:
+            hits.append({"topic": key, "text": text})
+    return hits
+
+
 @app.get("/kb")
 def kb(q: str):
-    for key, answer in KB.items():
-        if key in q:
-            return {"matched": key, "answer": answer}
-    return {"matched": None, "answer": "知识库里没有相关内容"}
+    hits = search_kb(q)
+    if not hits:
+        return {"matched": None, "answer": "知识库里没有相关内容"}
+    return {"matched": hits[0]["topic"], "answer": hits[0]["text"]}
 
 
-@app.post("/chat")
-def chat(req: AskRequest):
+def call_llm(messages):
+    """把「调用模型」这件事收成一个函数，两处共用"""
     if not LLM_API_KEY or LLM_API_KEY.startswith("sk-替换"):
         raise HTTPException(status_code=500, detail=".env 里的 LLM_API_KEY 还没填")
 
     client = OpenAI(api_key=LLM_API_KEY, base_url=LLM_BASE_URL)
-
     try:
-        resp = client.chat.completions.create(
-            model=LLM_MODEL,
-            messages=[
-                {"role": "system", "content": "你是一名健身教练。回答要简短具体，给数字，不说套话。"},
-                {"role": "user", "content": req.question},
-            ],
-        )
+        return client.chat.completions.create(model=LLM_MODEL, messages=messages)
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"调用模型失败：{e}")
+
+
+@app.post("/chat")
+def chat(req: AskRequest):
+    resp = call_llm([
+        {"role": "system", "content": "你是一名健身教练。回答要简短具体，给数字，不说套话。"},
+        {"role": "user", "content": req.question},
+    ])
 
     return {
         "answer": resp.choices[0].message.content,
         "model": resp.model,
+        "tokens": resp.usage.total_tokens,
+    }
+
+
+@app.post("/rag")
+def rag(req: AskRequest):
+    hits = search_kb(req.question)
+
+    if not hits:
+        return {
+            "answer": "知识库里没有相关资料，我无法基于资料回答。",
+            "sources": [],
+            "tokens": 0,
+        }
+
+    context = "\n".join(f"- {h['text']}" for h in hits)
+
+    resp = call_llm([
+        {
+            "role": "system",
+            "content": (
+                "你是一名健身教练。只能依据【资料】里的内容回答。"
+                "资料没提到的信息，直接说「资料里没有这部分内容」，禁止补充资料以外的知识。"
+                "回答简短具体，给数字。"
+            ),
+        },
+        {
+            "role": "user",
+            "content": f"【资料】\n{context}\n\n【问题】\n{req.question}",
+        },
+    ])
+
+    return {
+        "answer": resp.choices[0].message.content,
+        "sources": [h["topic"] for h in hits],
         "tokens": resp.usage.total_tokens,
     }
 
