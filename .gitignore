@@ -12,3 +12,6 @@ wheels/
 # Secrets — 存放 API key 的文件，绝对不能提交
 .env
 .env.local
+
+# 知识库向量缓存（本地产物，每次算都要花 token）
+.kb_vectors.json
