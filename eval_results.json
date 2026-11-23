@@ -1,13 +1,13 @@
 {
   "keyword": {
     "summary": {
-      "n": 98,
-      "hit1": 0.3181818181818182,
-      "hit2": 0.3181818181818182,
-      "refuse": 1.0,
-      "acc": 0.3877551020408163,
-      "hit_n": 88,
-      "ref_n": 10
+      "n": 124,
+      "hit1": 0.3333333333333333,
+      "hit2": 0.3333333333333333,
+      "refuse": 0.8529411764705882,
+      "acc": 0.47580645161290325,
+      "hit_n": 90,
+      "ref_n": 34
     },
     "rows": [
       {
@@ -989,18 +989,278 @@
         "hit2": true,
         "score": null,
         "note": "完全无关"
+      },
+      {
+        "q": "肩峰撞击综合征怎么治",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": "shoulder-05 只说「正手前平举容易产生肩峰撞击」→ 讲的是预防不是治疗。问「怎么治」，库内零康复内容（层B，探针分 0.8466）"
+      },
+      {
+        "q": "腰椎间盘突出能练硬拉吗",
+        "expect": null,
+        "kind": "refuse",
+        "got": "硬拉",
+        "hit1": false,
+        "hit2": false,
+        "score": null,
+        "note": "dead-03 只给「腰痛换臀桥」的症状级换动作建议。腰突是诊断，能不能练属医学禁忌症判断，资料够不着（层B，探针分 0.8397）"
+      },
+      {
+        "q": "卧推手腕疼怎么办",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": "warm-01 提的是「卧推肩痛」不是腕痛；bench-02「腕中立不折腕」是预防。字面重叠（卧推 + 痛），问题不同（层C，探针分 0.7899）"
+      },
+      {
+        "q": "腹肌怎么练",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": "全库无腹肌动作，仅 legs-05 提到侧腹（层C，探针分 0.6468）"
+      },
+      {
+        "q": "减脂期蛋白质要吃更多吗",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": "diet-02 只给增肌期 1.6-2.2g，未涉减脂（层B，探针分 0.5425）"
+      },
+      {
+        "q": "史密斯机卧推能替代自由卧推吗",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": "只出现史密斯实力推 / 史密斯负重，无卧推对比（层C，探针分 0.5378）"
+      },
+      {
+        "q": "硬拉用正反握还是双正握",
+        "expect": null,
+        "kind": "refuse",
+        "got": "硬拉",
+        "hit1": false,
+        "hit2": false,
+        "score": null,
+        "note": "dead-01/02 讲髋铰链，零握法内容（层C，探针分 0.3807）"
+      },
+      {
+        "q": "深蹲穿什么鞋",
+        "expect": null,
+        "kind": "refuse",
+        "got": "深蹲",
+        "hit1": false,
+        "hit2": false,
+        "score": null,
+        "note": "库内零装备内容（层C，探针分 0.2006）"
+      },
+      {
+        "q": "引体向上一个都做不了怎么练",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": "lat / back 只把引体当名词提过，无进阶教学（层C，探针分 0.1989）"
+      },
+      {
+        "q": "组间休息时该坐着还是走动",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": "param-06 只讲时长，未讲休息期做什么（层C，探针分 0.1627）"
+      },
+      {
+        "q": "一周减几斤算正常",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": "无减脂进度内容（层B，探针分 0.1483）"
+      },
+      {
+        "q": "生理期能不能练腿",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": "无女性 / 周期内容（层B，探针分 0.1397）"
+      },
+      {
+        "q": "相扑硬拉和常规硬拉有什么区别",
+        "expect": null,
+        "kind": "refuse",
+        "got": "硬拉",
+        "hit1": false,
+        "hit2": false,
+        "score": null,
+        "note": "只有罗马尼亚 / 单腿 / 山羊挺身，无相扑（层C，探针分 0.1395）"
+      },
+      {
+        "q": "增肌期能不能做有氧",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": "库内零有氧内容（层C，探针分 0.1339）"
+      },
+      {
+        "q": "硬拉要不要用助力带",
+        "expect": null,
+        "kind": "refuse",
+        "got": "硬拉",
+        "hit1": false,
+        "hit2": false,
+        "score": null,
+        "note": "库内零护具内容（层C，探针分 0.0973）"
+      },
+      {
+        "q": "卧推要不要戴护腕",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": "库内零护具 / 装备内容（层C，探针分 0.0666）"
+      },
+      {
+        "q": "练完要不要拉伸",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": "warm-* 全是训练前热身，无训练后放松（层C，探针分 0.0495）"
+      },
+      {
+        "q": "BCAA 训练前喝有用吗",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": "无补剂内容（层B，探针分 0.0344）"
+      },
+      {
+        "q": "帮我改一下这段 Python 代码",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": "完全无关（层A，探针分 0.0259）"
+      },
+      {
+        "q": "氮泵能不能天天喝",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": "无补剂 / 咖啡因内容（层B，探针分 0.0028）"
+      },
+      {
+        "q": "明天A股会涨吗",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": "完全无关（层A，探针分 0.0002）"
+      },
+      {
+        "q": "促睾补剂有用吗",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": "无补剂内容（层B，探针分 0.0002）"
+      },
+      {
+        "q": "杭州有哪些好吃的火锅店",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": "完全无关（层A，探针分 0.0001）"
+      },
+      {
+        "q": "今天杭州天气怎么样",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": "完全无关（层A，探针分 0.0000）"
+      },
+      {
+        "q": "硬拉每次都要从地面拉起来吗",
+        "expect": "硬拉",
+        "kind": "hit",
+        "got": "硬拉",
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": "探针改判：dead-01 原文「它不是把杠铃从地上拉起来，而是靠屈髋把重量送下去再收回来」，直接答了"
+      },
+      {
+        "q": "侧平举用多重的哑铃",
+        "expect": "侧平举",
+        "kind": "hit",
+        "got": "侧平举",
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": "探针改判：lateral-02「控制得住的重量才叫有效重量」+ 12-15 次不耸肩，是完整的标准答案"
       }
     ]
   },
   "vector": {
     "summary": {
-      "n": 98,
-      "hit1": 0.875,
-      "hit2": 0.9204545454545454,
-      "refuse": 0.7,
-      "acc": 0.8571428571428571,
-      "hit_n": 88,
-      "ref_n": 10
+      "n": 124,
+      "hit1": 0.8777777777777778,
+      "hit2": 0.9222222222222223,
+      "refuse": 0.5294117647058824,
+      "acc": 0.782258064516129,
+      "hit_n": 90,
+      "ref_n": 34
     },
     "rows": [
       {
@@ -1010,7 +1270,7 @@
         "got": "推日",
         "hit1": true,
         "hit2": true,
-        "score": 0.7187,
+        "score": 0.7188,
         "note": ""
       },
       {
@@ -1170,7 +1430,7 @@
         "got": "中胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7463,
+        "score": 0.7461,
         "note": ""
       },
       {
@@ -1180,7 +1440,7 @@
         "got": "上胸",
         "hit1": false,
         "hit2": false,
-        "score": 0.6374,
+        "score": 0.6376,
         "note": ""
       },
       {
@@ -1190,7 +1450,7 @@
         "got": "中胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.6856,
+        "score": 0.6859,
         "note": ""
       },
       {
@@ -1200,7 +1460,7 @@
         "got": "上胸",
         "hit1": false,
         "hit2": true,
-        "score": 0.7338,
+        "score": 0.7339,
         "note": ""
       },
       {
@@ -1210,7 +1470,7 @@
         "got": "下胸与中缝",
         "hit1": true,
         "hit2": true,
-        "score": 0.7877,
+        "score": 0.7875,
         "note": ""
       },
       {
@@ -1220,7 +1480,7 @@
         "got": "下胸与中缝",
         "hit1": true,
         "hit2": true,
-        "score": 0.7046,
+        "score": 0.705,
         "note": ""
       },
       {
@@ -1230,7 +1490,7 @@
         "got": "下胸与中缝",
         "hit1": true,
         "hit2": true,
-        "score": 0.6946,
+        "score": 0.6951,
         "note": ""
       },
       {
@@ -1240,7 +1500,7 @@
         "got": "下胸与中缝",
         "hit1": true,
         "hit2": true,
-        "score": 0.6144,
+        "score": 0.6139,
         "note": ""
       },
       {
@@ -1250,7 +1510,7 @@
         "got": "绳索夹胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7169,
+        "score": 0.717,
         "note": ""
       },
       {
@@ -1260,7 +1520,7 @@
         "got": "绳索夹胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7178,
+        "score": 0.718,
         "note": ""
       },
       {
@@ -1270,7 +1530,7 @@
         "got": "绳索夹胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.6867,
+        "score": 0.6874,
         "note": ""
       },
       {
@@ -1280,7 +1540,7 @@
         "got": "拉日",
         "hit1": true,
         "hit2": true,
-        "score": 0.7285,
+        "score": 0.7286,
         "note": ""
       },
       {
@@ -1290,7 +1550,7 @@
         "got": "拉日",
         "hit1": true,
         "hit2": true,
-        "score": 0.6821,
+        "score": 0.6824,
         "note": ""
       },
       {
@@ -1300,7 +1560,7 @@
         "got": "拉日",
         "hit1": true,
         "hit2": true,
-        "score": 0.6942,
+        "score": 0.6937,
         "note": ""
       },
       {
@@ -1310,7 +1570,7 @@
         "got": "拉日",
         "hit1": true,
         "hit2": true,
-        "score": 0.7229,
+        "score": 0.7226,
         "note": ""
       },
       {
@@ -1320,7 +1580,7 @@
         "got": "背训技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7568,
+        "score": 0.757,
         "note": ""
       },
       {
@@ -1330,7 +1590,7 @@
         "got": "背训技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.6967,
+        "score": 0.6965,
         "note": ""
       },
       {
@@ -1360,7 +1620,7 @@
         "got": "背训技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7313,
+        "score": 0.7326,
         "note": ""
       },
       {
@@ -1370,7 +1630,7 @@
         "got": "高位下拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.7071,
+        "score": 0.7076,
         "note": ""
       },
       {
@@ -1380,7 +1640,7 @@
         "got": "高位下拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.7643,
+        "score": 0.7645,
         "note": ""
       },
       {
@@ -1390,7 +1650,7 @@
         "got": "高位下拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.7695,
+        "score": 0.7698,
         "note": ""
       },
       {
@@ -1400,7 +1660,7 @@
         "got": "肩部训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.7503,
+        "score": 0.7505,
         "note": ""
       },
       {
@@ -1410,7 +1670,7 @@
         "got": "肩部训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.6964,
+        "score": 0.6962,
         "note": ""
       },
       {
@@ -1420,7 +1680,7 @@
         "got": "肩部训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.748,
+        "score": 0.7478,
         "note": ""
       },
       {
@@ -1430,7 +1690,7 @@
         "got": "肩部训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.7002,
+        "score": 0.7013,
         "note": ""
       },
       {
@@ -1440,7 +1700,7 @@
         "got": "热身与激活",
         "hit1": false,
         "hit2": true,
-        "score": 0.7132,
+        "score": 0.7128,
         "note": ""
       },
       {
@@ -1450,7 +1710,7 @@
         "got": "侧平举",
         "hit1": true,
         "hit2": true,
-        "score": 0.7709,
+        "score": 0.771,
         "note": ""
       },
       {
@@ -1460,7 +1720,7 @@
         "got": "侧平举",
         "hit1": true,
         "hit2": true,
-        "score": 0.6958,
+        "score": 0.6965,
         "note": ""
       },
       {
@@ -1470,7 +1730,7 @@
         "got": "侧平举",
         "hit1": true,
         "hit2": true,
-        "score": 0.6583,
+        "score": 0.6586,
         "note": ""
       },
       {
@@ -1480,7 +1740,7 @@
         "got": "后束",
         "hit1": true,
         "hit2": true,
-        "score": 0.7001,
+        "score": 0.7002,
         "note": ""
       },
       {
@@ -1490,7 +1750,7 @@
         "got": null,
         "hit1": false,
         "hit2": false,
-        "score": 0.5618,
+        "score": 0.5609,
         "note": ""
       },
       {
@@ -1500,7 +1760,7 @@
         "got": "后束",
         "hit1": true,
         "hit2": true,
-        "score": 0.683,
+        "score": 0.6838,
         "note": ""
       },
       {
@@ -1510,7 +1770,7 @@
         "got": "腿日",
         "hit1": true,
         "hit2": true,
-        "score": 0.852,
+        "score": 0.8522,
         "note": ""
       },
       {
@@ -1520,7 +1780,7 @@
         "got": "腿日",
         "hit1": true,
         "hit2": true,
-        "score": 0.77,
+        "score": 0.7703,
         "note": ""
       },
       {
@@ -1530,7 +1790,7 @@
         "got": "腿日",
         "hit1": true,
         "hit2": true,
-        "score": 0.7219,
+        "score": 0.7216,
         "note": ""
       },
       {
@@ -1540,7 +1800,7 @@
         "got": null,
         "hit1": false,
         "hit2": false,
-        "score": 0.515,
+        "score": 0.5155,
         "note": ""
       },
       {
@@ -1550,7 +1810,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.6848,
+        "score": 0.6845,
         "note": ""
       },
       {
@@ -1560,7 +1820,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.8133,
+        "score": 0.8141,
         "note": ""
       },
       {
@@ -1570,7 +1830,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.7524,
+        "score": 0.7528,
         "note": ""
       },
       {
@@ -1580,7 +1840,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.711,
+        "score": 0.7115,
         "note": ""
       },
       {
@@ -1590,7 +1850,7 @@
         "got": "硬拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.6888,
+        "score": 0.6892,
         "note": ""
       },
       {
@@ -1600,7 +1860,7 @@
         "got": "单腿训练",
         "hit1": false,
         "hit2": true,
-        "score": 0.6762,
+        "score": 0.6757,
         "note": ""
       },
       {
@@ -1610,7 +1870,7 @@
         "got": "硬拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.6943,
+        "score": 0.6945,
         "note": ""
       },
       {
@@ -1620,7 +1880,7 @@
         "got": null,
         "hit1": false,
         "hit2": false,
-        "score": 0.5705,
+        "score": 0.5708,
         "note": ""
       },
       {
@@ -1630,7 +1890,7 @@
         "got": "单腿训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.6327,
+        "score": 0.6329,
         "note": ""
       },
       {
@@ -1820,7 +2080,7 @@
         "got": "新手上路",
         "hit1": true,
         "hit2": true,
-        "score": 0.7138,
+        "score": 0.7132,
         "note": ""
       },
       {
@@ -1830,7 +2090,7 @@
         "got": "饮食配合",
         "hit1": true,
         "hit2": true,
-        "score": 0.7673,
+        "score": 0.7678,
         "note": ""
       },
       {
@@ -1840,7 +2100,7 @@
         "got": "饮食配合",
         "hit1": true,
         "hit2": true,
-        "score": 0.7715,
+        "score": 0.7707,
         "note": ""
       },
       {
@@ -1850,7 +2110,7 @@
         "got": "饮食配合",
         "hit1": true,
         "hit2": true,
-        "score": 0.8093,
+        "score": 0.8092,
         "note": ""
       },
       {
@@ -1860,7 +2120,7 @@
         "got": "热身与激活",
         "hit1": true,
         "hit2": true,
-        "score": 0.7354,
+        "score": 0.7352,
         "note": ""
       },
       {
@@ -1870,7 +2130,7 @@
         "got": "热身与激活",
         "hit1": true,
         "hit2": true,
-        "score": 0.6604,
+        "score": 0.6605,
         "note": ""
       },
       {
@@ -1880,7 +2140,7 @@
         "got": "热身与激活",
         "hit1": true,
         "hit2": true,
-        "score": 0.746,
+        "score": 0.7462,
         "note": ""
       },
       {
@@ -1890,7 +2150,7 @@
         "got": "饮食配合",
         "hit1": false,
         "hit2": false,
-        "score": 0.6257,
+        "score": 0.6261,
         "note": "新库没有补剂内容"
       },
       {
@@ -1900,7 +2160,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.558,
+        "score": 0.5569,
         "note": "新库没有补剂内容"
       },
       {
@@ -1910,7 +2170,7 @@
         "got": "饮食配合",
         "hit1": false,
         "hit2": false,
-        "score": 0.633,
+        "score": 0.6327,
         "note": "新库只讲增肌热量盈余，没有减脂缺口"
       },
       {
@@ -1920,7 +2180,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5225,
+        "score": 0.5228,
         "note": "新库没有有氧与减脂"
       },
       {
@@ -1930,7 +2190,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5722,
+        "score": 0.5721,
         "note": "新库没有减脂期营养"
       },
       {
@@ -1940,7 +2200,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5645,
+        "score": 0.5637,
         "note": "新库不涉及品牌"
       },
       {
@@ -1950,7 +2210,7 @@
         "got": "饮食配合",
         "hit1": false,
         "hit2": false,
-        "score": 0.6405,
+        "score": 0.6395,
         "note": "新库没有生酮"
       },
       {
@@ -1960,7 +2220,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5756,
+        "score": 0.5757,
         "note": "无康复医学内容，只有换动作建议"
       },
       {
@@ -1970,7 +2230,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.3833,
+        "score": 0.3832,
         "note": "完全无关"
       },
       {
@@ -1980,20 +2240,280 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4889,
+        "score": 0.4894,
         "note": "完全无关"
+      },
+      {
+        "q": "肩峰撞击综合征怎么治",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.5622,
+        "note": "shoulder-05 只说「正手前平举容易产生肩峰撞击」→ 讲的是预防不是治疗。问「怎么治」，库内零康复内容（层B，探针分 0.8466）"
+      },
+      {
+        "q": "腰椎间盘突出能练硬拉吗",
+        "expect": null,
+        "kind": "refuse",
+        "got": "硬拉",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6741,
+        "note": "dead-03 只给「腰痛换臀桥」的症状级换动作建议。腰突是诊断，能不能练属医学禁忌症判断，资料够不着（层B，探针分 0.8397）"
+      },
+      {
+        "q": "卧推手腕疼怎么办",
+        "expect": null,
+        "kind": "refuse",
+        "got": "热身与激活",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6932,
+        "note": "warm-01 提的是「卧推肩痛」不是腕痛；bench-02「腕中立不折腕」是预防。字面重叠（卧推 + 痛），问题不同（层C，探针分 0.7899）"
+      },
+      {
+        "q": "腹肌怎么练",
+        "expect": null,
+        "kind": "refuse",
+        "got": "推日",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6022,
+        "note": "全库无腹肌动作，仅 legs-05 提到侧腹（层C，探针分 0.6468）"
+      },
+      {
+        "q": "减脂期蛋白质要吃更多吗",
+        "expect": null,
+        "kind": "refuse",
+        "got": "饮食配合",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.7065,
+        "note": "diet-02 只给增肌期 1.6-2.2g，未涉减脂（层B，探针分 0.5425）"
+      },
+      {
+        "q": "史密斯机卧推能替代自由卧推吗",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.5557,
+        "note": "只出现史密斯实力推 / 史密斯负重，无卧推对比（层C，探针分 0.5378）"
+      },
+      {
+        "q": "硬拉用正反握还是双正握",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.5981,
+        "note": "dead-01/02 讲髋铰链，零握法内容（层C，探针分 0.3807）"
+      },
+      {
+        "q": "深蹲穿什么鞋",
+        "expect": null,
+        "kind": "refuse",
+        "got": "深蹲",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.66,
+        "note": "库内零装备内容（层C，探针分 0.2006）"
+      },
+      {
+        "q": "引体向上一个都做不了怎么练",
+        "expect": null,
+        "kind": "refuse",
+        "got": "背训技术",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6524,
+        "note": "lat / back 只把引体当名词提过，无进阶教学（层C，探针分 0.1989）"
+      },
+      {
+        "q": "组间休息时该坐着还是走动",
+        "expect": null,
+        "kind": "refuse",
+        "got": "训练参数",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6138,
+        "note": "param-06 只讲时长，未讲休息期做什么（层C，探针分 0.1627）"
+      },
+      {
+        "q": "一周减几斤算正常",
+        "expect": null,
+        "kind": "refuse",
+        "got": "训练参数",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6353,
+        "note": "无减脂进度内容（层B，探针分 0.1483）"
+      },
+      {
+        "q": "生理期能不能练腿",
+        "expect": null,
+        "kind": "refuse",
+        "got": "单腿训练",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6002,
+        "note": "无女性 / 周期内容（层B，探针分 0.1397）"
+      },
+      {
+        "q": "相扑硬拉和常规硬拉有什么区别",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.4677,
+        "note": "只有罗马尼亚 / 单腿 / 山羊挺身，无相扑（层C，探针分 0.1395）"
+      },
+      {
+        "q": "增肌期能不能做有氧",
+        "expect": null,
+        "kind": "refuse",
+        "got": "训练参数",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6498,
+        "note": "库内零有氧内容（层C，探针分 0.1339）"
+      },
+      {
+        "q": "硬拉要不要用助力带",
+        "expect": null,
+        "kind": "refuse",
+        "got": "硬拉",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6059,
+        "note": "库内零护具内容（层C，探针分 0.0973）"
+      },
+      {
+        "q": "卧推要不要戴护腕",
+        "expect": null,
+        "kind": "refuse",
+        "got": "卧推技术",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6612,
+        "note": "库内零护具 / 装备内容（层C，探针分 0.0666）"
+      },
+      {
+        "q": "练完要不要拉伸",
+        "expect": null,
+        "kind": "refuse",
+        "got": "训练参数",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6607,
+        "note": "warm-* 全是训练前热身，无训练后放松（层C，探针分 0.0495）"
+      },
+      {
+        "q": "BCAA 训练前喝有用吗",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.5585,
+        "note": "无补剂内容（层B，探针分 0.0344）"
+      },
+      {
+        "q": "帮我改一下这段 Python 代码",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.4513,
+        "note": "完全无关（层A，探针分 0.0259）"
+      },
+      {
+        "q": "氮泵能不能天天喝",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.4665,
+        "note": "无补剂 / 咖啡因内容（层B，探针分 0.0028）"
+      },
+      {
+        "q": "明天A股会涨吗",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.4719,
+        "note": "完全无关（层A，探针分 0.0002）"
+      },
+      {
+        "q": "促睾补剂有用吗",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.4441,
+        "note": "无补剂内容（层B，探针分 0.0002）"
+      },
+      {
+        "q": "杭州有哪些好吃的火锅店",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.2807,
+        "note": "完全无关（层A，探针分 0.0001）"
+      },
+      {
+        "q": "今天杭州天气怎么样",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.3732,
+        "note": "完全无关（层A，探针分 0.0000）"
+      },
+      {
+        "q": "硬拉每次都要从地面拉起来吗",
+        "expect": "硬拉",
+        "kind": "hit",
+        "got": "硬拉",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.6343,
+        "note": "探针改判：dead-01 原文「它不是把杠铃从地上拉起来，而是靠屈髋把重量送下去再收回来」，直接答了"
+      },
+      {
+        "q": "侧平举用多重的哑铃",
+        "expect": "侧平举",
+        "kind": "hit",
+        "got": "侧平举",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7319,
+        "note": "探针改判：lateral-02「控制得住的重量才叫有效重量」+ 12-15 次不耸肩，是完整的标准答案"
       }
     ]
   },
   "hybrid": {
     "summary": {
-      "n": 98,
-      "hit1": 0.875,
-      "hit2": 0.9204545454545454,
-      "refuse": 0.7,
-      "acc": 0.8571428571428571,
-      "hit_n": 88,
-      "ref_n": 10
+      "n": 124,
+      "hit1": 0.8777777777777778,
+      "hit2": 0.9222222222222223,
+      "refuse": 0.5294117647058824,
+      "acc": 0.782258064516129,
+      "hit_n": 90,
+      "ref_n": 34
     },
     "rows": [
       {
@@ -2003,7 +2523,7 @@
         "got": "推日",
         "hit1": true,
         "hit2": true,
-        "score": 0.6978,
+        "score": 0.6976,
         "note": ""
       },
       {
@@ -2163,7 +2683,7 @@
         "got": "中胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7463,
+        "score": 0.7461,
         "note": ""
       },
       {
@@ -2173,7 +2693,7 @@
         "got": "上胸",
         "hit1": false,
         "hit2": false,
-        "score": 0.5646,
+        "score": 0.5644,
         "note": ""
       },
       {
@@ -2183,7 +2703,7 @@
         "got": "中胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.6856,
+        "score": 0.6859,
         "note": ""
       },
       {
@@ -2193,7 +2713,7 @@
         "got": "上胸",
         "hit1": false,
         "hit2": true,
-        "score": 0.7338,
+        "score": 0.7339,
         "note": ""
       },
       {
@@ -2203,7 +2723,7 @@
         "got": "下胸与中缝",
         "hit1": true,
         "hit2": true,
-        "score": 0.7877,
+        "score": 0.7875,
         "note": ""
       },
       {
@@ -2213,7 +2733,7 @@
         "got": "下胸与中缝",
         "hit1": true,
         "hit2": true,
-        "score": 0.7046,
+        "score": 0.705,
         "note": ""
       },
       {
@@ -2223,7 +2743,7 @@
         "got": "下胸与中缝",
         "hit1": true,
         "hit2": true,
-        "score": 0.6946,
+        "score": 0.6951,
         "note": ""
       },
       {
@@ -2233,7 +2753,7 @@
         "got": "下胸与中缝",
         "hit1": true,
         "hit2": true,
-        "score": 0.6144,
+        "score": 0.6139,
         "note": ""
       },
       {
@@ -2243,7 +2763,7 @@
         "got": "绳索夹胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7169,
+        "score": 0.717,
         "note": ""
       },
       {
@@ -2253,7 +2773,7 @@
         "got": "绳索夹胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7178,
+        "score": 0.718,
         "note": ""
       },
       {
@@ -2263,7 +2783,7 @@
         "got": "绳索夹胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.6867,
+        "score": 0.6874,
         "note": ""
       },
       {
@@ -2273,7 +2793,7 @@
         "got": "拉日",
         "hit1": true,
         "hit2": true,
-        "score": 0.7285,
+        "score": 0.7286,
         "note": ""
       },
       {
@@ -2283,7 +2803,7 @@
         "got": "拉日",
         "hit1": true,
         "hit2": true,
-        "score": 0.6821,
+        "score": 0.6824,
         "note": ""
       },
       {
@@ -2293,7 +2813,7 @@
         "got": "拉日",
         "hit1": true,
         "hit2": true,
-        "score": 0.6942,
+        "score": 0.6937,
         "note": ""
       },
       {
@@ -2303,7 +2823,7 @@
         "got": "拉日",
         "hit1": true,
         "hit2": true,
-        "score": 0.7229,
+        "score": 0.7226,
         "note": ""
       },
       {
@@ -2313,7 +2833,7 @@
         "got": "背训技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7568,
+        "score": 0.757,
         "note": ""
       },
       {
@@ -2323,7 +2843,7 @@
         "got": "背训技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.6941,
+        "score": 0.6936,
         "note": ""
       },
       {
@@ -2353,7 +2873,7 @@
         "got": "背训技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7313,
+        "score": 0.7326,
         "note": ""
       },
       {
@@ -2363,7 +2883,7 @@
         "got": "高位下拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.7071,
+        "score": 0.7076,
         "note": ""
       },
       {
@@ -2373,7 +2893,7 @@
         "got": "高位下拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.7643,
+        "score": 0.7645,
         "note": ""
       },
       {
@@ -2383,7 +2903,7 @@
         "got": "高位下拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.7695,
+        "score": 0.7698,
         "note": ""
       },
       {
@@ -2393,7 +2913,7 @@
         "got": "肩部训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.7503,
+        "score": 0.7504,
         "note": ""
       },
       {
@@ -2403,7 +2923,7 @@
         "got": "肩部训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.6964,
+        "score": 0.6962,
         "note": ""
       },
       {
@@ -2413,7 +2933,7 @@
         "got": "肩部训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.748,
+        "score": 0.7478,
         "note": ""
       },
       {
@@ -2423,7 +2943,7 @@
         "got": "肩部训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.7002,
+        "score": 0.7013,
         "note": ""
       },
       {
@@ -2433,7 +2953,7 @@
         "got": "热身与激活",
         "hit1": false,
         "hit2": true,
-        "score": 0.7132,
+        "score": 0.7128,
         "note": ""
       },
       {
@@ -2443,7 +2963,7 @@
         "got": "侧平举",
         "hit1": true,
         "hit2": true,
-        "score": 0.7709,
+        "score": 0.771,
         "note": ""
       },
       {
@@ -2453,7 +2973,7 @@
         "got": "侧平举",
         "hit1": true,
         "hit2": true,
-        "score": 0.6608,
+        "score": 0.6612,
         "note": ""
       },
       {
@@ -2463,7 +2983,7 @@
         "got": "侧平举",
         "hit1": true,
         "hit2": true,
-        "score": 0.6398,
+        "score": 0.6404,
         "note": ""
       },
       {
@@ -2483,7 +3003,7 @@
         "got": null,
         "hit1": false,
         "hit2": false,
-        "score": 0.5618,
+        "score": 0.5609,
         "note": ""
       },
       {
@@ -2493,7 +3013,7 @@
         "got": "后束",
         "hit1": true,
         "hit2": true,
-        "score": 0.683,
+        "score": 0.6838,
         "note": ""
       },
       {
@@ -2503,7 +3023,7 @@
         "got": "腿日",
         "hit1": true,
         "hit2": true,
-        "score": 0.852,
+        "score": 0.8522,
         "note": ""
       },
       {
@@ -2513,7 +3033,7 @@
         "got": "腿日",
         "hit1": true,
         "hit2": true,
-        "score": 0.77,
+        "score": 0.7703,
         "note": ""
       },
       {
@@ -2523,7 +3043,7 @@
         "got": "腿日",
         "hit1": true,
         "hit2": true,
-        "score": 0.7219,
+        "score": 0.7216,
         "note": ""
       },
       {
@@ -2533,7 +3053,7 @@
         "got": null,
         "hit1": false,
         "hit2": false,
-        "score": 0.515,
+        "score": 0.5155,
         "note": ""
       },
       {
@@ -2543,7 +3063,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.6848,
+        "score": 0.6845,
         "note": ""
       },
       {
@@ -2553,7 +3073,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.8133,
+        "score": 0.8141,
         "note": ""
       },
       {
@@ -2563,7 +3083,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.7524,
+        "score": 0.7528,
         "note": ""
       },
       {
@@ -2573,7 +3093,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.711,
+        "score": 0.7115,
         "note": ""
       },
       {
@@ -2583,7 +3103,7 @@
         "got": "硬拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.6888,
+        "score": 0.6892,
         "note": ""
       },
       {
@@ -2593,7 +3113,7 @@
         "got": "单腿训练",
         "hit1": false,
         "hit2": true,
-        "score": 0.6762,
+        "score": 0.6757,
         "note": ""
       },
       {
@@ -2603,7 +3123,7 @@
         "got": "硬拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.6943,
+        "score": 0.6945,
         "note": ""
       },
       {
@@ -2613,7 +3133,7 @@
         "got": null,
         "hit1": false,
         "hit2": false,
-        "score": 0.5705,
+        "score": 0.5708,
         "note": ""
       },
       {
@@ -2623,7 +3143,7 @@
         "got": "单腿训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.6327,
+        "score": 0.6329,
         "note": ""
       },
       {
@@ -2813,7 +3333,7 @@
         "got": "新手上路",
         "hit1": true,
         "hit2": true,
-        "score": 0.7138,
+        "score": 0.7132,
         "note": ""
       },
       {
@@ -2823,7 +3343,7 @@
         "got": "饮食配合",
         "hit1": true,
         "hit2": true,
-        "score": 0.7673,
+        "score": 0.7678,
         "note": ""
       },
       {
@@ -2833,7 +3353,7 @@
         "got": "饮食配合",
         "hit1": true,
         "hit2": true,
-        "score": 0.7715,
+        "score": 0.7707,
         "note": ""
       },
       {
@@ -2843,7 +3363,7 @@
         "got": "饮食配合",
         "hit1": true,
         "hit2": true,
-        "score": 0.8093,
+        "score": 0.8092,
         "note": ""
       },
       {
@@ -2853,7 +3373,7 @@
         "got": "热身与激活",
         "hit1": true,
         "hit2": true,
-        "score": 0.7354,
+        "score": 0.7352,
         "note": ""
       },
       {
@@ -2863,7 +3383,7 @@
         "got": "热身与激活",
         "hit1": true,
         "hit2": true,
-        "score": 0.6604,
+        "score": 0.6605,
         "note": ""
       },
       {
@@ -2873,7 +3393,7 @@
         "got": "热身与激活",
         "hit1": true,
         "hit2": true,
-        "score": 0.746,
+        "score": 0.7462,
         "note": ""
       },
       {
@@ -2883,7 +3403,7 @@
         "got": "饮食配合",
         "hit1": false,
         "hit2": false,
-        "score": 0.6257,
+        "score": 0.6261,
         "note": "新库没有补剂内容"
       },
       {
@@ -2893,7 +3413,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.558,
+        "score": 0.5569,
         "note": "新库没有补剂内容"
       },
       {
@@ -2903,7 +3423,7 @@
         "got": "饮食配合",
         "hit1": false,
         "hit2": false,
-        "score": 0.6306,
+        "score": 0.6304,
         "note": "新库只讲增肌热量盈余，没有减脂缺口"
       },
       {
@@ -2913,7 +3433,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5225,
+        "score": 0.5228,
         "note": "新库没有有氧与减脂"
       },
       {
@@ -2923,7 +3443,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5704,
+        "score": 0.571,
         "note": "新库没有减脂期营养"
       },
       {
@@ -2933,7 +3453,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5645,
+        "score": 0.5637,
         "note": "新库不涉及品牌"
       },
       {
@@ -2943,7 +3463,7 @@
         "got": "饮食配合",
         "hit1": false,
         "hit2": false,
-        "score": 0.6405,
+        "score": 0.6395,
         "note": "新库没有生酮"
       },
       {
@@ -2953,7 +3473,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5756,
+        "score": 0.5757,
         "note": "无康复医学内容，只有换动作建议"
       },
       {
@@ -2963,7 +3483,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.3833,
+        "score": 0.3832,
         "note": "完全无关"
       },
       {
@@ -2973,20 +3493,280 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4779,
+        "score": 0.4788,
         "note": "完全无关"
+      },
+      {
+        "q": "肩峰撞击综合征怎么治",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.5622,
+        "note": "shoulder-05 只说「正手前平举容易产生肩峰撞击」→ 讲的是预防不是治疗。问「怎么治」，库内零康复内容（层B，探针分 0.8466）"
+      },
+      {
+        "q": "腰椎间盘突出能练硬拉吗",
+        "expect": null,
+        "kind": "refuse",
+        "got": "硬拉",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6527,
+        "note": "dead-03 只给「腰痛换臀桥」的症状级换动作建议。腰突是诊断，能不能练属医学禁忌症判断，资料够不着（层B，探针分 0.8397）"
+      },
+      {
+        "q": "卧推手腕疼怎么办",
+        "expect": null,
+        "kind": "refuse",
+        "got": "卧推技术",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6781,
+        "note": "warm-01 提的是「卧推肩痛」不是腕痛；bench-02「腕中立不折腕」是预防。字面重叠（卧推 + 痛），问题不同（层C，探针分 0.7899）"
+      },
+      {
+        "q": "腹肌怎么练",
+        "expect": null,
+        "kind": "refuse",
+        "got": "背训技术",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.5865,
+        "note": "全库无腹肌动作，仅 legs-05 提到侧腹（层C，探针分 0.6468）"
+      },
+      {
+        "q": "减脂期蛋白质要吃更多吗",
+        "expect": null,
+        "kind": "refuse",
+        "got": "饮食配合",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.7065,
+        "note": "diet-02 只给增肌期 1.6-2.2g，未涉减脂（层B，探针分 0.5425）"
+      },
+      {
+        "q": "史密斯机卧推能替代自由卧推吗",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.53,
+        "note": "只出现史密斯实力推 / 史密斯负重，无卧推对比（层C，探针分 0.5378）"
+      },
+      {
+        "q": "硬拉用正反握还是双正握",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.5924,
+        "note": "dead-01/02 讲髋铰链，零握法内容（层C，探针分 0.3807）"
+      },
+      {
+        "q": "深蹲穿什么鞋",
+        "expect": null,
+        "kind": "refuse",
+        "got": "深蹲",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.66,
+        "note": "库内零装备内容（层C，探针分 0.2006）"
+      },
+      {
+        "q": "引体向上一个都做不了怎么练",
+        "expect": null,
+        "kind": "refuse",
+        "got": "下胸与中缝",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6344,
+        "note": "lat / back 只把引体当名词提过，无进阶教学（层C，探针分 0.1989）"
+      },
+      {
+        "q": "组间休息时该坐着还是走动",
+        "expect": null,
+        "kind": "refuse",
+        "got": "训练参数",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6138,
+        "note": "param-06 只讲时长，未讲休息期做什么（层C，探针分 0.1627）"
+      },
+      {
+        "q": "一周减几斤算正常",
+        "expect": null,
+        "kind": "refuse",
+        "got": "训练参数",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6353,
+        "note": "无减脂进度内容（层B，探针分 0.1483）"
+      },
+      {
+        "q": "生理期能不能练腿",
+        "expect": null,
+        "kind": "refuse",
+        "got": "单腿训练",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6002,
+        "note": "无女性 / 周期内容（层B，探针分 0.1397）"
+      },
+      {
+        "q": "相扑硬拉和常规硬拉有什么区别",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.4434,
+        "note": "只有罗马尼亚 / 单腿 / 山羊挺身，无相扑（层C，探针分 0.1395）"
+      },
+      {
+        "q": "增肌期能不能做有氧",
+        "expect": null,
+        "kind": "refuse",
+        "got": "训练参数",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6498,
+        "note": "库内零有氧内容（层C，探针分 0.1339）"
+      },
+      {
+        "q": "硬拉要不要用助力带",
+        "expect": null,
+        "kind": "refuse",
+        "got": "硬拉",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6059,
+        "note": "库内零护具内容（层C，探针分 0.0973）"
+      },
+      {
+        "q": "卧推要不要戴护腕",
+        "expect": null,
+        "kind": "refuse",
+        "got": "卧推技术",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6612,
+        "note": "库内零护具 / 装备内容（层C，探针分 0.0666）"
+      },
+      {
+        "q": "练完要不要拉伸",
+        "expect": null,
+        "kind": "refuse",
+        "got": "硬拉",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6335,
+        "note": "warm-* 全是训练前热身，无训练后放松（层C，探针分 0.0495）"
+      },
+      {
+        "q": "BCAA 训练前喝有用吗",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.4862,
+        "note": "无补剂内容（层B，探针分 0.0344）"
+      },
+      {
+        "q": "帮我改一下这段 Python 代码",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.3992,
+        "note": "完全无关（层A，探针分 0.0259）"
+      },
+      {
+        "q": "氮泵能不能天天喝",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.4628,
+        "note": "无补剂 / 咖啡因内容（层B，探针分 0.0028）"
+      },
+      {
+        "q": "明天A股会涨吗",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.4719,
+        "note": "完全无关（层A，探针分 0.0002）"
+      },
+      {
+        "q": "促睾补剂有用吗",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.4441,
+        "note": "无补剂内容（层B，探针分 0.0002）"
+      },
+      {
+        "q": "杭州有哪些好吃的火锅店",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.246,
+        "note": "完全无关（层A，探针分 0.0001）"
+      },
+      {
+        "q": "今天杭州天气怎么样",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.345,
+        "note": "完全无关（层A，探针分 0.0000）"
+      },
+      {
+        "q": "硬拉每次都要从地面拉起来吗",
+        "expect": "硬拉",
+        "kind": "hit",
+        "got": "硬拉",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.6343,
+        "note": "探针改判：dead-01 原文「它不是把杠铃从地上拉起来，而是靠屈髋把重量送下去再收回来」，直接答了"
+      },
+      {
+        "q": "侧平举用多重的哑铃",
+        "expect": "侧平举",
+        "kind": "hit",
+        "got": "侧平举",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7319,
+        "note": "探针改判：lateral-02「控制得住的重量才叫有效重量」+ 12-15 次不耸肩，是完整的标准答案"
       }
     ]
   },
   "rewrite": {
     "summary": {
-      "n": 98,
-      "hit1": 0.8977272727272727,
-      "hit2": 0.9545454545454546,
-      "refuse": 0.7,
-      "acc": 0.8775510204081632,
-      "hit_n": 88,
-      "ref_n": 10
+      "n": 124,
+      "hit1": 0.8888888888888888,
+      "hit2": 0.9444444444444444,
+      "refuse": 0.5882352941176471,
+      "acc": 0.8064516129032258,
+      "hit_n": 90,
+      "ref_n": 34
     },
     "rows": [
       {
@@ -2996,7 +3776,7 @@
         "got": "推日",
         "hit1": true,
         "hit2": true,
-        "score": 0.719,
+        "score": 0.7187,
         "note": ""
       },
       {
@@ -3006,7 +3786,7 @@
         "got": "推日",
         "hit1": true,
         "hit2": true,
-        "score": 0.794,
+        "score": 0.7948,
         "note": ""
       },
       {
@@ -3016,7 +3796,7 @@
         "got": "推日",
         "hit1": true,
         "hit2": true,
-        "score": 0.749,
+        "score": 0.7497,
         "note": ""
       },
       {
@@ -3026,7 +3806,7 @@
         "got": "推日",
         "hit1": true,
         "hit2": true,
-        "score": 0.7088,
+        "score": 0.7085,
         "note": ""
       },
       {
@@ -3036,7 +3816,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7633,
+        "score": 0.7632,
         "note": ""
       },
       {
@@ -3046,7 +3826,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7379,
+        "score": 0.7378,
         "note": ""
       },
       {
@@ -3056,7 +3836,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7473,
+        "score": 0.7479,
         "note": ""
       },
       {
@@ -3066,7 +3846,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7139,
+        "score": 0.714,
         "note": ""
       },
       {
@@ -3076,7 +3856,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.6771,
+        "score": 0.6765,
         "note": ""
       },
       {
@@ -3086,7 +3866,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7313,
+        "score": 0.7314,
         "note": ""
       },
       {
@@ -3106,7 +3886,7 @@
         "got": "上胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7598,
+        "score": 0.7602,
         "note": ""
       },
       {
@@ -3116,7 +3896,7 @@
         "got": "上胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7991,
+        "score": 0.7994,
         "note": ""
       },
       {
@@ -3156,7 +3936,7 @@
         "got": "中胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7531,
+        "score": 0.7536,
         "note": ""
       },
       {
@@ -3166,7 +3946,7 @@
         "got": "上胸",
         "hit1": false,
         "hit2": false,
-        "score": 0.6617,
+        "score": 0.6615,
         "note": ""
       },
       {
@@ -3176,7 +3956,7 @@
         "got": "中胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.6851,
+        "score": 0.6857,
         "note": ""
       },
       {
@@ -3186,7 +3966,7 @@
         "got": "上胸",
         "hit1": false,
         "hit2": true,
-        "score": 0.7686,
+        "score": 0.7689,
         "note": ""
       },
       {
@@ -3196,7 +3976,7 @@
         "got": "下胸与中缝",
         "hit1": true,
         "hit2": true,
-        "score": 0.7878,
+        "score": 0.7877,
         "note": ""
       },
       {
@@ -3206,7 +3986,7 @@
         "got": "下胸与中缝",
         "hit1": true,
         "hit2": true,
-        "score": 0.705,
+        "score": 0.7046,
         "note": ""
       },
       {
@@ -3216,7 +3996,7 @@
         "got": "下胸与中缝",
         "hit1": true,
         "hit2": true,
-        "score": 0.6952,
+        "score": 0.6949,
         "note": ""
       },
       {
@@ -3226,7 +4006,7 @@
         "got": "下胸与中缝",
         "hit1": true,
         "hit2": true,
-        "score": 0.6437,
+        "score": 0.6434,
         "note": ""
       },
       {
@@ -3236,7 +4016,7 @@
         "got": "绳索夹胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7165,
+        "score": 0.717,
         "note": ""
       },
       {
@@ -3246,7 +4026,7 @@
         "got": "绳索夹胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7172,
+        "score": 0.7173,
         "note": ""
       },
       {
@@ -3256,7 +4036,7 @@
         "got": "绳索夹胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.6872,
+        "score": 0.6875,
         "note": ""
       },
       {
@@ -3266,7 +4046,7 @@
         "got": "拉日",
         "hit1": true,
         "hit2": true,
-        "score": 0.7284,
+        "score": 0.7288,
         "note": ""
       },
       {
@@ -3276,7 +4056,7 @@
         "got": "拉日",
         "hit1": true,
         "hit2": true,
-        "score": 0.6904,
+        "score": 0.6897,
         "note": ""
       },
       {
@@ -3306,7 +4086,7 @@
         "got": "背训技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.757,
+        "score": 0.7568,
         "note": ""
       },
       {
@@ -3316,7 +4096,7 @@
         "got": "高位下拉",
         "hit1": false,
         "hit2": true,
-        "score": 0.7251,
+        "score": 0.7248,
         "note": ""
       },
       {
@@ -3326,7 +4106,7 @@
         "got": "高位下拉",
         "hit1": false,
         "hit2": true,
-        "score": 0.7468,
+        "score": 0.7469,
         "note": ""
       },
       {
@@ -3336,7 +4116,7 @@
         "got": "背训技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7581,
+        "score": 0.7583,
         "note": ""
       },
       {
@@ -3346,7 +4126,7 @@
         "got": "背训技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7324,
+        "score": 0.7315,
         "note": ""
       },
       {
@@ -3356,7 +4136,7 @@
         "got": "高位下拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.7292,
+        "score": 0.7289,
         "note": ""
       },
       {
@@ -3366,7 +4146,7 @@
         "got": "高位下拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.7649,
+        "score": 0.7643,
         "note": ""
       },
       {
@@ -3376,7 +4156,7 @@
         "got": "高位下拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.7692,
+        "score": 0.7695,
         "note": ""
       },
       {
@@ -3396,7 +4176,7 @@
         "got": "肩部训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.6964,
+        "score": 0.6957,
         "note": ""
       },
       {
@@ -3406,7 +4186,7 @@
         "got": "肩部训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.7585,
+        "score": 0.7591,
         "note": ""
       },
       {
@@ -3416,7 +4196,7 @@
         "got": "肩部训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.7002,
+        "score": 0.7011,
         "note": ""
       },
       {
@@ -3426,7 +4206,7 @@
         "got": "热身与激活",
         "hit1": false,
         "hit2": true,
-        "score": 0.7132,
+        "score": 0.713,
         "note": ""
       },
       {
@@ -3436,7 +4216,7 @@
         "got": "侧平举",
         "hit1": true,
         "hit2": true,
-        "score": 0.7707,
+        "score": 0.7705,
         "note": ""
       },
       {
@@ -3446,7 +4226,7 @@
         "got": "侧平举",
         "hit1": true,
         "hit2": true,
-        "score": 0.6967,
+        "score": 0.6963,
         "note": ""
       },
       {
@@ -3456,7 +4236,7 @@
         "got": "侧平举",
         "hit1": true,
         "hit2": true,
-        "score": 0.6584,
+        "score": 0.6582,
         "note": ""
       },
       {
@@ -3466,7 +4246,7 @@
         "got": "后束",
         "hit1": true,
         "hit2": true,
-        "score": 0.7007,
+        "score": 0.7003,
         "note": ""
       },
       {
@@ -3476,7 +4256,7 @@
         "got": "后束",
         "hit1": true,
         "hit2": true,
-        "score": 0.6759,
+        "score": 0.6756,
         "note": ""
       },
       {
@@ -3486,7 +4266,7 @@
         "got": "后束",
         "hit1": true,
         "hit2": true,
-        "score": 0.683,
+        "score": 0.6831,
         "note": ""
       },
       {
@@ -3506,7 +4286,7 @@
         "got": "腿日",
         "hit1": true,
         "hit2": true,
-        "score": 0.7699,
+        "score": 0.7704,
         "note": ""
       },
       {
@@ -3556,7 +4336,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.7529,
+        "score": 0.7531,
         "note": ""
       },
       {
@@ -3566,7 +4346,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.7109,
+        "score": 0.7108,
         "note": ""
       },
       {
@@ -3576,7 +4356,7 @@
         "got": "硬拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.6875,
+        "score": 0.6881,
         "note": ""
       },
       {
@@ -3586,7 +4366,7 @@
         "got": "硬拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.7208,
+        "score": 0.7209,
         "note": ""
       },
       {
@@ -3606,7 +4386,7 @@
         "got": null,
         "hit1": false,
         "hit2": false,
-        "score": 0.6054,
+        "score": 0.6051,
         "note": ""
       },
       {
@@ -3616,7 +4396,7 @@
         "got": "单腿训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.6436,
+        "score": 0.6438,
         "note": ""
       },
       {
@@ -3626,7 +4406,7 @@
         "got": "单腿训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.7277,
+        "score": 0.728,
         "note": ""
       },
       {
@@ -3636,7 +4416,7 @@
         "got": "单腿训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.7311,
+        "score": 0.7306,
         "note": ""
       },
       {
@@ -3646,7 +4426,7 @@
         "got": "腿部孤立",
         "hit1": true,
         "hit2": true,
-        "score": 0.6944,
+        "score": 0.6945,
         "note": ""
       },
       {
@@ -3656,7 +4436,7 @@
         "got": "腿部孤立",
         "hit1": true,
         "hit2": true,
-        "score": 0.7373,
+        "score": 0.7371,
         "note": ""
       },
       {
@@ -3666,7 +4446,7 @@
         "got": "腿部孤立",
         "hit1": true,
         "hit2": true,
-        "score": 0.7284,
+        "score": 0.728,
         "note": ""
       },
       {
@@ -3676,7 +4456,7 @@
         "got": "训练参数",
         "hit1": true,
         "hit2": true,
-        "score": 0.6734,
+        "score": 0.6736,
         "note": ""
       },
       {
@@ -3686,7 +4466,7 @@
         "got": "训练参数",
         "hit1": true,
         "hit2": true,
-        "score": 0.6565,
+        "score": 0.6572,
         "note": ""
       },
       {
@@ -3696,7 +4476,7 @@
         "got": "训练参数",
         "hit1": true,
         "hit2": true,
-        "score": 0.678,
+        "score": 0.6783,
         "note": ""
       },
       {
@@ -3706,7 +4486,7 @@
         "got": "训练参数",
         "hit1": true,
         "hit2": true,
-        "score": 0.7312,
+        "score": 0.7315,
         "note": ""
       },
       {
@@ -3726,7 +4506,7 @@
         "got": "训练参数",
         "hit1": true,
         "hit2": true,
-        "score": 0.7019,
+        "score": 0.7014,
         "note": ""
       },
       {
@@ -3736,7 +4516,7 @@
         "got": "分化与频率",
         "hit1": true,
         "hit2": true,
-        "score": 0.7525,
+        "score": 0.7528,
         "note": ""
       },
       {
@@ -3746,7 +4526,7 @@
         "got": "分化与频率",
         "hit1": true,
         "hit2": true,
-        "score": 0.7443,
+        "score": 0.7436,
         "note": ""
       },
       {
@@ -3796,7 +4576,7 @@
         "got": "新手上路",
         "hit1": true,
         "hit2": true,
-        "score": 0.6895,
+        "score": 0.6896,
         "note": ""
       },
       {
@@ -3916,7 +4696,7 @@
         "got": "训练参数",
         "hit1": false,
         "hit2": false,
-        "score": 0.6702,
+        "score": 0.67,
         "note": "新库没有减脂期营养"
       },
       {
@@ -3926,7 +4706,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5646,
+        "score": 0.5638,
         "note": "新库不涉及品牌"
       },
       {
@@ -3936,7 +4716,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.6393,
+        "score": 0.639,
         "note": "新库没有生酮"
       },
       {
@@ -3946,7 +4726,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.6214,
+        "score": 0.6218,
         "note": "无康复医学内容，只有换动作建议"
       },
       {
@@ -3956,7 +4736,7 @@
         "got": "推日",
         "hit1": false,
         "hit2": false,
-        "score": 0.671,
+        "score": 0.6706,
         "note": "完全无关"
       },
       {
@@ -3966,20 +4746,280 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5299,
+        "score": 0.5294,
         "note": "完全无关"
+      },
+      {
+        "q": "肩峰撞击综合征怎么治",
+        "expect": null,
+        "kind": "refuse",
+        "got": "肩部训练",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6431,
+        "note": "shoulder-05 只说「正手前平举容易产生肩峰撞击」→ 讲的是预防不是治疗。问「怎么治」，库内零康复内容（层B，探针分 0.8466）"
+      },
+      {
+        "q": "腰椎间盘突出能练硬拉吗",
+        "expect": null,
+        "kind": "refuse",
+        "got": "硬拉",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6741,
+        "note": "dead-03 只给「腰痛换臀桥」的症状级换动作建议。腰突是诊断，能不能练属医学禁忌症判断，资料够不着（层B，探针分 0.8397）"
+      },
+      {
+        "q": "卧推手腕疼怎么办",
+        "expect": null,
+        "kind": "refuse",
+        "got": "卧推技术",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.7101,
+        "note": "warm-01 提的是「卧推肩痛」不是腕痛；bench-02「腕中立不折腕」是预防。字面重叠（卧推 + 痛），问题不同（层C，探针分 0.7899）"
+      },
+      {
+        "q": "腹肌怎么练",
+        "expect": null,
+        "kind": "refuse",
+        "got": "训练参数",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6832,
+        "note": "全库无腹肌动作，仅 legs-05 提到侧腹（层C，探针分 0.6468）"
+      },
+      {
+        "q": "减脂期蛋白质要吃更多吗",
+        "expect": null,
+        "kind": "refuse",
+        "got": "饮食配合",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.7055,
+        "note": "diet-02 只给增肌期 1.6-2.2g，未涉减脂（层B，探针分 0.5425）"
+      },
+      {
+        "q": "史密斯机卧推能替代自由卧推吗",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.6059,
+        "note": "只出现史密斯实力推 / 史密斯负重，无卧推对比（层C，探针分 0.5378）"
+      },
+      {
+        "q": "硬拉用正反握还是双正握",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.6111,
+        "note": "dead-01/02 讲髋铰链，零握法内容（层C，探针分 0.3807）"
+      },
+      {
+        "q": "深蹲穿什么鞋",
+        "expect": null,
+        "kind": "refuse",
+        "got": "深蹲",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6662,
+        "note": "库内零装备内容（层C，探针分 0.2006）"
+      },
+      {
+        "q": "引体向上一个都做不了怎么练",
+        "expect": null,
+        "kind": "refuse",
+        "got": "背训技术",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6737,
+        "note": "lat / back 只把引体当名词提过，无进阶教学（层C，探针分 0.1989）"
+      },
+      {
+        "q": "组间休息时该坐着还是走动",
+        "expect": null,
+        "kind": "refuse",
+        "got": "背训技术",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6592,
+        "note": "param-06 只讲时长，未讲休息期做什么（层C，探针分 0.1627）"
+      },
+      {
+        "q": "一周减几斤算正常",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.6378,
+        "note": "无减脂进度内容（层B，探针分 0.1483）"
+      },
+      {
+        "q": "生理期能不能练腿",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.609,
+        "note": "无女性 / 周期内容（层B，探针分 0.1397）"
+      },
+      {
+        "q": "相扑硬拉和常规硬拉有什么区别",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.5976,
+        "note": "只有罗马尼亚 / 单腿 / 山羊挺身，无相扑（层C，探针分 0.1395）"
+      },
+      {
+        "q": "增肌期能不能做有氧",
+        "expect": null,
+        "kind": "refuse",
+        "got": "训练参数",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6765,
+        "note": "库内零有氧内容（层C，探针分 0.1339）"
+      },
+      {
+        "q": "硬拉要不要用助力带",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.623,
+        "note": "库内零护具内容（层C，探针分 0.0973）"
+      },
+      {
+        "q": "卧推要不要戴护腕",
+        "expect": null,
+        "kind": "refuse",
+        "got": "卧推技术",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6599,
+        "note": "库内零护具 / 装备内容（层C，探针分 0.0666）"
+      },
+      {
+        "q": "练完要不要拉伸",
+        "expect": null,
+        "kind": "refuse",
+        "got": "新手上路",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6859,
+        "note": "warm-* 全是训练前热身，无训练后放松（层C，探针分 0.0495）"
+      },
+      {
+        "q": "BCAA 训练前喝有用吗",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.5615,
+        "note": "无补剂内容（层B，探针分 0.0344）"
+      },
+      {
+        "q": "帮我改一下这段 Python 代码",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.5871,
+        "note": "完全无关（层A，探针分 0.0259）"
+      },
+      {
+        "q": "氮泵能不能天天喝",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.5441,
+        "note": "无补剂 / 咖啡因内容（层B，探针分 0.0028）"
+      },
+      {
+        "q": "明天A股会涨吗",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.5099,
+        "note": "完全无关（层A，探针分 0.0002）"
+      },
+      {
+        "q": "促睾补剂有用吗",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.5564,
+        "note": "无补剂内容（层B，探针分 0.0002）"
+      },
+      {
+        "q": "杭州有哪些好吃的火锅店",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.3526,
+        "note": "完全无关（层A，探针分 0.0001）"
+      },
+      {
+        "q": "今天杭州天气怎么样",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.5025,
+        "note": "完全无关（层A，探针分 0.0000）"
+      },
+      {
+        "q": "硬拉每次都要从地面拉起来吗",
+        "expect": "硬拉",
+        "kind": "hit",
+        "got": null,
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6358,
+        "note": "探针改判：dead-01 原文「它不是把杠铃从地上拉起来，而是靠屈髋把重量送下去再收回来」，直接答了"
+      },
+      {
+        "q": "侧平举用多重的哑铃",
+        "expect": "侧平举",
+        "kind": "hit",
+        "got": "侧平举",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7319,
+        "note": "探针改判：lateral-02「控制得住的重量才叫有效重量」+ 12-15 次不耸肩，是完整的标准答案"
       }
     ]
   },
   "rerank": {
     "summary": {
-      "n": 98,
-      "hit1": 0.9431818181818182,
-      "hit2": 0.9886363636363636,
-      "refuse": 0.9,
-      "acc": 0.9387755102040817,
-      "hit_n": 88,
-      "ref_n": 10
+      "n": 124,
+      "hit1": 0.9444444444444444,
+      "hit2": 0.9888888888888889,
+      "refuse": 0.7941176470588235,
+      "acc": 0.9032258064516129,
+      "hit_n": 90,
+      "ref_n": 34
     },
     "rows": [
       {
@@ -4961,11 +6001,271 @@
         "hit2": true,
         "score": 0.2455,
         "note": "完全无关"
+      },
+      {
+        "q": "肩峰撞击综合征怎么治",
+        "expect": null,
+        "kind": "refuse",
+        "got": "肩部训练",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.8466,
+        "note": "shoulder-05 只说「正手前平举容易产生肩峰撞击」→ 讲的是预防不是治疗。问「怎么治」，库内零康复内容（层B，探针分 0.8466）"
+      },
+      {
+        "q": "腰椎间盘突出能练硬拉吗",
+        "expect": null,
+        "kind": "refuse",
+        "got": "硬拉",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.8402,
+        "note": "dead-03 只给「腰痛换臀桥」的症状级换动作建议。腰突是诊断，能不能练属医学禁忌症判断，资料够不着（层B，探针分 0.8397）"
+      },
+      {
+        "q": "卧推手腕疼怎么办",
+        "expect": null,
+        "kind": "refuse",
+        "got": "热身与激活",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.7882,
+        "note": "warm-01 提的是「卧推肩痛」不是腕痛；bench-02「腕中立不折腕」是预防。字面重叠（卧推 + 痛），问题不同（层C，探针分 0.7899）"
+      },
+      {
+        "q": "腹肌怎么练",
+        "expect": null,
+        "kind": "refuse",
+        "got": "推日",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.643,
+        "note": "全库无腹肌动作，仅 legs-05 提到侧腹（层C，探针分 0.6468）"
+      },
+      {
+        "q": "减脂期蛋白质要吃更多吗",
+        "expect": null,
+        "kind": "refuse",
+        "got": "饮食配合",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.5443,
+        "note": "diet-02 只给增肌期 1.6-2.2g，未涉减脂（层B，探针分 0.5425）"
+      },
+      {
+        "q": "史密斯机卧推能替代自由卧推吗",
+        "expect": null,
+        "kind": "refuse",
+        "got": "卧推技术",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.5458,
+        "note": "只出现史密斯实力推 / 史密斯负重，无卧推对比（层C，探针分 0.5378）"
+      },
+      {
+        "q": "硬拉用正反握还是双正握",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.3799,
+        "note": "dead-01/02 讲髋铰链，零握法内容（层C，探针分 0.3807）"
+      },
+      {
+        "q": "深蹲穿什么鞋",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.1948,
+        "note": "库内零装备内容（层C，探针分 0.2006）"
+      },
+      {
+        "q": "引体向上一个都做不了怎么练",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.1941,
+        "note": "lat / back 只把引体当名词提过，无进阶教学（层C，探针分 0.1989）"
+      },
+      {
+        "q": "组间休息时该坐着还是走动",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.16,
+        "note": "param-06 只讲时长，未讲休息期做什么（层C，探针分 0.1627）"
+      },
+      {
+        "q": "一周减几斤算正常",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.1487,
+        "note": "无减脂进度内容（层B，探针分 0.1483）"
+      },
+      {
+        "q": "生理期能不能练腿",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.1398,
+        "note": "无女性 / 周期内容（层B，探针分 0.1397）"
+      },
+      {
+        "q": "相扑硬拉和常规硬拉有什么区别",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.1395,
+        "note": "只有罗马尼亚 / 单腿 / 山羊挺身，无相扑（层C，探针分 0.1395）"
+      },
+      {
+        "q": "增肌期能不能做有氧",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.1342,
+        "note": "库内零有氧内容（层C，探针分 0.1339）"
+      },
+      {
+        "q": "硬拉要不要用助力带",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.0987,
+        "note": "库内零护具内容（层C，探针分 0.0973）"
+      },
+      {
+        "q": "卧推要不要戴护腕",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.0668,
+        "note": "库内零护具 / 装备内容（层C，探针分 0.0666）"
+      },
+      {
+        "q": "练完要不要拉伸",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.0495,
+        "note": "warm-* 全是训练前热身，无训练后放松（层C，探针分 0.0495）"
+      },
+      {
+        "q": "BCAA 训练前喝有用吗",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.0337,
+        "note": "无补剂内容（层B，探针分 0.0344）"
+      },
+      {
+        "q": "帮我改一下这段 Python 代码",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.0259,
+        "note": "完全无关（层A，探针分 0.0259）"
+      },
+      {
+        "q": "氮泵能不能天天喝",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.0029,
+        "note": "无补剂 / 咖啡因内容（层B，探针分 0.0028）"
+      },
+      {
+        "q": "明天A股会涨吗",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.0002,
+        "note": "完全无关（层A，探针分 0.0002）"
+      },
+      {
+        "q": "促睾补剂有用吗",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.0002,
+        "note": "无补剂内容（层B，探针分 0.0002）"
+      },
+      {
+        "q": "杭州有哪些好吃的火锅店",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.0001,
+        "note": "完全无关（层A，探针分 0.0001）"
+      },
+      {
+        "q": "今天杭州天气怎么样",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.0,
+        "note": "完全无关（层A，探针分 0.0000）"
+      },
+      {
+        "q": "硬拉每次都要从地面拉起来吗",
+        "expect": "硬拉",
+        "kind": "hit",
+        "got": "硬拉",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.9226,
+        "note": "探针改判：dead-01 原文「它不是把杠铃从地上拉起来，而是靠屈髋把重量送下去再收回来」，直接答了"
+      },
+      {
+        "q": "侧平举用多重的哑铃",
+        "expect": "侧平举",
+        "kind": "hit",
+        "got": "侧平举",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.6274,
+        "note": "探针改判：lateral-02「控制得住的重量才叫有效重量」+ 12-15 次不耸肩，是完整的标准答案"
       }
     ]
   },
   "__meta": {
-    "n_cases": 98,
+    "n_cases": 124,
     "n_kb": 105
   }
 }
