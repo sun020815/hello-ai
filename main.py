@@ -906,8 +906,8 @@ def search_kb_rerank_oral(q: str, top_k: int = RERANK_TOP_K, threshold: float = 
 
     返回的第三项 variants 只用来告诉调用方「这次改写成了什么」，没改写就是空列表。
 
-    原问法这一刀**必须**用 RERANK_THRESHOLD，不能跟着 threshold 参数走（默认值是
-    ORAL_THRESHOLD=0.50，那是 bge 时代的刻度）。这里踩过一次：默认参数直接透传进
+    原问法这一刀**必须**用 RERANK_THRESHOLD，不能跟着 threshold 参数走（它历史上等于
+    0.50，那是 bge 时代的刻度；现在已对齐到 0.95，但传参这条路本来就该堵上）。这里踩过一次：默认参数直接透传进
     search_kb_rerank，线上原问法的门线悄悄变成 0.50，而 eval.py 里基座用的是 0.95
     —— 线上和评测测的不是同一件事，且 0.50 正好是 4B 判「像但不是答案」那片区域，
     等于把一批半相关 chunk 全放进来。threshold 现在只作用于改写出来的候选。
