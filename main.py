@@ -1,11 +1,14 @@
 import json
 import os
+import random
+import time
+import urllib.error
 import urllib.request
 from pathlib import Path
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
-from openai import OpenAI
+from openai import OpenAI, APIConnectionError, APITimeoutError, RateLimitError
 from pydantic import BaseModel
 
 load_dotenv()
@@ -41,6 +44,105 @@ RERANK_THRESHOLD = 0.06
 
 # 知识库向量的本地缓存，避免每次重启都重新算（算一次要花钱）
 CACHE_PATH = Path(__file__).parent / ".kb_vectors.json"
+
+
+# ---------- 第零段：所有对外调用的超时与重试 ----------
+# 这段不是为了「好看」，是因为 502 已经真真切切毁过三次实验数据，
+# 其中一次是 87 条评测跑到七十几条时崩掉。
+#
+# 先说清楚 SDK 已经做了什么，免得重复造轮子：
+#   openai 默认 max_retries=2，遇到 429 / 5xx / 连接错误本来就会重试。
+# 那为什么还要自己写？两个洞：
+#   1. 默认 read timeout 是 600 秒。上游连接被半关（代理切换时很常见）的时候，
+#      请求会挂十分钟才报错 —— 这比立刻报错更糟，因为你分不清"在慢"还是"已经死了"。
+#   2. 重试是静默的。跑评测时只能感觉到"这轮特别慢"，看不出是哪一次调用在重试、
+#      重试了几次、最后到底成没成。出了问题无从归因。
+# 所以：把 SDK 的重试关掉（max_retries=0），自己写循环。
+#   次数、退避、日志全归我们管，而且 chat / embedding / rerank 三处共用一套策略 ——
+#   rerank 走的是裸 urllib，SDK 那套重试根本管不到它，这段之前是零保护。
+
+# 单次请求总超时（秒）。60 秒足够 8B 模型吐几百字，又不会让一个死连接拖住整个服务。
+LLM_TIMEOUT = 60.0
+# 嵌入只是把文字压成向量，正常几十毫秒，30 秒还没回来基本就是断了
+EMBED_TIMEOUT = 30.0
+# reranker 要把 12 段资料逐条过一遍，比嵌入慢，给 40 秒
+RERANK_TIMEOUT = 40.0
+
+MAX_ATTEMPTS = 3        # 一共试 3 次（1 次正常 + 2 次重试）
+BACKOFF_BASE = 1.0      # 第 1 次重试等 1 秒，第 2 次等 2 秒
+BACKOFF_CAP = 8.0       # 封顶：不管重试几次都不超过 8 秒
+RETRY_JITTER = 0.5      # 抖动上限，防止所有请求同一时刻一起重试（惊群）
+
+# 这几种状态码属于「再试一次可能就好」。
+# 408 超时 / 409 冲突 / 425 太早 / 429 限流 / 5xx 上游挂了。
+# 反过来 400 参数错、401 key 错、403 没权限、404 模型名错 —— 重试一百次结果一样，
+# 只会把「立刻失败」变成「三十秒后失败」，中间还照样计费。所以必须区分。
+RETRYABLE_STATUS = {408, 409, 425, 429, 500, 502, 503, 504}
+
+_clients = {}
+
+
+def get_client(timeout: float) -> OpenAI:
+    """按超时时间复用 client。
+    之前每次调用都 new 一个 OpenAI(...)，等于每次重新开一次连接池，
+    keep-alive 完全没用上 —— 跑 87 条评测就是 87 次 TCP 握手外加 87 次 TLS 协商。"""
+    if timeout not in _clients:
+        _clients[timeout] = OpenAI(
+            api_key=LLM_API_KEY,
+            base_url=LLM_BASE_URL,
+            timeout=timeout,
+            max_retries=0,      # 关掉 SDK 自带重试，改由 call_with_retry 统一管
+        )
+    return _clients[timeout]
+
+
+def _should_retry(exc: Exception) -> bool:
+    """这个错值不值得再试一次。"""
+    # 先看状态码。注意 urllib.error.HTTPError 是 URLError 的子类，
+    # 顺序反了的话 401 会被当成「网络问题」重试两次，白等三秒。
+    status = getattr(exc, "status_code", None)
+    if status is None and isinstance(exc, urllib.error.HTTPError):
+        status = exc.code
+    if status is not None:
+        return status in RETRYABLE_STATUS
+
+    # 没有状态码的：连接层错误。断了、超时、DNS 抽风，这些都值得重试。
+    if isinstance(exc, (APITimeoutError, APIConnectionError, RateLimitError)):
+        return True
+    if isinstance(exc, (urllib.error.URLError, ConnectionError, TimeoutError)):
+        return True
+    return False
+
+
+def _backoff(attempt: int) -> float:
+    """指数退避：1s -> 2s -> 4s ...，加一点随机抖动。
+    为什么要指数：上游 502 通常是瞬时过载，隔 0.1 秒重试等于继续加压；
+    为什么要抖动：同一个服务里多个请求同时失败时，如果都等整 1 秒，
+    会在同一刻一起回来，把上游再打挂一次。"""
+    delay = min(BACKOFF_BASE * (2 ** (attempt - 1)), BACKOFF_CAP)
+    return delay + random.uniform(0, RETRY_JITTER)
+
+
+def call_with_retry(fn, label: str = "调用"):
+    """把一次可能失败的外部调用包起来：失败 -> 判断值不值得重试 -> 退避 -> 再试。
+    重试耗尽或遇到不该重试的错，就把最后一次的异常原样抛出，交给调用方翻译成 HTTP 状态码。"""
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+        try:
+            return fn()
+        except HTTPException:
+            # 我们自己抛的（key 没填之类），没有重试的意义
+            raise
+        except Exception as e:
+            if attempt == MAX_ATTEMPTS or not _should_retry(e):
+                raise
+            wait = _backoff(attempt)
+            # 打日志而不是静默重试：出问题时能从终端看出来是哪一步在挣扎
+            print(
+                f"  [{label}] 第 {attempt} 次失败（{type(e).__name__}: {e}），"
+                f"{wait:.1f}s 后重试",
+                flush=True,
+            )
+            time.sleep(wait)
 
 
 @app.get("/")
@@ -99,11 +201,18 @@ def cosine(a, b):
 
 def embed(texts):
     """把一串文字变成一串向量（每条 1024 个数字）"""
-    client = OpenAI(api_key=LLM_API_KEY, base_url=LLM_BASE_URL)
+    if not LLM_API_KEY or LLM_API_KEY.startswith("sk-替换"):
+        raise HTTPException(status_code=500, detail=".env 里的 LLM_API_KEY 还没填")
+
     try:
-        resp = client.embeddings.create(model=EMBED_MODEL, input=texts)
+        resp = call_with_retry(
+            lambda: get_client(EMBED_TIMEOUT).embeddings.create(model=EMBED_MODEL, input=texts),
+            label="embedding",
+        )
     except Exception as e:
-        raise HTTPException(status_code=502, detail=f"调用 embedding 模型失败：{e}")
+        raise HTTPException(
+            status_code=502, detail=f"调用 embedding 模型失败（已试 {MAX_ATTEMPTS} 次）：{e}"
+        )
     return [d.embedding for d in resp.data]
 
 
@@ -200,11 +309,23 @@ def rerank(query: str, docs):
             "Content-Type": "application/json",
         },
     )
+
+    def _post():
+        with urllib.request.urlopen(req, timeout=RERANK_TIMEOUT) as resp:
+            body = resp.read().decode()
+        try:
+            return json.loads(body)
+        except json.JSONDecodeError as e:
+            # 状态码 200 但正文不是 JSON，通常是中间代理吐了个 HTML 错误页。
+            # 这不是「代码写错了」，是响应被截断，属于连接层问题，值得重试。
+            raise urllib.error.URLError(f"rerank 响应不是合法 JSON：{e}") from e
+
     try:
-        with urllib.request.urlopen(req, timeout=40) as resp:
-            data = json.loads(resp.read().decode())
+        data = call_with_retry(_post, label="rerank")
     except Exception as e:
-        raise HTTPException(status_code=502, detail=f"调用 reranker 失败：{e}")
+        raise HTTPException(
+            status_code=502, detail=f"调用 reranker 失败（已试 {MAX_ATTEMPTS} 次）：{e}"
+        )
 
     return [
         {"index": r["index"], "score": round(r["relevance_score"], 4)}
@@ -402,11 +523,17 @@ def call_llm(messages):
     if not LLM_API_KEY or LLM_API_KEY.startswith("sk-替换"):
         raise HTTPException(status_code=500, detail=".env 里的 LLM_API_KEY 还没填")
 
-    client = OpenAI(api_key=LLM_API_KEY, base_url=LLM_BASE_URL)
     try:
-        return client.chat.completions.create(model=LLM_MODEL, messages=messages)
+        return call_with_retry(
+            lambda: get_client(LLM_TIMEOUT).chat.completions.create(
+                model=LLM_MODEL, messages=messages
+            ),
+            label="chat",
+        )
     except Exception as e:
-        raise HTTPException(status_code=502, detail=f"调用模型失败：{e}")
+        raise HTTPException(
+            status_code=502, detail=f"调用模型失败（已试 {MAX_ATTEMPTS} 次）：{e}"
+        )
 
 
 @app.post("/chat")
@@ -449,32 +576,52 @@ def rag(req: AskRequest, mode: str = "vector"):
             "ranking": ranking,
             "mode": mode,
             "tokens": 0,
+            "degraded": False,
         }
 
     context = "\n".join(f"- {h['topic']}：{h['text']}" for h in hits)
 
-    resp = call_llm([
-        {
-            "role": "system",
-            "content": (
-                "你是一名健身教练。只能依据【资料】里的内容回答。"
-                "资料没提到的信息，直接说「资料里没有这部分内容」，禁止补充资料以外的知识。"
-                "回答简短具体，给数字。"
-            ),
-        },
-        {
-            "role": "user",
-            "content": f"【资料】\n{context}\n\n【问题】\n{req.question}",
-        },
-    ])
+    sources = [
+        {"id": h["id"], "topic": h["topic"], "source": h["source"], "score": h["score"]}
+        for h in hits
+    ]
+
+    try:
+        resp = call_llm([
+            {
+                "role": "system",
+                "content": (
+                    "你是一名健身教练。只能依据【资料】里的内容回答。"
+                    "资料没提到的信息，直接说「资料里没有这部分内容」，禁止补充资料以外的知识。"
+                    "回答简短具体，给数字。"
+                ),
+            },
+            {
+                "role": "user",
+                "content": f"【资料】\n{context}\n\n【问题】\n{req.question}",
+            },
+        ])
+    except HTTPException as e:
+        if e.status_code != 502:
+            raise       # key 没填这类配置错误，不该伪装成「能答」，直接暴露出来
+        # 走到这里说明：检索成功、生成失败。这时候甩一个 502 等于让用户白等一场，
+        # 而资料是真实命中的 —— 把资料原样交出去，比一句报错有用。
+        # 但必须打上 degraded 标记，否则调用方会以为这是模型润色过的答案。
+        return {
+            "answer": "模型服务暂时不稳定，重试后仍失败。以下是命中的原始资料：\n"
+                      + "\n".join(f"- {h['topic']}：{h['text']}" for h in hits),
+            "sources": sources,
+            "ranking": ranking,
+            "mode": mode,
+            "tokens": 0,
+            "degraded": True,
+        }
 
     return {
         "answer": resp.choices[0].message.content,
-        "sources": [
-            {"id": h["id"], "topic": h["topic"], "source": h["source"], "score": h["score"]}
-            for h in hits
-        ],
+        "sources": sources,
         "ranking": ranking,
         "mode": mode,
         "tokens": resp.usage.total_tokens,
+        "degraded": False,
     }
