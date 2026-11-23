@@ -92,7 +92,9 @@ def get_rerank_scores():
     if RERANK_CACHE.exists():
         try:
             c = json.loads(RERANK_CACHE.read_text(encoding="utf-8"))
-            if c.get("model") == app.RERANK_MODEL and c.get("fingerprint") == KB_FINGERPRINT:
+            if (c.get("model") == app.RERANK_MODEL
+                    and c.get("fingerprint") == KB_FINGERPRINT
+                    and c.get("doc2query") == app.doc2query_signature()):
                 cache = c.get("scores", {})
         except Exception:
             pass
@@ -103,13 +105,14 @@ def get_rerank_scores():
         q_vecs = dict(zip(QUESTIONS, get_q_vectors()))
         for i, q in enumerate(todo, 1):
             cand = [d for d, _ in vector_ranking(q_vecs[q])[: app.RECALL_K]]
-            docs = [f"{d['topic']}：{d['text']}" for d in cand]
+            docs = [app.rerank_text(d) for d in cand]
             out = app.rerank(q, docs)
             cache[q] = {cand[s["index"]]["id"]: s["score"] for s in out}
             print(f"    {i}/{len(todo)}", end="\r", flush=True)
         print()
         RERANK_CACHE.write_text(
             json.dumps({"model": app.RERANK_MODEL, "fingerprint": KB_FINGERPRINT,
+                        "doc2query": app.doc2query_signature(),
                         "scores": cache}, ensure_ascii=False),
             encoding="utf-8",
         )

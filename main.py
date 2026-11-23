@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import random
@@ -79,6 +80,63 @@ RERANK_TOP_K = 2
 # 差 0.001。边界题不可靠，这也是不把阈值贴着某个分数取的原因。
 # 换 reranker 模型必须重扫：这是 bge-reranker-v2-m3 的输出分布，不是通用刻度。
 RERANK_THRESHOLD = 0.50
+
+# ---------- doc2query：让精排也看到「这条资料能回答什么」 ----------
+# 病因是诊断出来的，不是猜的（diag_lowscore.py 扫了 95 条命中题）：
+#   低于 0.55 的只有 3 条，而且 100% 是「召回捞到了、精排给低分」，召回失败 0 条。
+#   最典型的是「练了两个月不涨了怎么办」—— 向量排名第 1（就是 newbie-05），
+#   rerank 只给 0.3222。原因很具体：那条 chunk 开头写「这套计划能练多久」，
+#   精排看到主题句就判成「在讲计划时长」，而用户问的是进步停滞。
+#
+# 精排的输入一直只有「话题：正文」，等于要求它当场完成一次
+# 「口语问法 -> 书面主题句」的翻译。doc2query 把这个翻译放到离线做：
+# 给每条 chunk 生成几个用户问法，拼在正文后面一起送进去。
+#
+# 向量召回完全不动 —— 召回这条路诊断显示 0 失败，动它只引入风险。
+# 代价是精排分数刻度会变，所以阈值必须重扫（见 tune_rerank.py）。
+QUERIES_PATH = Path(__file__).parent / "kb_queries.json"
+# 默认关闭。做成了一版、量过、没启用：
+#   综合集 200 题 hit@1  92.6% -> 88.4%（分数整体下移，边缘正样本被推下去）
+#   拒答率 74.3% -> 86.7%，但这是「拒答换命中」：放行的错答生成层本来就会兜住，
+#   被拦的真答案没人救。口语集 24 题 +1 条，样本太少不构成结论。
+# 真正有效的是改 chunk 的主题句（improve_leads.py）：只改 5 条，
+# 四条题从 0.08~0.33 升到 0.54~0.96，而且只影响那几条，不动全局。
+# 保留代码和 kb_queries.json，换更强的 reranker 或语料翻几倍后值得重测。
+USE_DOC2QUERY = False
+_kb_queries = None
+
+
+def get_kb_queries():
+    """{chunk_id: [问法, ...]}。文件不存在就返回空字典，等价于关闭。"""
+    global _kb_queries
+    if _kb_queries is None:
+        try:
+            _kb_queries = json.loads(QUERIES_PATH.read_text(encoding="utf-8"))["queries"]
+        except Exception:
+            _kb_queries = {}
+    return _kb_queries
+
+
+def doc2query_signature():
+    """精排缓存指纹。改了问法必须让缓存失效，否则会拿旧分数得出新结论。"""
+    if not USE_DOC2QUERY:
+        return "off"
+    q = get_kb_queries()
+    if not q:
+        return "off"
+    h = hashlib.md5(json.dumps(q, ensure_ascii=False, sort_keys=True).encode()).hexdigest()[:8]
+    return f"on:{h}"
+
+
+def rerank_text(item):
+    """精排的候选文本。展示给用户的仍然是 item['text']，这里多出来的只喂模型。"""
+    base = f"{item['topic']}：{item['text']}"
+    if not USE_DOC2QUERY:
+        return base
+    qs = get_kb_queries().get(item["id"])
+    if not qs:
+        return base
+    return f"{base}\n常见问法：{'；'.join(qs)}"
 
 # 知识库向量的本地缓存，避免每次重启都重新算（算一次要花钱）
 CACHE_PATH = Path(__file__).parent / ".kb_vectors.json"
@@ -694,7 +752,7 @@ def search_kb_rerank(q: str, top_k: int = RERANK_TOP_K, threshold: float = RERAN
     recalled.sort(key=lambda x: x["vec_score"], reverse=True)
     recalled = recalled[:RECALL_K]      # 召回阶段故意放宽，准确率交给下一段
 
-    scores = rerank(q, [f"{r['topic']}：{r['text']}" for r in recalled])
+    scores = rerank(q, [rerank_text(r) for r in recalled])
     ranking = []
     for s in scores:
         item = dict(recalled[s["index"]])

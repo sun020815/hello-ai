@@ -37,3 +37,7 @@ wheels/
 
 # 编辑知识库时的本地备份
 kb.json.bak-*
+
+# doc2query A/B 的精排缓存（本地产物，重算要花钱）
+.ab_rerank_off.json
+.ab_rerank_on.json
