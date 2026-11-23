@@ -1,6 +1,7 @@
 import json
 import os
 import random
+import threading
 import time
 import urllib.error
 import urllib.request
@@ -124,8 +125,33 @@ def _backoff(attempt: int) -> float:
 
 
 def call_with_retry(fn, label: str = "调用"):
-    """把一次可能失败的外部调用包起来：失败 -> 判断值不值得重试 -> 退避 -> 再试。
-    重试耗尽或遇到不该重试的错，就把最后一次的异常原样抛出，交给调用方翻译成 HTTP 状态码。"""
+    """把一次可能失败的外部调用包起来：熔断检查 -> 重试 -> 记录成败。
+
+    两层为什么要套在一起：重试解决「抖一下」，熔断解决「这一段就是挂」。
+    上游整体挂掉的时候，3 次尝试等于把请求量乘 3 —— 那是加压，不是止损。
+    熔断认了怂之后，请求一个包都不发就失败，上游才有喘息的机会。"""
+    breaker = get_breaker(label)
+    breaker.before_call()       # 熔断中直接抛 CircuitOpenError，不碰网络
+
+    try:
+        result = _attempt_loop(fn, label)
+    except Exception as e:
+        # 只有「上游真的有问题」才计入熔断。
+        # 401 / 400 这类是上游明确拒绝了我们的请求 —— 它活着，只是我们错了。
+        # 把这种错也算进熔断，会出现最坑的现场：key 填错之后所有请求都报「熔断中」，
+        # 掩盖掉真正的原因。
+        if _should_retry(e):
+            breaker.on_failure()
+        else:
+            breaker.on_client_error()
+        raise
+
+    breaker.on_success()
+    return result
+
+
+def _attempt_loop(fn, label: str):
+    """光管重试，不管熔断。拆出来是为了让上面的 call_with_retry 只负责编排。"""
     for attempt in range(1, MAX_ATTEMPTS + 1):
         try:
             return fn()
@@ -145,9 +171,155 @@ def call_with_retry(fn, label: str = "调用"):
             time.sleep(wait)
 
 
+# ---------- 第零段之二：熔断 ----------
+# 重试和熔断解决的是两个不同的问题，不能互相替代：
+#   重试：这一次可能只是抖了一下，再试也许就好。
+#   熔断：这一段时间它就是不行的，别试了，试了也是白试，还把它的负载乘 3。
+#
+# 三个状态：
+#   closed     正常放行，数「连续」失败几次
+#   open       一律拒绝，直到冷却结束 —— 这段时间一个网络包都不发
+#   half_open  冷却结束，只放一个请求去试探。成功就关回去，失败就再开
+#
+# 为什么必须「连续」而不是「累计」：累计计数永远回不到零，跑一天下来总会攒够 5 次
+# 偶发失败，然后无辜地熔断。一次成功就清零，「连续」才反映「现在是不是正在挂」。
+
+BREAKER_THRESHOLD = 5       # 连续失败 5 次才熔断。太小会被一次抖动误伤，太大就没有保护意义
+BREAKER_COOLDOWN = 30.0     # 熔断 30 秒后放一个探针
+
+
+class CircuitOpenError(Exception):
+    """熔断中，请求根本没发出去。
+    调用方应该翻译成 503 而不是 502 —— 两者的含义不同：
+    502 是「我试过了，失败了」；503 是「我知道它会失败，所以没试」。
+    对调用方来说前者是坏消息，后者是「请稍后再来」。"""
+
+
+class CircuitBreaker:
+    """一个上游一个熔断器。用 threading.Lock 是因为 FastAPI 的同步端点跑在线程池里，
+    两个请求可能同时改状态 —— 竞态下最典型的 bug 是「探针放出去两个」，
+    那等于上游在恢复期被双倍流量再打一次。"""
+
+    def __init__(self, name, threshold=BREAKER_THRESHOLD,
+                 cooldown=BREAKER_COOLDOWN, clock=time.monotonic):
+        self.name = name
+        self.threshold = threshold
+        self.cooldown = cooldown
+        self._clock = clock          # 测试里换成假时钟，不用真等 30 秒
+        self._lock = threading.Lock()
+        self.state = "closed"
+        self.failures = 0            # 连续失败次数
+        self.opened_at = None
+        self.probing = False         # half_open 时，探针是不是已经飞出去了
+        self.trips = 0               # 一共熔断过几次，给监控看
+
+    def before_call(self):
+        """放行或拒绝。拒绝时抛 CircuitOpenError，不发任何请求。"""
+        with self._lock:
+            if self.state == "closed":
+                return
+
+            if self.state == "open":
+                waited = self._clock() - self.opened_at
+                if waited < self.cooldown:
+                    raise CircuitOpenError(
+                        f"{self.name} 上游熔断中，约 {self.cooldown - waited:.0f} 秒后再试"
+                    )
+                self.state = "half_open"
+                self.probing = True
+                print(f"  [breaker:{self.name}] 冷却结束，放一个探针", flush=True)
+                return
+
+            # half_open：探针在飞的时候别的请求一律挡住。
+            # 否则「只放一个」形同虚设，恢复期的上游会被正常流量再打挂一次。
+            if self.probing:
+                raise CircuitOpenError(f"{self.name} 正在探活，暂不接新请求")
+            self.probing = True
+
+    def on_success(self):
+        with self._lock:
+            if self.state != "closed":
+                print(f"  [breaker:{self.name}] 探针成功，恢复正常", flush=True)
+            self.state = "closed"
+            self.failures = 0
+            self.opened_at = None
+            self.probing = False
+
+    def on_client_error(self):
+        """上游回了 4xx：它活着，只是我们请求写错了。不计故障，
+        但必须放掉探针，否则 half_open 会永远卡在「探针在飞」，后面全被拒。"""
+        with self._lock:
+            self.probing = False
+            if self.state == "half_open":
+                self.state = "closed"
+                self.failures = 0
+                self.opened_at = None
+
+    def on_failure(self):
+        with self._lock:
+            self.probing = False
+            if self.state == "half_open":
+                # 探针也失败了：说明还没好，立刻重新熔断，冷却从此刻重新计时
+                self._trip()
+                return
+            self.failures += 1
+            if self.failures >= self.threshold:
+                self._trip()
+
+    def _trip(self):
+        self.state = "open"
+        self.opened_at = self._clock()
+        self.trips += 1
+        print(
+            f"  [breaker:{self.name}] 连续失败 {self.failures} 次，"
+            f"熔断 {self.cooldown:.0f} 秒",
+            flush=True,
+        )
+
+    def snapshot(self):
+        with self._lock:
+            return {
+                "state": self.state,
+                "consecutive_failures": self.failures,
+                "trips": self.trips,
+                "cooldown_left": (
+                    round(max(0.0, self.cooldown - (self._clock() - self.opened_at)), 1)
+                    if self.state == "open" else 0.0
+                ),
+            }
+
+
+_breakers = {}
+
+
+def get_breaker(label: str) -> CircuitBreaker:
+    """一个调用方一个熔断器，不共用一个全局的。
+    理由：embedding 挂了不代表 chat 挂了（不同模型、不同配额），
+    用一个全局熔断器会让一个接口的故障把另外两个也拖下水。"""
+    if label not in _breakers:
+        _breakers[label] = CircuitBreaker(label)
+    return _breakers[label]
+
+
+# 三个已知上游先登记好，这样 /breaker 从服务启动第一秒就有内容可看。
+# 不预登记的话，得等某个接口被调用过一次它才冒出来 ——
+# 排障时打开一看是空的，会误以为熔断器根本没生效。
+for _label in ("chat", "embedding", "rerank"):
+    get_breaker(_label)
+
+
 @app.get("/")
 def read_root():
     return {"message": "hello"}
+
+
+@app.get("/breaker")
+def breaker_state():
+    """熔断器的当前状态。线上排障第一件事就是看这个：
+    上游明明通了但接口一直报 503，多半是熔断没恢复；
+    反过来「为什么它不熔断」也能从这里看出失败次数涨没涨。
+    不给这个口子，熔断就是一个黑盒 —— 出问题只能猜。"""
+    return {name: b.snapshot() for name, b in _breakers.items()}
 
 
 @app.get("/greet/{name}")
@@ -209,6 +381,8 @@ def embed(texts):
             lambda: get_client(EMBED_TIMEOUT).embeddings.create(model=EMBED_MODEL, input=texts),
             label="embedding",
         )
+    except CircuitOpenError as e:
+        raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=502, detail=f"调用 embedding 模型失败（已试 {MAX_ATTEMPTS} 次）：{e}"
@@ -322,6 +496,8 @@ def rerank(query: str, docs):
 
     try:
         data = call_with_retry(_post, label="rerank")
+    except CircuitOpenError as e:
+        raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=502, detail=f"调用 reranker 失败（已试 {MAX_ATTEMPTS} 次）：{e}"
@@ -530,6 +706,8 @@ def call_llm(messages):
             ),
             label="chat",
         )
+    except CircuitOpenError as e:
+        raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=502, detail=f"调用模型失败（已试 {MAX_ATTEMPTS} 次）：{e}"
@@ -602,13 +780,14 @@ def rag(req: AskRequest, mode: str = "vector"):
             },
         ])
     except HTTPException as e:
-        if e.status_code != 502:
+        if e.status_code not in (502, 503):
             raise       # key 没填这类配置错误，不该伪装成「能答」，直接暴露出来
-        # 走到这里说明：检索成功、生成失败。这时候甩一个 502 等于让用户白等一场，
-        # 而资料是真实命中的 —— 把资料原样交出去，比一句报错有用。
+        # 走到这里说明：检索成功、生成失败。
+        # 502 = 试过了确实失败，503 = 上游熔断中压根没试。
+        # 两种情况下资料都是真实命中的 —— 把资料原样交出去，比一句报错有用。
         # 但必须打上 degraded 标记，否则调用方会以为这是模型润色过的答案。
         return {
-            "answer": "模型服务暂时不稳定，重试后仍失败。以下是命中的原始资料：\n"
+            "answer": "模型服务暂时不稳定（重试或熔断），以下是命中的原始资料：\n"
                       + "\n".join(f"- {h['topic']}：{h['text']}" for h in hits),
             "sources": sources,
             "ranking": ranking,
