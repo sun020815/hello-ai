@@ -1691,7 +1691,7 @@ uv run python diag_multiturn.py --fresh            # 忽略检索缓存全部重
 `/?q=推日练哪些部位&q=那做几组` 会按顺序问下去，问的就是同一段多轮 ——
 想跟人说明「追问到底有没有救」，发一条链接比截图强。
 
-![多轮对话](docs/shot_multiturn.png)
+![多轮对话](docs/shot_online_multiturn.png)
 
 ## 上线：一个能被面试官点开的链接
 
