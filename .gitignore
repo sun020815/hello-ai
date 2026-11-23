@@ -15,3 +15,6 @@ wheels/
 
 # 知识库向量缓存（本地产物，每次算都要花 token）
 .kb_vectors.json
+
+# 评测缓存（本地产物）
+.eval_qvecs.json

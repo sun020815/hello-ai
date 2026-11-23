@@ -17,7 +17,8 @@ LLM_MODEL = os.getenv("LLM_MODEL", "Qwen/Qwen3-8B")
 EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-m3")
 
 # 相似度低于这个值就当「资料里没有」，不调模型
-# 这个数是拿测试问题试出来的：该答的在 0.59 以上，不该答的最高 0.40
+# 0.55 不是拍出来的：46 条评测集上扫了 0.45~0.72，0.45~0.56 是平台区间
+# （整体准确率都在 91~93%），取区间中段比取边界更稳。见 tune_threshold.py
 VEC_THRESHOLD = 0.55
 # 最多取几条资料塞进 prompt
 VEC_TOP_K = 2
