@@ -131,9 +131,24 @@ def predict_rerank(questions):
     return results
 
 
+def predict_hybrid(questions):
+    """向量 + BM25 混合。走 app.hybrid_rank，和线上一模一样的排序逻辑，
+    只是问题向量从缓存拿，不重复调 embedding。"""
+    q_vecs = get_q_vectors()
+    results = []
+    for q, q_vec in zip(questions, q_vecs):
+        ranking = app.hybrid_rank(q, q_vec)
+        kept = app.pick_hits(ranking, app.VEC_TOP_K, app.VEC_THRESHOLD)
+        results.append({"topics": [r["topic"] for r in kept],
+                        "ids": [r["id"] for r in kept],
+                        "score": ranking[0]["score"] if ranking else None})
+    return results
+
+
 PREDICTORS = {
     "keyword": predict_keyword,
     "vector": predict_vector,
+    "hybrid": predict_hybrid,
     "rerank": predict_rerank,
 }
 
@@ -183,7 +198,7 @@ def run_report():
           f"应拒答 {sum(1 for c in CASES if c['kind']=='refuse')} 条）\n")
 
     all_rows = {}
-    for mode in ("keyword", "vector", "rerank"):
+    for mode in ("keyword", "vector", "hybrid", "rerank"):
         rows = evaluate(mode)
         all_rows[mode] = rows
         m = summarize(rows)
@@ -203,11 +218,13 @@ def run_report():
                     print(f"    [期望 {r['expect']}] {r['q']}  →  {r['got'] or '拒答'}")
         print()
 
-    print("===== 逐条对比（只显示三种结论不完全一致的）=====")
-    for k, v, r in zip(all_rows["keyword"], all_rows["vector"], all_rows["rerank"]):
-        if not (k["got"] == v["got"] == r["got"]):
+    print("===== 逐条对比（只显示几种结论不完全一致的）=====")
+    for k, v, h, r in zip(all_rows["keyword"], all_rows["vector"],
+                          all_rows["hybrid"], all_rows["rerank"]):
+        if not (k["got"] == v["got"] == h["got"] == r["got"]):
             print(f"  {k['q']:<22} 关键词={k['got'] or '拒答':<6} "
-                  f"向量={v['got'] or '拒答':<6} rerank={r['got'] or '拒答'}")
+                  f"向量={v['got'] or '拒答':<6} 混合={h['got'] or '拒答':<6} "
+                  f"rerank={r['got'] or '拒答'}")
 
     (HERE / "eval_results.json").write_text(
         json.dumps({m: {"summary": summarize(all_rows[m]), "rows": all_rows[m]} for m in all_rows},

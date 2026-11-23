@@ -240,6 +240,58 @@ def search_kb_rerank(q: str, top_k: int = RERANK_TOP_K, threshold: float = RERAN
     return hits, ranking
 
 
+# ---------- 第四段：混合检索（向量 + BM25）----------
+# 现状：能跑，比纯向量高 1 条题（92.2% vs 92.0%），差异不显著，所以不作为默认。
+# 为什么效果这么弱，见 README「混合检索：做了、量了、不采用」一节 —— 核心原因是
+# 剩下的错误里只有 1 条是字面匹配问题，其余 6 条是语料分布、话题边界、语言鸿沟，
+# 换排序算法都修不了。库扩到几千条时这套代码值得重新评估。
+
+# 融合时向量分占多大比重。0.93 是在 87 条评测集上扫出来的平台区（0.90~0.96 都是 92.2%），
+# 但 0.98 又会跌回 89.6% —— 这种锯齿本身就说明提升来自单条题的临界翻转，不是系统性改善。
+HYBRID_W_VEC = 0.93
+
+_bm25 = None
+
+
+def get_bm25():
+    """BM25 索引只在第一次用到时建，建一次就是纯内存计算，不花钱。"""
+    global _bm25
+    if _bm25 is None:
+        from bm25 import BM25, tokenize_jieba
+        # 嵌入文本和「向量」那一路保持一致，都是「话题名：正文」
+        _bm25 = BM25([f"{d['topic']}：{d['text']}" for d in KB], tokenizer=tokenize_jieba)
+    return _bm25
+
+
+def hybrid_rank(q: str, q_vec):
+    """纯计算：给定问题向量，返回融合后的排名。抽出来是为了让评测脚本
+    能复用缓存的问题向量，不必重复调 embedding。"""
+    bm_scores = get_bm25().scores(q)
+    top_bm = max(bm_scores) or 1.0
+
+    ranking = []
+    for d, kb_vec, bm in zip(KB, get_kb_vectors(), bm_scores):
+        vec_score = cosine(q_vec, kb_vec)
+        fused = HYBRID_W_VEC * vec_score + (1 - HYBRID_W_VEC) * (bm / top_bm)
+        ranking.append({
+            "id": d["id"], "topic": d["topic"], "text": d["text"], "source": d["source"],
+            # score 放的是「向量分」而不是融合分：门控（答不答）仍然只看向量分，
+            # BM25 只参与排序。让 BM25 参与门控的那版实验把拒答率从 100% 打到 50%。
+            "score": round(vec_score, 4),
+            "fused": round(fused, 4),
+            "bm25": bm,
+        })
+    ranking.sort(key=lambda x: x["fused"], reverse=True)
+    return ranking
+
+
+def search_kb_hybrid(q: str, top_k: int = VEC_TOP_K, threshold: float = VEC_THRESHOLD):
+    q_vec = embed([q])[0]
+    ranking = hybrid_rank(q, q_vec)
+    hits = pick_hits(ranking, top_k, threshold)
+    return hits, ranking
+
+
 @app.get("/kb")
 def kb(q: str):
     hits = search_kb_keyword(q)
@@ -277,6 +329,7 @@ def chat(req: AskRequest):
 @app.post("/rag")
 def rag(req: AskRequest, mode: str = "vector"):
     """mode=vector 纯向量检索（默认）
+    mode=hybrid 向量 + BM25 混合检索（排序融合，门控仍看向量分）
     mode=rerank 向量召回 + reranker 精排（两段式）
     mode=keyword 老的关键词匹配，方便对比"""
     if mode == "keyword":
@@ -284,6 +337,8 @@ def rag(req: AskRequest, mode: str = "vector"):
         ranking = None
     elif mode == "rerank":
         hits, ranking = search_kb_rerank(req.question)
+    elif mode == "hybrid":
+        hits, ranking = search_kb_hybrid(req.question)
     else:
         hits, ranking = search_kb_vector(req.question)
 
