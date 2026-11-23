@@ -19,20 +19,25 @@ EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-m3")
 RERANK_MODEL = os.getenv("RERANK_MODEL", "BAAI/bge-reranker-v2-m3")
 
 # 相似度低于这个值就当「资料里没有」，不调模型
-# 0.55 不是拍出来的：46 条评测集上扫了 0.45~0.72，0.45~0.56 是平台区间
-# （整体准确率都在 91~93%），取区间中段比取边界更稳。见 tune_threshold.py
-VEC_THRESHOLD = 0.55
+# 0.60 是扩库到 40 条之后重扫出来的：0.58~0.61 是平台区间（整体 93~94%），
+# 取 0.60 偏保守一侧 —— 健身建议答错比不答更糟，宁可漏答也别给错方案。
+# 4 条库时的 0.55 在 40 条库上会放行太多无关问题（拒答率只有 75%）。见 tune_threshold.py
+VEC_THRESHOLD = 0.60
 # 最多取几条资料塞进 prompt
 VEC_TOP_K = 2
 
-# 两段式检索：向量先宽松召回 RECALL_K 条（不求准），reranker 再精排
-RECALL_K = 4
+# 两段式检索：向量先宽松召回 RECALL_K 条（不求准），reranker 再精排。
+# 库里只有 4 条时这个值等于「全召回」，reranker 没什么可挑的；
+# 扩到 40 条之后必须放宽到十几条，否则真正该用的那条压根进不了候选，精排再准也救不回来。
+RECALL_K = 12
 RERANK_TOP_K = 2
 # rerank 分数低于这个值就当「资料里没有」
-# 注意它和余弦相似度不是一个量纲：0.55 那一套完全不能套用。
-# 46 条评测集上以 0.002 步长扫了 0~0.10，0.006~0.018 是平台区间（整体准确率都是 87%），
-# 取中段 0.01。即便这样，它仍不如纯向量（93%）。见 tune_rerank.py 与 README
-RERANK_THRESHOLD = 0.01
+# 注意它和余弦相似度不是一个量纲：0.60 那一套完全不能套用。
+# 40 条库上以 0.005 步长扫了 0~0.20，0.055~0.085 是平台（整体 91%），取 0.06。
+# 但它仍然不如纯向量（93%），原因也换了：不是候选太少，而是「语义近邻 ≠ 能回答」——
+# 「膝盖半月板损伤怎么康复」的 rerank 最高分 0.4210，比该命中的最低分 0.0986 高得多，
+# 因为深蹲那条资料确实在讲膝盖，可它没写康复。这条线切不开。见 tune_rerank.py 与 README
+RERANK_THRESHOLD = 0.06
 
 # 知识库向量的本地缓存，避免每次重启都重新算（算一次要花钱）
 CACHE_PATH = Path(__file__).parent / ".kb_vectors.json"
@@ -58,22 +63,26 @@ def ask(req: AskRequest):
     return {"received": req.question, "top_k": req.top_k}
 
 
-KB = {
-    "肌酸": "每天 3 到 5 克，什么时候吃都行，关键是每天吃。不需要冲击期。",
-    "蛋白质": "每公斤体重 1.6 到 2.2 克，分 3 到 4 餐吃，比一次吃完效果好。",
-    "减脂": "先做 300 到 500 大卡的热量缺口，力量训练别停，否则掉的是肌肉。",
-    "深蹲": "膝盖方向和脚尖一致，下蹲到大腿平行地面，起身时先顶髋。",
-}
+# 知识库从 kb.json 读，不再写死在代码里。
+# 每条是一个 chunk：id 唯一、topic 是所属话题（评测按话题判命中）、text 是正文、source 是出处。
+# 为什么拆出去：40 条正文塞进 .py 会让代码没法看，而且改内容不该动代码。
+KB_PATH = Path(__file__).parent / "kb.json"
+KB = json.loads(KB_PATH.read_text(encoding="utf-8"))
+
+# 一个话题可能有多条 chunk（比如「肌酸」拆成剂量、时机、安全性、停用四条）
+TOPICS = sorted({d["topic"] for d in KB})
 
 
 # ---------- 老办法：比字面 ----------
 
 def search_kb_keyword(q: str):
-    """关键词匹配：问题里出现了哪个话题名，就算命中"""
+    """关键词匹配：问题里出现了哪个话题名，就算命中。
+    注意这招的毛病：话题名必须一字不差地出现在问题里，「怎么变瘦」就永远命中不了「减脂」。"""
     hits = []
-    for key, text in KB.items():
-        if key in q:
-            hits.append({"topic": key, "text": text, "score": None})
+    for d in KB:
+        if d["topic"] in q:
+            hits.append({"id": d["id"], "topic": d["topic"], "text": d["text"],
+                         "source": d["source"], "score": None})
     return hits
 
 
@@ -109,7 +118,7 @@ def get_kb_vectors():
     if _kb_vectors is not None:
         return _kb_vectors
 
-    texts = [f"{name}：{text}" for name, text in KB.items()]
+    texts = [f"{d['topic']}：{d['text']}" for d in KB]
 
     # 缓存有效就复用：模型和文本都没变才算有效
     if CACHE_PATH.exists():
@@ -130,16 +139,38 @@ def get_kb_vectors():
     return _kb_vectors
 
 
+def pick_hits(ranking, top_k, threshold):
+    """从排好序的候选里挑出要喂给模型的资料。两条规则：
+    1. 分数过阈值 —— 不过线就当「资料里没有」，不硬凑；
+    2. 同一话题只留一条（分最高的那条）—— 库里一个话题有多条 chunk，
+       如果 top2 全是「减脂」，等于上下文被一个话题占满，用户问的可能是「减脂期蛋白吃多少」。
+    多样性比同质的高分更值钱，这一条在扩库之后才成立。"""
+    picked, seen = [], set()
+    for r in ranking:
+        if r["score"] < threshold:
+            continue
+        if r["topic"] in seen:
+            continue
+        seen.add(r["topic"])
+        picked.append(r)
+        if len(picked) >= top_k:
+            break
+    return picked
+
+
 def search_kb_vector(q: str, top_k: int = VEC_TOP_K, threshold: float = VEC_THRESHOLD):
     """向量检索：把问题也变成向量，跟每条资料算相似度，取最像的几条。
     返回 (命中的资料, 完整排名)"""
     q_vec = embed([q])[0]
     ranking = []
-    for (name, text), kb_vec in zip(KB.items(), get_kb_vectors()):
-        ranking.append({"topic": name, "text": text, "score": round(cosine(q_vec, kb_vec), 4)})
+    for d, kb_vec in zip(KB, get_kb_vectors()):
+        ranking.append({
+            "id": d["id"], "topic": d["topic"], "text": d["text"], "source": d["source"],
+            "score": round(cosine(q_vec, kb_vec), 4),
+        })
     ranking.sort(key=lambda x: x["score"], reverse=True)
 
-    hits = [r for r in ranking[:top_k] if r["score"] >= threshold]
+    hits = pick_hits(ranking, top_k, threshold)
     return hits, ranking
 
 
@@ -186,10 +217,12 @@ def search_kb_rerank(q: str, top_k: int = RERANK_TOP_K, threshold: float = RERAN
     返回 (命中的资料, 完整排名)，排名里同时留着两套分数方便对比。"""
     q_vec = embed([q])[0]
     recalled = []
-    for (name, text), kb_vec in zip(KB.items(), get_kb_vectors()):
+    for d, kb_vec in zip(KB, get_kb_vectors()):
         recalled.append({
-            "topic": name,
-            "text": text,
+            "id": d["id"],
+            "topic": d["topic"],
+            "text": d["text"],
+            "source": d["source"],
             "vec_score": round(cosine(q_vec, kb_vec), 4),
         })
     recalled.sort(key=lambda x: x["vec_score"], reverse=True)
@@ -203,7 +236,7 @@ def search_kb_rerank(q: str, top_k: int = RERANK_TOP_K, threshold: float = RERAN
         ranking.append(item)
     ranking.sort(key=lambda x: x["score"], reverse=True)
 
-    hits = [r for r in ranking[:top_k] if r["score"] >= threshold]
+    hits = pick_hits(ranking, top_k, threshold)
     return hits, ranking
 
 
@@ -282,7 +315,10 @@ def rag(req: AskRequest, mode: str = "vector"):
 
     return {
         "answer": resp.choices[0].message.content,
-        "sources": [h["topic"] for h in hits],
+        "sources": [
+            {"id": h["id"], "topic": h["topic"], "source": h["source"], "score": h["score"]}
+            for h in hits
+        ],
         "ranking": ranking,
         "mode": mode,
         "tokens": resp.usage.total_tokens,

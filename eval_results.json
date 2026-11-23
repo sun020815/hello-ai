@@ -1,13 +1,13 @@
 {
   "keyword": {
     "summary": {
-      "n": 46,
-      "hit1": 0.5897435897435898,
-      "hit2": 0.5897435897435898,
+      "n": 69,
+      "hit1": 0.4098360655737705,
+      "hit2": 0.4098360655737705,
       "refuse": 1.0,
-      "acc": 0.6521739130434783,
-      "hit_n": 39,
-      "ref_n": 7
+      "acc": 0.4782608695652174,
+      "hit_n": 61,
+      "ref_n": 8
     },
     "rows": [
       {
@@ -91,16 +91,6 @@
         "note": ""
       },
       {
-        "q": "肌酸和咖啡因能一起吃吗",
-        "expect": "肌酸",
-        "kind": "hit",
-        "got": "肌酸",
-        "hit1": true,
-        "hit2": true,
-        "score": null,
-        "note": "话题命中但资料没答案"
-      },
-      {
         "q": "肌酸会伤肾吗",
         "expect": "肌酸",
         "kind": "hit",
@@ -108,7 +98,17 @@
         "hit1": true,
         "hit2": true,
         "score": null,
-        "note": "话题命中但资料没答案"
+        "note": "库里有安全性一条"
+      },
+      {
+        "q": "吃肌酸体检肌酐高怎么办",
+        "expect": "肌酸",
+        "kind": "hit",
+        "got": "肌酸",
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": "细节问题"
       },
       {
         "q": "蛋白粉怎么喝",
@@ -201,16 +201,6 @@
         "note": ""
       },
       {
-        "q": "蛋白质吃多了会伤肾吗",
-        "expect": "蛋白质",
-        "kind": "hit",
-        "got": "蛋白质",
-        "hit1": true,
-        "hit2": true,
-        "score": null,
-        "note": "话题命中但资料没答案"
-      },
-      {
         "q": "练完半小时内要补蛋白吗",
         "expect": "蛋白质",
         "kind": "hit",
@@ -218,7 +208,7 @@
         "hit1": false,
         "hit2": false,
         "score": null,
-        "note": "话题命中但资料没答案"
+        "note": ""
       },
       {
         "q": "怎么变瘦",
@@ -308,7 +298,7 @@
         "hit1": true,
         "hit2": true,
         "score": null,
-        "note": "话题命中但资料没答案"
+        "note": ""
       },
       {
         "q": "一个月能减多少斤",
@@ -318,7 +308,27 @@
         "hit1": false,
         "hit2": false,
         "score": null,
-        "note": "话题命中但资料没答案"
+        "note": ""
+      },
+      {
+        "q": "体重卡住不动了",
+        "expect": "减脂",
+        "kind": "hit",
+        "got": null,
+        "hit1": false,
+        "hit2": false,
+        "score": null,
+        "note": "平台期"
+      },
+      {
+        "q": "昨天吃咸了今天重了两斤",
+        "expect": "减脂",
+        "kind": "hit",
+        "got": null,
+        "hit1": false,
+        "hit2": false,
+        "score": null,
+        "note": "体重波动"
       },
       {
         "q": "深蹲蹲多深",
@@ -361,26 +371,6 @@
         "note": ""
       },
       {
-        "q": "深蹲的时候膝盖疼怎么办",
-        "expect": "深蹲",
-        "kind": "hit",
-        "got": "深蹲",
-        "hit1": true,
-        "hit2": true,
-        "score": null,
-        "note": "话题命中但资料没答案"
-      },
-      {
-        "q": "深蹲时脚跟离地怎么办",
-        "expect": "深蹲",
-        "kind": "hit",
-        "got": "深蹲",
-        "hit1": true,
-        "hit2": true,
-        "score": null,
-        "note": "话题命中但资料没答案"
-      },
-      {
         "q": "杠铃深蹲站距多宽",
         "expect": "深蹲",
         "kind": "hit",
@@ -388,7 +378,7 @@
         "hit1": true,
         "hit2": true,
         "score": null,
-        "note": "话题命中但资料没答案"
+        "note": ""
       },
       {
         "q": "蹲腿的时候膝盖往里扣",
@@ -399,6 +389,236 @@
         "hit2": false,
         "score": null,
         "note": "不提话题名，口语化"
+      },
+      {
+        "q": "深蹲时脚跟离地怎么办",
+        "expect": "深蹲",
+        "kind": "hit",
+        "got": "深蹲",
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": ""
+      },
+      {
+        "q": "卧推怎么练",
+        "expect": "卧推",
+        "kind": "hit",
+        "got": "卧推",
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": "扩库后从拒答改为命中"
+      },
+      {
+        "q": "卧推肩膀疼是什么原因",
+        "expect": "卧推",
+        "kind": "hit",
+        "got": "卧推",
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": "细节问题"
+      },
+      {
+        "q": "硬拉腰疼怎么办",
+        "expect": "硬拉",
+        "kind": "hit",
+        "got": "硬拉",
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": ""
+      },
+      {
+        "q": "一周练几次比较好",
+        "expect": "训练计划",
+        "kind": "hit",
+        "got": null,
+        "hit1": false,
+        "hit2": false,
+        "score": null,
+        "note": ""
+      },
+      {
+        "q": "每个部位一周练几组",
+        "expect": "训练计划",
+        "kind": "hit",
+        "got": null,
+        "hit1": false,
+        "hit2": false,
+        "score": null,
+        "note": ""
+      },
+      {
+        "q": "重量什么时候该往上加",
+        "expect": "训练计划",
+        "kind": "hit",
+        "got": null,
+        "hit1": false,
+        "hit2": false,
+        "score": null,
+        "note": "渐进超负荷"
+      },
+      {
+        "q": "推拉腿怎么分",
+        "expect": "训练计划",
+        "kind": "hit",
+        "got": null,
+        "hit1": false,
+        "hit2": false,
+        "score": null,
+        "note": ""
+      },
+      {
+        "q": "每组都要练到力竭吗",
+        "expect": "训练计划",
+        "kind": "hit",
+        "got": null,
+        "hit1": false,
+        "hit2": false,
+        "score": null,
+        "note": ""
+      },
+      {
+        "q": "增肌要睡几个小时",
+        "expect": "恢复",
+        "kind": "hit",
+        "got": null,
+        "hit1": false,
+        "hit2": false,
+        "score": null,
+        "note": "扩库后从拒答改为命中"
+      },
+      {
+        "q": "练完一直酸痛正常吗",
+        "expect": "恢复",
+        "kind": "hit",
+        "got": null,
+        "hit1": false,
+        "hit2": false,
+        "score": null,
+        "note": ""
+      },
+      {
+        "q": "休息日该干什么",
+        "expect": "恢复",
+        "kind": "hit",
+        "got": null,
+        "hit1": false,
+        "hit2": false,
+        "score": null,
+        "note": ""
+      },
+      {
+        "q": "怎么判断自己练过头了",
+        "expect": "恢复",
+        "kind": "hit",
+        "got": null,
+        "hit1": false,
+        "hit2": false,
+        "score": null,
+        "note": ""
+      },
+      {
+        "q": "每天脂肪要吃多少克",
+        "expect": "饮食",
+        "kind": "hit",
+        "got": null,
+        "hit1": false,
+        "hit2": false,
+        "score": null,
+        "note": ""
+      },
+      {
+        "q": "一天要喝多少水",
+        "expect": "饮食",
+        "kind": "hit",
+        "got": null,
+        "hit1": false,
+        "hit2": false,
+        "score": null,
+        "note": ""
+      },
+      {
+        "q": "代餐能代替正餐吗",
+        "expect": "饮食",
+        "kind": "hit",
+        "got": null,
+        "hit1": false,
+        "hit2": false,
+        "score": null,
+        "note": ""
+      },
+      {
+        "q": "喝酒影响增肌吗",
+        "expect": "饮食",
+        "kind": "hit",
+        "got": null,
+        "hit1": false,
+        "hit2": false,
+        "score": null,
+        "note": ""
+      },
+      {
+        "q": "训练前喝咖啡有用吗",
+        "expect": "补剂",
+        "kind": "hit",
+        "got": null,
+        "hit1": false,
+        "hit2": false,
+        "score": null,
+        "note": ""
+      },
+      {
+        "q": "补剂先买哪个",
+        "expect": "补剂",
+        "kind": "hit",
+        "got": "补剂",
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": ""
+      },
+      {
+        "q": "练腹肌能减肚子吗",
+        "expect": "误区",
+        "kind": "hit",
+        "got": null,
+        "hit1": false,
+        "hit2": false,
+        "score": null,
+        "note": ""
+      },
+      {
+        "q": "空腹跑步更减脂吗",
+        "expect": "误区",
+        "kind": "hit",
+        "got": "减脂",
+        "hit1": false,
+        "hit2": false,
+        "score": null,
+        "note": ""
+      },
+      {
+        "q": "女生练力量会变壮吗",
+        "expect": "误区",
+        "kind": "hit",
+        "got": null,
+        "hit1": false,
+        "hit2": false,
+        "score": null,
+        "note": ""
+      },
+      {
+        "q": "肌肉会变成脂肪吗",
+        "expect": "误区",
+        "kind": "hit",
+        "got": null,
+        "hit1": false,
+        "hit2": false,
+        "score": null,
+        "note": ""
       },
       {
         "q": "今天天气怎么样",
@@ -441,7 +661,7 @@
         "note": "完全无关"
       },
       {
-        "q": "增肌要睡几个小时",
+        "q": "跑步机买什么牌子好",
         "expect": null,
         "kind": "refuse",
         "got": null,
@@ -451,7 +671,7 @@
         "note": "健身相关但库里没有"
       },
       {
-        "q": "卧推怎么练",
+        "q": "膝盖半月板损伤怎么康复",
         "expect": null,
         "kind": "refuse",
         "got": null,
@@ -461,7 +681,7 @@
         "note": "健身相关但库里没有，最难的一条"
       },
       {
-        "q": "跑步机买什么牌子好",
+        "q": "健身需要买什么装备",
         "expect": null,
         "kind": "refuse",
         "got": null,
@@ -469,18 +689,28 @@
         "hit2": true,
         "score": null,
         "note": "健身相关但库里没有"
+      },
+      {
+        "q": "推荐一部健身题材的电影",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": "带健身关键词但无关"
       }
     ]
   },
   "vector": {
     "summary": {
-      "n": 46,
-      "hit1": 0.9487179487179487,
-      "hit2": 0.9743589743589743,
-      "refuse": 0.8571428571428571,
-      "acc": 0.9347826086956522,
-      "hit_n": 39,
-      "ref_n": 7
+      "n": 69,
+      "hit1": 0.9344262295081968,
+      "hit2": 0.9508196721311475,
+      "refuse": 0.875,
+      "acc": 0.927536231884058,
+      "hit_n": 61,
+      "ref_n": 8
     },
     "rows": [
       {
@@ -490,7 +720,7 @@
         "got": "肌酸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7876490526718355,
+        "score": 0.7864,
         "note": ""
       },
       {
@@ -500,7 +730,7 @@
         "got": "肌酸",
         "hit1": true,
         "hit2": true,
-        "score": 0.6985582025208685,
+        "score": 0.6665,
         "note": ""
       },
       {
@@ -510,7 +740,7 @@
         "got": "肌酸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7579352376282849,
+        "score": 0.7509,
         "note": ""
       },
       {
@@ -520,7 +750,7 @@
         "got": "肌酸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7508606607854644,
+        "score": 0.7384,
         "note": ""
       },
       {
@@ -530,7 +760,7 @@
         "got": "肌酸",
         "hit1": true,
         "hit2": true,
-        "score": 0.6891010766759439,
+        "score": 0.7562,
         "note": "口语化说法"
       },
       {
@@ -540,7 +770,7 @@
         "got": "肌酸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7126973286473874,
+        "score": 0.7499,
         "note": ""
       },
       {
@@ -550,7 +780,7 @@
         "got": "肌酸",
         "hit1": true,
         "hit2": true,
-        "score": 0.6836292687786003,
+        "score": 0.6567,
         "note": "完全不提话题名"
       },
       {
@@ -560,18 +790,8 @@
         "got": "肌酸",
         "hit1": true,
         "hit2": true,
-        "score": 0.618549622798307,
+        "score": 0.7898,
         "note": ""
-      },
-      {
-        "q": "肌酸和咖啡因能一起吃吗",
-        "expect": "肌酸",
-        "kind": "hit",
-        "got": "肌酸",
-        "hit1": true,
-        "hit2": true,
-        "score": 0.633326935085958,
-        "note": "话题命中但资料没答案"
       },
       {
         "q": "肌酸会伤肾吗",
@@ -580,8 +800,18 @@
         "got": "肌酸",
         "hit1": true,
         "hit2": true,
-        "score": 0.5980774586339521,
-        "note": "话题命中但资料没答案"
+        "score": 0.6985,
+        "note": "库里有安全性一条"
+      },
+      {
+        "q": "吃肌酸体检肌酐高怎么办",
+        "expect": "肌酸",
+        "kind": "hit",
+        "got": "肌酸",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.6724,
+        "note": "细节问题"
       },
       {
         "q": "蛋白粉怎么喝",
@@ -590,7 +820,7 @@
         "got": "蛋白质",
         "hit1": true,
         "hit2": true,
-        "score": 0.6235957380761261,
+        "score": 0.7049,
         "note": "经典漏召回案例"
       },
       {
@@ -600,7 +830,7 @@
         "got": "蛋白质",
         "hit1": true,
         "hit2": true,
-        "score": 0.7463315671377658,
+        "score": 0.7561,
         "note": ""
       },
       {
@@ -610,7 +840,7 @@
         "got": "蛋白质",
         "hit1": true,
         "hit2": true,
-        "score": 0.7096266694578511,
+        "score": 0.777,
         "note": "同时涉及两个话题"
       },
       {
@@ -620,7 +850,7 @@
         "got": "蛋白质",
         "hit1": true,
         "hit2": true,
-        "score": 0.7827306460888175,
+        "score": 0.7687,
         "note": ""
       },
       {
@@ -630,7 +860,7 @@
         "got": "蛋白质",
         "hit1": true,
         "hit2": true,
-        "score": 0.7729008641639202,
+        "score": 0.782,
         "note": ""
       },
       {
@@ -640,7 +870,7 @@
         "got": "蛋白质",
         "hit1": true,
         "hit2": true,
-        "score": 0.7320101967502498,
+        "score": 0.818,
         "note": ""
       },
       {
@@ -650,17 +880,17 @@
         "got": "蛋白质",
         "hit1": true,
         "hit2": true,
-        "score": 0.5751431202803797,
+        "score": 0.6425,
         "note": ""
       },
       {
         "q": "植物蛋白可以替代乳清吗",
         "expect": "蛋白质",
         "kind": "hit",
-        "got": null,
-        "hit1": false,
-        "hit2": false,
-        "score": 0.4800074439081515,
+        "got": "蛋白质",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7672,
         "note": ""
       },
       {
@@ -670,18 +900,8 @@
         "got": "蛋白质",
         "hit1": true,
         "hit2": true,
-        "score": 0.6593092721604626,
+        "score": 0.6931,
         "note": ""
-      },
-      {
-        "q": "蛋白质吃多了会伤肾吗",
-        "expect": "蛋白质",
-        "kind": "hit",
-        "got": "蛋白质",
-        "hit1": true,
-        "hit2": true,
-        "score": 0.5876864917319186,
-        "note": "话题命中但资料没答案"
       },
       {
         "q": "练完半小时内要补蛋白吗",
@@ -690,27 +910,27 @@
         "got": "蛋白质",
         "hit1": true,
         "hit2": true,
-        "score": 0.6137544650509537,
-        "note": "话题命中但资料没答案"
+        "score": 0.76,
+        "note": ""
       },
       {
         "q": "怎么变瘦",
         "expect": "减脂",
         "kind": "hit",
-        "got": "减脂",
-        "hit1": true,
-        "hit2": true,
-        "score": 0.5934309090337236,
+        "got": "误区",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6106,
         "note": "经典漏召回案例"
       },
       {
         "q": "减脂期要吃多少",
         "expect": "减脂",
         "kind": "hit",
-        "got": "蛋白质",
+        "got": "饮食",
         "hit1": false,
         "hit2": true,
-        "score": 0.7180416841109887,
+        "score": 0.7633,
         "note": ""
       },
       {
@@ -720,7 +940,7 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.6367124442100816,
+        "score": 0.7553,
         "note": ""
       },
       {
@@ -730,7 +950,7 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.6774235787193456,
+        "score": 0.7373,
         "note": ""
       },
       {
@@ -740,7 +960,7 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.6812202978453458,
+        "score": 0.6929,
         "note": ""
       },
       {
@@ -750,7 +970,7 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.5657940296029291,
+        "score": 0.6206,
         "note": ""
       },
       {
@@ -760,7 +980,7 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.6247466790900744,
+        "score": 0.7019,
         "note": ""
       },
       {
@@ -770,7 +990,7 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.6849651189302216,
+        "score": 0.7148,
         "note": ""
       },
       {
@@ -780,8 +1000,8 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.6197126464560461,
-        "note": "话题命中但资料没答案"
+        "score": 0.8138,
+        "note": ""
       },
       {
         "q": "一个月能减多少斤",
@@ -790,8 +1010,28 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.6293314357869569,
-        "note": "话题命中但资料没答案"
+        "score": 0.6748,
+        "note": ""
+      },
+      {
+        "q": "体重卡住不动了",
+        "expect": "减脂",
+        "kind": "hit",
+        "got": "减脂",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.6354,
+        "note": "平台期"
+      },
+      {
+        "q": "昨天吃咸了今天重了两斤",
+        "expect": "减脂",
+        "kind": "hit",
+        "got": null,
+        "hit1": false,
+        "hit2": false,
+        "score": 0.586,
+        "note": "体重波动"
       },
       {
         "q": "深蹲蹲多深",
@@ -800,7 +1040,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.6935545402282658,
+        "score": 0.7225,
         "note": ""
       },
       {
@@ -810,7 +1050,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.6576686593354917,
+        "score": 0.8153,
         "note": ""
       },
       {
@@ -820,7 +1060,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.7038514876439352,
+        "score": 0.6711,
         "note": ""
       },
       {
@@ -830,28 +1070,8 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.5969407865216528,
+        "score": 0.7023,
         "note": ""
-      },
-      {
-        "q": "深蹲的时候膝盖疼怎么办",
-        "expect": "深蹲",
-        "kind": "hit",
-        "got": "深蹲",
-        "hit1": true,
-        "hit2": true,
-        "score": 0.7034087366390611,
-        "note": "话题命中但资料没答案"
-      },
-      {
-        "q": "深蹲时脚跟离地怎么办",
-        "expect": "深蹲",
-        "kind": "hit",
-        "got": "深蹲",
-        "hit1": true,
-        "hit2": true,
-        "score": 0.7169571764243825,
-        "note": "话题命中但资料没答案"
       },
       {
         "q": "杠铃深蹲站距多宽",
@@ -860,8 +1080,8 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.5889125774018779,
-        "note": "话题命中但资料没答案"
+        "score": 0.7002,
+        "note": ""
       },
       {
         "q": "蹲腿的时候膝盖往里扣",
@@ -870,8 +1090,238 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.6902641688225818,
+        "score": 0.7067,
         "note": "不提话题名，口语化"
+      },
+      {
+        "q": "深蹲时脚跟离地怎么办",
+        "expect": "深蹲",
+        "kind": "hit",
+        "got": "深蹲",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7807,
+        "note": ""
+      },
+      {
+        "q": "卧推怎么练",
+        "expect": "卧推",
+        "kind": "hit",
+        "got": "卧推",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7466,
+        "note": "扩库后从拒答改为命中"
+      },
+      {
+        "q": "卧推肩膀疼是什么原因",
+        "expect": "卧推",
+        "kind": "hit",
+        "got": "卧推",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.669,
+        "note": "细节问题"
+      },
+      {
+        "q": "硬拉腰疼怎么办",
+        "expect": "硬拉",
+        "kind": "hit",
+        "got": "硬拉",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.6268,
+        "note": ""
+      },
+      {
+        "q": "一周练几次比较好",
+        "expect": "训练计划",
+        "kind": "hit",
+        "got": "训练计划",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7504,
+        "note": ""
+      },
+      {
+        "q": "每个部位一周练几组",
+        "expect": "训练计划",
+        "kind": "hit",
+        "got": "训练计划",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7553,
+        "note": ""
+      },
+      {
+        "q": "重量什么时候该往上加",
+        "expect": "训练计划",
+        "kind": "hit",
+        "got": "训练计划",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.6448,
+        "note": "渐进超负荷"
+      },
+      {
+        "q": "推拉腿怎么分",
+        "expect": "训练计划",
+        "kind": "hit",
+        "got": null,
+        "hit1": false,
+        "hit2": false,
+        "score": 0.5658,
+        "note": ""
+      },
+      {
+        "q": "每组都要练到力竭吗",
+        "expect": "训练计划",
+        "kind": "hit",
+        "got": "训练计划",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7988,
+        "note": ""
+      },
+      {
+        "q": "增肌要睡几个小时",
+        "expect": "恢复",
+        "kind": "hit",
+        "got": "恢复",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7086,
+        "note": "扩库后从拒答改为命中"
+      },
+      {
+        "q": "练完一直酸痛正常吗",
+        "expect": "恢复",
+        "kind": "hit",
+        "got": "恢复",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7766,
+        "note": ""
+      },
+      {
+        "q": "休息日该干什么",
+        "expect": "恢复",
+        "kind": "hit",
+        "got": "恢复",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.6164,
+        "note": ""
+      },
+      {
+        "q": "怎么判断自己练过头了",
+        "expect": "恢复",
+        "kind": "hit",
+        "got": "恢复",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7359,
+        "note": ""
+      },
+      {
+        "q": "每天脂肪要吃多少克",
+        "expect": "饮食",
+        "kind": "hit",
+        "got": "饮食",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.714,
+        "note": ""
+      },
+      {
+        "q": "一天要喝多少水",
+        "expect": "饮食",
+        "kind": "hit",
+        "got": "饮食",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7242,
+        "note": ""
+      },
+      {
+        "q": "代餐能代替正餐吗",
+        "expect": "饮食",
+        "kind": "hit",
+        "got": "饮食",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7181,
+        "note": ""
+      },
+      {
+        "q": "喝酒影响增肌吗",
+        "expect": "饮食",
+        "kind": "hit",
+        "got": "饮食",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.6867,
+        "note": ""
+      },
+      {
+        "q": "训练前喝咖啡有用吗",
+        "expect": "补剂",
+        "kind": "hit",
+        "got": "补剂",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7273,
+        "note": ""
+      },
+      {
+        "q": "补剂先买哪个",
+        "expect": "补剂",
+        "kind": "hit",
+        "got": "补剂",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.6935,
+        "note": ""
+      },
+      {
+        "q": "练腹肌能减肚子吗",
+        "expect": "误区",
+        "kind": "hit",
+        "got": "误区",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7777,
+        "note": ""
+      },
+      {
+        "q": "空腹跑步更减脂吗",
+        "expect": "误区",
+        "kind": "hit",
+        "got": "误区",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7729,
+        "note": ""
+      },
+      {
+        "q": "女生练力量会变壮吗",
+        "expect": "误区",
+        "kind": "hit",
+        "got": "误区",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.8008,
+        "note": ""
+      },
+      {
+        "q": "肌肉会变成脂肪吗",
+        "expect": "误区",
+        "kind": "hit",
+        "got": "误区",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7315,
+        "note": ""
       },
       {
         "q": "今天天气怎么样",
@@ -880,7 +1330,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.40154134196023894,
+        "score": 0.4445,
         "note": "完全无关"
       },
       {
@@ -890,7 +1340,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.3518689275181379,
+        "score": 0.3489,
         "note": "完全无关"
       },
       {
@@ -900,7 +1350,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4235605006366173,
+        "score": 0.4418,
         "note": "完全无关"
       },
       {
@@ -910,28 +1360,8 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.3894760403753839,
+        "score": 0.4018,
         "note": "完全无关"
-      },
-      {
-        "q": "增肌要睡几个小时",
-        "expect": null,
-        "kind": "refuse",
-        "got": "肌酸",
-        "hit1": false,
-        "hit2": false,
-        "score": 0.6023376443479762,
-        "note": "健身相关但库里没有"
-      },
-      {
-        "q": "卧推怎么练",
-        "expect": null,
-        "kind": "refuse",
-        "got": null,
-        "hit1": true,
-        "hit2": true,
-        "score": 0.5303634087635619,
-        "note": "健身相关但库里没有，最难的一条"
       },
       {
         "q": "跑步机买什么牌子好",
@@ -940,20 +1370,50 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.36247464479056246,
+        "score": 0.4495,
         "note": "健身相关但库里没有"
+      },
+      {
+        "q": "膝盖半月板损伤怎么康复",
+        "expect": null,
+        "kind": "refuse",
+        "got": "深蹲",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6006,
+        "note": "健身相关但库里没有，最难的一条"
+      },
+      {
+        "q": "健身需要买什么装备",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.5731,
+        "note": "健身相关但库里没有"
+      },
+      {
+        "q": "推荐一部健身题材的电影",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.4876,
+        "note": "带健身关键词但无关"
       }
     ]
   },
   "rerank": {
     "summary": {
-      "n": 46,
-      "hit1": 0.8717948717948718,
-      "hit2": 0.9230769230769231,
-      "refuse": 0.8571428571428571,
-      "acc": 0.8695652173913043,
-      "hit_n": 39,
-      "ref_n": 7
+      "n": 69,
+      "hit1": 0.9180327868852459,
+      "hit2": 0.9836065573770492,
+      "refuse": 0.875,
+      "acc": 0.9130434782608695,
+      "hit_n": 61,
+      "ref_n": 8
     },
     "rows": [
       {
@@ -963,7 +1423,7 @@
         "got": "肌酸",
         "hit1": true,
         "hit2": true,
-        "score": 0.9907,
+        "score": 0.9946,
         "note": ""
       },
       {
@@ -973,7 +1433,7 @@
         "got": "肌酸",
         "hit1": true,
         "hit2": true,
-        "score": 0.9946,
+        "score": 0.9656,
         "note": ""
       },
       {
@@ -983,7 +1443,7 @@
         "got": "肌酸",
         "hit1": true,
         "hit2": true,
-        "score": 0.9701,
+        "score": 0.9963,
         "note": ""
       },
       {
@@ -993,7 +1453,7 @@
         "got": "肌酸",
         "hit1": true,
         "hit2": true,
-        "score": 0.8847,
+        "score": 0.9941,
         "note": ""
       },
       {
@@ -1003,7 +1463,7 @@
         "got": "肌酸",
         "hit1": true,
         "hit2": true,
-        "score": 0.3534,
+        "score": 0.8866,
         "note": "口语化说法"
       },
       {
@@ -1013,7 +1473,7 @@
         "got": "肌酸",
         "hit1": true,
         "hit2": true,
-        "score": 0.6304,
+        "score": 0.9875,
         "note": ""
       },
       {
@@ -1023,28 +1483,18 @@
         "got": "肌酸",
         "hit1": true,
         "hit2": true,
-        "score": 0.3186,
+        "score": 0.4986,
         "note": "完全不提话题名"
       },
       {
         "q": "肌酸停用了会掉力量吗",
         "expect": "肌酸",
         "kind": "hit",
-        "got": "减脂",
-        "hit1": false,
-        "hit2": true,
-        "score": 0.4075,
-        "note": ""
-      },
-      {
-        "q": "肌酸和咖啡因能一起吃吗",
-        "expect": "肌酸",
-        "kind": "hit",
         "got": "肌酸",
         "hit1": true,
         "hit2": true,
-        "score": 0.1328,
-        "note": "话题命中但资料没答案"
+        "score": 0.9984,
+        "note": ""
       },
       {
         "q": "肌酸会伤肾吗",
@@ -1053,8 +1503,18 @@
         "got": "肌酸",
         "hit1": true,
         "hit2": true,
-        "score": 0.0377,
-        "note": "话题命中但资料没答案"
+        "score": 0.9942,
+        "note": "库里有安全性一条"
+      },
+      {
+        "q": "吃肌酸体检肌酐高怎么办",
+        "expect": "肌酸",
+        "kind": "hit",
+        "got": "肌酸",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.9875,
+        "note": "细节问题"
       },
       {
         "q": "蛋白粉怎么喝",
@@ -1063,7 +1523,7 @@
         "got": "蛋白质",
         "hit1": true,
         "hit2": true,
-        "score": 0.0183,
+        "score": 0.765,
         "note": "经典漏召回案例"
       },
       {
@@ -1073,7 +1533,7 @@
         "got": "蛋白质",
         "hit1": true,
         "hit2": true,
-        "score": 0.4904,
+        "score": 0.9367,
         "note": ""
       },
       {
@@ -1083,7 +1543,7 @@
         "got": "蛋白质",
         "hit1": true,
         "hit2": true,
-        "score": 0.7435,
+        "score": 0.9948,
         "note": "同时涉及两个话题"
       },
       {
@@ -1093,7 +1553,7 @@
         "got": "蛋白质",
         "hit1": true,
         "hit2": true,
-        "score": 0.5683,
+        "score": 0.9589,
         "note": ""
       },
       {
@@ -1103,7 +1563,7 @@
         "got": "蛋白质",
         "hit1": true,
         "hit2": true,
-        "score": 0.8317,
+        "score": 0.9782,
         "note": ""
       },
       {
@@ -1113,7 +1573,7 @@
         "got": "蛋白质",
         "hit1": true,
         "hit2": true,
-        "score": 0.5728,
+        "score": 0.9885,
         "note": ""
       },
       {
@@ -1123,17 +1583,17 @@
         "got": "蛋白质",
         "hit1": true,
         "hit2": true,
-        "score": 0.0288,
+        "score": 0.3079,
         "note": ""
       },
       {
         "q": "植物蛋白可以替代乳清吗",
         "expect": "蛋白质",
         "kind": "hit",
-        "got": null,
-        "hit1": false,
-        "hit2": false,
-        "score": 0.0016,
+        "got": "蛋白质",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.9994,
         "note": ""
       },
       {
@@ -1143,47 +1603,37 @@
         "got": "蛋白质",
         "hit1": true,
         "hit2": true,
-        "score": 0.0283,
+        "score": 0.2858,
         "note": ""
-      },
-      {
-        "q": "蛋白质吃多了会伤肾吗",
-        "expect": "蛋白质",
-        "kind": "hit",
-        "got": "蛋白质",
-        "hit1": true,
-        "hit2": true,
-        "score": 0.0346,
-        "note": "话题命中但资料没答案"
       },
       {
         "q": "练完半小时内要补蛋白吗",
         "expect": "蛋白质",
         "kind": "hit",
-        "got": "肌酸",
-        "hit1": false,
-        "hit2": false,
-        "score": 0.0131,
-        "note": "话题命中但资料没答案"
+        "got": "蛋白质",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7321,
+        "note": ""
       },
       {
         "q": "怎么变瘦",
         "expect": "减脂",
         "kind": "hit",
-        "got": "深蹲",
+        "got": "饮食",
         "hit1": false,
         "hit2": true,
-        "score": 0.5662,
+        "score": 0.7263,
         "note": "经典漏召回案例"
       },
       {
         "q": "减脂期要吃多少",
         "expect": "减脂",
         "kind": "hit",
-        "got": "蛋白质",
+        "got": "饮食",
         "hit1": false,
         "hit2": false,
-        "score": 0.2537,
+        "score": 0.9137,
         "note": ""
       },
       {
@@ -1193,7 +1643,7 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.2916,
+        "score": 0.9757,
         "note": ""
       },
       {
@@ -1203,7 +1653,7 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.8053,
+        "score": 0.9949,
         "note": ""
       },
       {
@@ -1213,7 +1663,7 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.524,
+        "score": 0.7014,
         "note": ""
       },
       {
@@ -1223,7 +1673,7 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.0643,
+        "score": 0.2244,
         "note": ""
       },
       {
@@ -1233,7 +1683,7 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.152,
+        "score": 0.9802,
         "note": ""
       },
       {
@@ -1243,7 +1693,7 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.9187,
+        "score": 0.9754,
         "note": ""
       },
       {
@@ -1253,8 +1703,8 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.0368,
-        "note": "话题命中但资料没答案"
+        "score": 0.9983,
+        "note": ""
       },
       {
         "q": "一个月能减多少斤",
@@ -1263,8 +1713,28 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.0674,
-        "note": "话题命中但资料没答案"
+        "score": 0.2813,
+        "note": ""
+      },
+      {
+        "q": "体重卡住不动了",
+        "expect": "减脂",
+        "kind": "hit",
+        "got": "恢复",
+        "hit1": false,
+        "hit2": true,
+        "score": 0.3472,
+        "note": "平台期"
+      },
+      {
+        "q": "昨天吃咸了今天重了两斤",
+        "expect": "减脂",
+        "kind": "hit",
+        "got": "减脂",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.8566,
+        "note": "体重波动"
       },
       {
         "q": "深蹲蹲多深",
@@ -1273,7 +1743,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.6002,
+        "score": 0.9958,
         "note": ""
       },
       {
@@ -1283,7 +1753,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.982,
+        "score": 0.9995,
         "note": ""
       },
       {
@@ -1293,7 +1763,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.9946,
+        "score": 0.9984,
         "note": ""
       },
       {
@@ -1303,28 +1773,8 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.1645,
+        "score": 0.9918,
         "note": ""
-      },
-      {
-        "q": "深蹲的时候膝盖疼怎么办",
-        "expect": "深蹲",
-        "kind": "hit",
-        "got": "深蹲",
-        "hit1": true,
-        "hit2": true,
-        "score": 0.4199,
-        "note": "话题命中但资料没答案"
-      },
-      {
-        "q": "深蹲时脚跟离地怎么办",
-        "expect": "深蹲",
-        "kind": "hit",
-        "got": "深蹲",
-        "hit1": true,
-        "hit2": true,
-        "score": 0.2288,
-        "note": "话题命中但资料没答案"
       },
       {
         "q": "杠铃深蹲站距多宽",
@@ -1333,8 +1783,8 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.0305,
-        "note": "话题命中但资料没答案"
+        "score": 0.9982,
+        "note": ""
       },
       {
         "q": "蹲腿的时候膝盖往里扣",
@@ -1343,11 +1793,251 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.5313,
+        "score": 0.9316,
         "note": "不提话题名，口语化"
       },
       {
+        "q": "深蹲时脚跟离地怎么办",
+        "expect": "深蹲",
+        "kind": "hit",
+        "got": "深蹲",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.9894,
+        "note": ""
+      },
+      {
+        "q": "卧推怎么练",
+        "expect": "卧推",
+        "kind": "hit",
+        "got": "卧推",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.9865,
+        "note": "扩库后从拒答改为命中"
+      },
+      {
+        "q": "卧推肩膀疼是什么原因",
+        "expect": "卧推",
+        "kind": "hit",
+        "got": "恢复",
+        "hit1": false,
+        "hit2": true,
+        "score": 0.1906,
+        "note": "细节问题"
+      },
+      {
+        "q": "硬拉腰疼怎么办",
+        "expect": "硬拉",
+        "kind": "hit",
+        "got": "硬拉",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.3133,
+        "note": ""
+      },
+      {
+        "q": "一周练几次比较好",
+        "expect": "训练计划",
+        "kind": "hit",
+        "got": "训练计划",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.9513,
+        "note": ""
+      },
+      {
+        "q": "每个部位一周练几组",
+        "expect": "训练计划",
+        "kind": "hit",
+        "got": "训练计划",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.9096,
+        "note": ""
+      },
+      {
+        "q": "重量什么时候该往上加",
+        "expect": "训练计划",
+        "kind": "hit",
+        "got": "卧推",
+        "hit1": false,
+        "hit2": true,
+        "score": 0.2437,
+        "note": "渐进超负荷"
+      },
+      {
+        "q": "推拉腿怎么分",
+        "expect": "训练计划",
+        "kind": "hit",
+        "got": "训练计划",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.0986,
+        "note": ""
+      },
+      {
+        "q": "每组都要练到力竭吗",
+        "expect": "训练计划",
+        "kind": "hit",
+        "got": "训练计划",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.9972,
+        "note": ""
+      },
+      {
+        "q": "增肌要睡几个小时",
+        "expect": "恢复",
+        "kind": "hit",
+        "got": "恢复",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7973,
+        "note": "扩库后从拒答改为命中"
+      },
+      {
+        "q": "练完一直酸痛正常吗",
+        "expect": "恢复",
+        "kind": "hit",
+        "got": "恢复",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.9535,
+        "note": ""
+      },
+      {
+        "q": "休息日该干什么",
+        "expect": "恢复",
+        "kind": "hit",
+        "got": "恢复",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.9645,
+        "note": ""
+      },
+      {
+        "q": "怎么判断自己练过头了",
+        "expect": "恢复",
+        "kind": "hit",
+        "got": "恢复",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.8974,
+        "note": ""
+      },
+      {
+        "q": "每天脂肪要吃多少克",
+        "expect": "饮食",
+        "kind": "hit",
+        "got": "饮食",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.5249,
+        "note": ""
+      },
+      {
+        "q": "一天要喝多少水",
+        "expect": "饮食",
+        "kind": "hit",
+        "got": "饮食",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.5347,
+        "note": ""
+      },
+      {
+        "q": "代餐能代替正餐吗",
+        "expect": "饮食",
+        "kind": "hit",
+        "got": "饮食",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.722,
+        "note": ""
+      },
+      {
+        "q": "喝酒影响增肌吗",
+        "expect": "饮食",
+        "kind": "hit",
+        "got": "饮食",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7501,
+        "note": ""
+      },
+      {
+        "q": "训练前喝咖啡有用吗",
+        "expect": "补剂",
+        "kind": "hit",
+        "got": "补剂",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.9568,
+        "note": ""
+      },
+      {
+        "q": "补剂先买哪个",
+        "expect": "补剂",
+        "kind": "hit",
+        "got": "补剂",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.9837,
+        "note": ""
+      },
+      {
+        "q": "练腹肌能减肚子吗",
+        "expect": "误区",
+        "kind": "hit",
+        "got": "误区",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.9965,
+        "note": ""
+      },
+      {
+        "q": "空腹跑步更减脂吗",
+        "expect": "误区",
+        "kind": "hit",
+        "got": "误区",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.9871,
+        "note": ""
+      },
+      {
+        "q": "女生练力量会变壮吗",
+        "expect": "误区",
+        "kind": "hit",
+        "got": "误区",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.9991,
+        "note": ""
+      },
+      {
+        "q": "肌肉会变成脂肪吗",
+        "expect": "误区",
+        "kind": "hit",
+        "got": "误区",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.9973,
+        "note": ""
+      },
+      {
         "q": "今天天气怎么样",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.0005,
+        "note": "完全无关"
+      },
+      {
+        "q": "帮我写一首诗",
         "expect": null,
         "kind": "refuse",
         "got": null,
@@ -1357,16 +2047,6 @@
         "note": "完全无关"
       },
       {
-        "q": "帮我写一首诗",
-        "expect": null,
-        "kind": "refuse",
-        "got": null,
-        "hit1": true,
-        "hit2": true,
-        "score": 0.0009,
-        "note": "完全无关"
-      },
-      {
         "q": "明天股市会涨吗",
         "expect": null,
         "kind": "refuse",
@@ -1383,28 +2063,8 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0,
+        "score": 0.0004,
         "note": "完全无关"
-      },
-      {
-        "q": "增肌要睡几个小时",
-        "expect": null,
-        "kind": "refuse",
-        "got": null,
-        "hit1": true,
-        "hit2": true,
-        "score": 0.0059,
-        "note": "健身相关但库里没有"
-      },
-      {
-        "q": "卧推怎么练",
-        "expect": null,
-        "kind": "refuse",
-        "got": "深蹲",
-        "hit1": false,
-        "hit2": false,
-        "score": 0.0993,
-        "note": "健身相关但库里没有，最难的一条"
       },
       {
         "q": "跑步机买什么牌子好",
@@ -1413,8 +2073,38 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0012,
+        "score": 0.0213,
         "note": "健身相关但库里没有"
+      },
+      {
+        "q": "膝盖半月板损伤怎么康复",
+        "expect": null,
+        "kind": "refuse",
+        "got": "深蹲",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.421,
+        "note": "健身相关但库里没有，最难的一条"
+      },
+      {
+        "q": "健身需要买什么装备",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.0323,
+        "note": "健身相关但库里没有"
+      },
+      {
+        "q": "推荐一部健身题材的电影",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.0526,
+        "note": "带健身关键词但无关"
       }
     ]
   }

@@ -1,22 +1,25 @@
 # -*- coding: utf-8 -*-
 """阈值扫描：把评测集在不同阈值下的表现一次算出来，选拐点。
 
-问题向量只算一次（并缓存），所以扫 28 个阈值和扫 1 个的成本一样。
+问题向量只算一次（并缓存），所以扫几十个阈值和扫 1 个的成本一样。
 用法：uv run python tune_threshold.py
+
+注意：扩库之后这个脚本必须重跑一遍再确定 VEC_THRESHOLD。
+40 条 chunk 之间的分数分布比 4 条时更挤，原来 0.55 那个平台区间大概率会移动。
 """
 import main as app
 from eval import CASES, get_q_vectors
 
 
 def rank_all():
-    """每条问题对 4 个话题的完整排名，只算一次（问题向量走 eval.py 的缓存）"""
+    """每条问题对全库 chunk 的完整排名，只算一次（问题向量走 eval.py 的缓存）"""
     q_vecs = get_q_vectors()
     kb_vecs = app.get_kb_vectors()
-    names = list(app.KB.keys())
     out = []
     for qv in q_vecs:
         r = sorted(
-            ({"topic": n, "score": app.cosine(qv, kv)} for n, kv in zip(names, kb_vecs)),
+            ({"id": d["id"], "topic": d["topic"], "score": app.cosine(qv, kv)}
+             for d, kv in zip(app.KB, kb_vecs)),
             key=lambda x: x["score"], reverse=True,
         )
         out.append(r)
@@ -27,7 +30,8 @@ def score_at(rankings, th, top_k=app.VEC_TOP_K):
     hit1 = hit2 = 0
     ref_ok = ref_n = 0
     for case, ranking in zip(CASES, rankings):
-        kept = [r["topic"] for r in ranking if r["score"] >= th][:top_k]
+        # 和线上同一套挑法：先过阈值，再按话题去重，最后取 top_k
+        kept = [r["topic"] for r in app.pick_hits(ranking, top_k, th)]
         top = kept[0] if kept else None
         if case["kind"] == "refuse":
             ref_n += 1
@@ -47,15 +51,15 @@ def score_at(rankings, th, top_k=app.VEC_TOP_K):
 def run():
     rankings = rank_all()
     rows = []
-    for i in range(45, 73):          # 0.45 ~ 0.72
+    for i in range(40, 78):          # 0.40 ~ 0.77，扩库后分布会往两边散，范围放宽
         th = i / 100
         rows.append((th, score_at(rankings, th)))
 
     print("阈值     hit@1   hit@2   拒答率   整体准确率")
     print("-" * 48)
-    best = max(rows, key=lambda x: x[1]["acc"])
+    best = max(rows, key=lambda x: (x[1]["acc"], x[1]["refuse"]))
     for th, m in rows:
-        mark = "  ← 当前" if abs(th - 0.55) < 1e-9 else ""
+        mark = "  ← 当前" if abs(th - app.VEC_THRESHOLD) < 1e-9 else ""
         mark += "  ← 最优" if th == best[0] else ""
         print(f"{th:.2f}    {m['hit1']*100:5.0f}%  {m['hit2']*100:5.0f}%  "
               f"{m['refuse']*100:5.0f}%   {m['acc']*100:5.0f}%{mark}")
