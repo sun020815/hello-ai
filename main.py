@@ -993,8 +993,13 @@ def kb(q: str):
     return {"matched": hits[0]["topic"], "answer": hits[0]["text"]}
 
 
-def call_llm(messages):
-    """把「调用模型」这件事收成一个函数，两处共用"""
+def call_llm(messages, temperature: float = 0.0):
+    """把「调用模型」这件事收成一个函数，多处共用。
+
+    temperature 默认 0：同一道题必须答一样的，否则评测不可复现。
+    这不是理论洁癖 —— 兜底判断里「每次吸气要吸到多满」第一次答、第二次拒，
+    同一份资料同一个 prompt，结论却翻面。不可复现的系统，任何 A/B 结论都站不住。
+    """
     if not LLM_API_KEY or LLM_API_KEY.startswith("sk-替换"):
         raise HTTPException(status_code=500, detail=".env 里的 LLM_API_KEY 还没填")
 
@@ -1002,7 +1007,7 @@ def call_llm(messages):
     try:
         return call_with_retry(
             lambda: get_client(LLM_TIMEOUT).chat.completions.create(
-                model=LLM_MODEL, messages=messages
+                model=LLM_MODEL, messages=messages, temperature=temperature
             ),
             label="chat",
             stat=stat,
@@ -1011,6 +1016,74 @@ def call_llm(messages):
         raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         raise external_error(e, "调用模型", stat)
+
+
+# ---------- 生成层兜底：检索拒答之后的第二道闸 ----------
+# 病因不是模型不行，是代码把话堵死了：
+#   if not hits: return "知识库里没有相关资料"
+# 这句话在「语料里真的没有」时是对的，在「语料里有、但精排分数不够」时就是错的。
+# 实测后者真实存在：「每次吸气要吸到多满」语料里有答案，4B 已经给到 0.802，
+# 仍过不了 0.95 —— 用户拿到的是「没有」，而库里明明写着。
+#
+# 为什么不让检索层把阈值降下来：降了就成片漏放该拒的题（拒答率从 81% 掉到 70% 以下）。
+# 一根线不能同时表达「能答就答」和「不懂别装」，所以拆成两层：
+#   第一层精排分数说了算（严格，宁拒不答）
+#   第二层只在第一层拒了时启动，把 top-N 弱相关资料交给生成层判断能不能答。
+#
+# 为什么不单独调一次「能不能答」再调一次「答」：慢一倍、贵一倍，而且两次调用会
+# 给出互相矛盾的结论。用哨兵字符串，一次调用同时完成判断和作答。
+# 为什么让它在 200 题上只赚 1 个点还默认开：赚的这 1 点不是重点。
+# 重点是它把「检索层拒答」从终审降级成初筛 —— 后者本来就没资格终审，
+# 它是按分数开关的，永远分不清「语料没有」和「语料有但问法怪」。
+# 实测证据：20 条最难的极低分问法里，阈值拒掉 5 条，兜底救回 3 条且全部答对。
+# 综合集只赚 1 点，是因为那 95 条命中题本来就被 4B 救得差不多了（假拒答只剩 2 条）。
+# 真实用户问得比评测集口语，所以按评测集估的收益是下限，不是上限。
+# 代价说清楚：每条被拒的题多一次生成调用（拒答率 19%），多 1~2 秒。
+FALLBACK_ENABLED = True
+FALLBACK_TOP_N = 2              # 给生成层几段资料：2 段够判断，多了反而能拼出答案
+FALLBACK_FLOOR = 0.0            # top1 低于这个分就认定完全无关，连模型都不调（0 = 不设限）
+FALLBACK_SENTINEL = "资料不足"
+# prompt 的措辞是试出来的，不是写的。放宽成「有多少说多少」那一版更差：
+# 肩袖损伤、半月板康复这类明确该拒的题都被硬答了（6 条测试里 5 条放行），
+# 严格版是 3 答 3 拒、全对。所以「宁可说资料不足」这句不能去掉。
+FALLBACK_PROMPT = (
+    "你是一名健身教练。下面给你几段资料和一个问题。规则：\n"
+    "1. 如果资料足以回答问题，直接给出简洁具体的答案，给数字，不说套话。\n"
+    f"2. 如果资料不足以回答（问的东西资料里根本没提，或者只沾点边但答不了），"
+    f"只输出这四个字：{FALLBACK_SENTINEL}。\n"
+    "3. 不要补充资料以外的知识，不要解释你为什么答不了。\n"
+    "宁可说资料不足，也不要猜。"
+)
+
+
+def answer_with_fallback(q: str, ranking, top_n: int = FALLBACK_TOP_N):
+    """把弱相关资料交给生成层，让它判断「这些够不够回答」。
+
+    返回 None 表示模型也认为答不了（应当拒答）；
+    返回 dict 表示模型给出了答案。
+    """
+    if not ranking:
+        return None
+    if ranking[0]["score"] < FALLBACK_FLOOR:
+        return None             # 完全无关，没必要花一次调用去确认
+
+    ctx = ranking[:top_n]
+    context = "\n".join(f"- {c['topic']}：{c['text']}" for c in ctx)
+    try:
+        resp = call_llm([
+            {"role": "system", "content": FALLBACK_PROMPT},
+            {"role": "user", "content": f"【资料】\n{context}\n\n【问题】\n{q}"},
+        ])
+    except HTTPException:
+        return None             # 兜底本身失败就退回拒答，不能因为它把主链路带崩
+
+    text = resp.choices[0].message.content.strip()
+    # 只认开头。模型有时会写「资料不足，因为……」或「资料不足。建议……」，
+    # 用 in 全文判断会被「资料里没有提到 XX，但你要注意 YY」这种半答半拒蒙骗。
+    head = text[:len(FALLBACK_SENTINEL) + 2]
+    if FALLBACK_SENTINEL in head:
+        return None
+    return {"answer": text, "sources": ctx, "tokens": resp.usage.total_tokens}
 
 
 @app.post("/chat")
@@ -1028,13 +1101,14 @@ def chat(req: AskRequest):
 
 
 @app.post("/rag")
-def rag(req: AskRequest, mode: str = "rerank"):
-    """mode=rerank 向量召回 + reranker 精排（默认，98 题整体 94% / 拒答 90%）
+def rag(req: AskRequest, mode: str = "rerank", fallback: bool | None = None):
+    """mode=rerank 向量召回 + reranker 精排（默认，200 题整体 88% / 拒答 81%）
     mode=vector 纯向量检索（整体 86% / 拒答 70%）
     mode=hybrid 向量 + BM25 混合检索（排序融合，门控仍看向量分）
     mode=rewrite 先把问题改写成 3 条资料风格表述，再取最大相似度
     mode=oral    先改写成 3 条书面表述，再各走一遍精排，取最高分那次
     mode=keyword 老的关键词匹配，方便对比
+    fallback=1   检索拒答后，把 top-2 弱相关资料交给生成层判断能不能答（生成层兜底）
 
     为什么默认从 vector 换成 rerank：同一批 98 条题上，rerank 精排 + 0.50 门控
     比纯向量高 8 个点（94% vs 86%），拒答率也从 70% 提到 90%。代价是每题多一次
@@ -1057,6 +1131,30 @@ def rag(req: AskRequest, mode: str = "rerank"):
         hits, ranking = search_kb_vector(req.question)
 
     if not hits:
+        # 第二道闸：检索层严格拒了，但召回里确实有弱相关资料。
+        # 让生成层自己判断「这些够不够回答」——它能拒，也能把本来被埋掉的答案捞出来。
+        # fallback 三态：不传走全局默认，显式 ?fallback=0 必须能关掉
+        # （写成 `fallback or FALLBACK_ENABLED` 就关不掉了，False or True 还是 True）。
+        use_fb = FALLBACK_ENABLED if fallback is None else fallback
+        fb = None
+        if use_fb and ranking:
+            fb = answer_with_fallback(req.question, ranking)
+
+        if fb:
+            return {
+                "answer": fb["answer"],
+                "sources": [
+                    {"id": c["id"], "topic": c["topic"], "source": c["source"], "score": c["score"]}
+                    for c in fb["sources"]
+                ],
+                "ranking": ranking,
+                "mode": mode,
+                "variants": variants,
+                "tokens": fb["tokens"],
+                "degraded": False,
+                "fallback_used": True,      # 调用方据此知道：这条不是精排过线的，是兜底兜回来的
+            }
+
         return {
             "answer": "知识库里没有相关资料，我无法基于资料回答。",
             "sources": [],
@@ -1065,6 +1163,7 @@ def rag(req: AskRequest, mode: str = "rerank"):
             "variants": variants,
             "tokens": 0,
             "degraded": False,
+            "fallback_used": False,
         }
 
     context = "\n".join(f"- {h['topic']}：{h['text']}" for h in hits)
@@ -1105,6 +1204,7 @@ def rag(req: AskRequest, mode: str = "rerank"):
             "variants": variants,
             "tokens": 0,
             "degraded": True,
+            "fallback_used": False,
         }
 
     return {
@@ -1115,4 +1215,5 @@ def rag(req: AskRequest, mode: str = "rerank"):
         "variants": variants,
         "tokens": resp.usage.total_tokens,
         "degraded": False,
+        "fallback_used": False,
     }
