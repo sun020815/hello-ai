@@ -73,3 +73,7 @@ eval_cases.json.bak-*
 
 # 构建日志
 .docker_build.log
+
+# 边界抖动测量（本地产物，重算要花钱）
+.stability.json
+.stability.log
