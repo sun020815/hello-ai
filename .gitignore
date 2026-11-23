@@ -57,6 +57,7 @@ kb.json.bak-*
 .eval_reranks.bge.json
 eval_results.4b_*.json
 eval_results.bge.json
+eval_results.200.json
 
 # 生成层兜底的判断缓存与日志（本地产物，重算要花钱）
 .fallback*.json

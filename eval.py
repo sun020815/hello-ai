@@ -312,6 +312,7 @@ def evaluate(mode):
             "q": case["q"], "expect": case["expect"], "kind": case["kind"],
             "got": got, "hit1": ok1, "hit2": ok2,
             "score": pred["score"], "note": case.get("note", ""),
+            "tier": case.get("tier", ""),
         })
     return rows
 
@@ -352,6 +353,19 @@ def run_report():
         print(f"  hit@2（前两条有）    {pct(m['hit2'])}   {sum(r['hit2'] for r in rows if r['kind']=='hit')}/{m['hit_n']}")
         print(f"  拒答正确率           {pct(m['refuse'])}   {sum(r['hit1'] for r in rows if r['kind']=='refuse')}/{m['ref_n']}")
         print(f"  整体准确率           {pct(m['acc'])}   {sum(r['hit1'] for r in rows)}/{m['n']}")
+
+        # 分难度：新写的题是照着 chunk 反推出来的，天生比真实问法好答。
+        # 把两批混在一起算平均，等于用「自己出的题」给自己打分 ——
+        # 所以只要带了 tier，就分开报，看结论时以 hard 那批为准。
+        tiers = {}
+        for r in rows:
+            if r.get("tier"):
+                tiers.setdefault(r["tier"], []).append(r)
+        if len(tiers) > 1:
+            print("  分难度              " + "   ".join(
+                f"{t} {sum(x['hit1'] for x in rs)}/{len(rs)} ({pct(sum(x['hit1'] for x in rs) / len(rs))})"
+                for t, rs in sorted(tiers.items())
+            ))
 
         bad = [r for r in rows if not r["hit1"]]
         if bad:

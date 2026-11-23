@@ -576,6 +576,7 @@ def meta():
         "rerank_threshold": RERANK_THRESHOLD,
         "recall_k": RECALL_K,
         "fallback_enabled": FALLBACK_ENABLED,
+        "uncertain_band": UNCERTAIN_BAND,
     }
 
 
@@ -708,6 +709,28 @@ def pick_hits(ranking, top_k, threshold):
         if len(picked) >= top_k:
             break
     return picked
+
+
+# 离门线多近算「不确定」。0.006 不是拍的：diag_stability.py 在 4B 上量过，
+# 224 题里只有 2 条落在 0.006 以内，其中 1 条（髌骨软化 0.9463~0.9512）
+# 连跑 5 次翻了 2 次面 —— 也就是说这个带子里的判定本身不可复现。
+# 带宽取窄了抓不到翻面题，取宽了会把确定的答案也标成不确定（0.05 以内有 40 多条，
+# 标了等于没标）。0.006 是「翻面实测区间」的实测宽度，不是调参调出来的。
+UNCERTAIN_BAND = float(os.getenv("UNCERTAIN_BAND", "0.006"))
+
+
+def near_gate(ranking, threshold, band: float | None = None) -> bool:
+    """top1 的分跟门线贴得够近就返回 True —— 这个判定随时可能翻面。
+
+    注意它**不代表答案错**：贴线过关的那条多半是对的，贴线没过的那条多半也没错，
+    只是「这次刚好站在线这边」。所以用途是给调用方一个信号（前端标黄、
+    离线统计、或者将来做人工复核队列），而不是自己再改判定 ——
+    改判定的位置只有一个，就是 pick_hits 里那句 score < threshold。
+    """
+    if not ranking:
+        return False                # 压根没召回到东西，不是「边界」是「没有」
+    b = UNCERTAIN_BAND if band is None else band
+    return abs(ranking[0]["score"] - threshold) < b
 
 
 def public_sources(items):
@@ -858,9 +881,21 @@ def search_kb_rerank(q: str, top_k: int = RERANK_TOP_K, threshold: float = RERAN
 #   原问法拒答   -> 改写 3 条、各精排一次，谁分高用谁
 #
 # 实测收益（20 条最难口语问法，「安全命中」= 过门槛且话题对）：0/20 -> 8/20。
-
+#
+# 但这个「+8」是在一批**全部该答**的题上量的。加上负例之后结论翻了：
+# 135 条口语集（110 该答 / 25 该拒）上，删掉负例就看不见问题 ——
+# 被拒答的题里，有相当一部分是**本来就不该答**的（康复、装备、补剂、出界问题），
+# 它们同样会进改写分支，改写完照样变成一句「很像健身问题」的话，然后被放行。
+# diag_oral_gate.py 扫了 0.30~0.985 十个门槛，没有一个能救：
+#   门槛 0.50（原默认）：命中 94.5%（+2），拒答 32%（-68 点），整体 83.0%
+#   门槛 0.95（与基座同门线）：命中 94.5%（+2），拒答 60%，整体 88.1%
+#   门槛 0.985：命中 93.6%（+1），拒答 68%，整体 88.9%
+#   基座（不用改写）：命中 92.7%，拒答 100%，整体 94.1%
+# 也就是「用 2 条命中换掉 17 条正确拒答」。对一个「宁可说资料不足」的产品，
+# 这个交换是负的。所以 oral 不再作为可选演示模式的推荐路径，门槛也对齐基座 ——
+# 留 0.50 等于留一个「一开就把拒答率打到三分之一」的开关。
 ORAL_N = 3
-ORAL_THRESHOLD = 0.50
+ORAL_THRESHOLD = RERANK_THRESHOLD
 
 
 def search_kb_rerank_oral(q: str, top_k: int = RERANK_TOP_K, threshold: float = ORAL_THRESHOLD):
@@ -870,8 +905,14 @@ def search_kb_rerank_oral(q: str, top_k: int = RERANK_TOP_K, threshold: float = 
     （安全命中 8/20 vs 7/20），因为专门那版容易把问题里的具体对象写丢。
 
     返回的第三项 variants 只用来告诉调用方「这次改写成了什么」，没改写就是空列表。
+
+    原问法这一刀**必须**用 RERANK_THRESHOLD，不能跟着 threshold 参数走（默认值是
+    ORAL_THRESHOLD=0.50，那是 bge 时代的刻度）。这里踩过一次：默认参数直接透传进
+    search_kb_rerank，线上原问法的门线悄悄变成 0.50，而 eval.py 里基座用的是 0.95
+    —— 线上和评测测的不是同一件事，且 0.50 正好是 4B 判「像但不是答案」那片区域，
+    等于把一批半相关 chunk 全放进来。threshold 现在只作用于改写出来的候选。
     """
-    hits, ranking = search_kb_rerank(q, top_k, threshold)
+    hits, ranking = search_kb_rerank(q, top_k, RERANK_THRESHOLD)
     if hits:
         return hits, ranking, []        # 原问法就答了，不额外花钱、不改行为
 
@@ -1164,6 +1205,10 @@ def rag(req: AskRequest, mode: str = "rerank", fallback: bool | None = None):
     mode=keyword 老的关键词匹配，方便对比
     fallback=1   检索拒答后，把 top-2 弱相关资料交给生成层判断能不能答（生成层兜底）
 
+    返回里的 uncertain 表示「这次的判定贴着门线」（|top1 - 门槛| < 0.006）：
+    同一句话连跑 5 次有过翻面的实测区间（diag_stability.py）。它不影响答不答，
+    只告诉调用方「这条结论不稳」，前端标黄、离线复核都靠它。
+
     为什么默认从 vector 换成 rerank：同一批 98 条题上，rerank 精排 + 0.50 门控
     比纯向量高 8 个点（94% vs 86%），拒答率也从 70% 提到 90%。代价是每题多一次
     上游调用（约 0.27 秒），换来的主要不是排序变好，而是**判别力**——
@@ -1183,6 +1228,20 @@ def rag(req: AskRequest, mode: str = "rerank", fallback: bool | None = None):
         hits, ranking = search_kb_rewrite(req.question)
     else:
         hits, ranking = search_kb_vector(req.question)
+
+    # 这次判定用的是哪条门线。每种模式各有一条，不能统一按 RERANK_THRESHOLD 算：
+    # 拿错门线会得出一堆假的「不确定」（vector 的 0.60 跟 4B 的 0.95 不是一个刻度）。
+    if mode == "oral":
+        # variants 非空 = 改写这条路真的参与了，此时最终排序来自改写候选，
+        # 它比的是 ORAL_THRESHOLD；基座那一次仍然比的是 RERANK_THRESHOLD。
+        gate = ORAL_THRESHOLD if variants else RERANK_THRESHOLD
+    elif mode in ("vector", "hybrid"):
+        gate = VEC_THRESHOLD
+    elif mode == "rewrite":
+        gate = REWRITE_THRESHOLD
+    else:
+        gate = RERANK_THRESHOLD
+    uncertain = near_gate(ranking, gate)
 
     if not hits:
         # 第二道闸：检索层严格拒了，但召回里确实有弱相关资料。
@@ -1204,6 +1263,7 @@ def rag(req: AskRequest, mode: str = "rerank", fallback: bool | None = None):
                 "tokens": fb["tokens"],
                 "degraded": False,
                 "fallback_used": True,      # 调用方据此知道：这条不是精排过线的，是兜底兜回来的
+                "uncertain": uncertain,     # 兜底能兜回来，本身就说明它贴着门线
             }
 
         return {
@@ -1215,6 +1275,7 @@ def rag(req: AskRequest, mode: str = "rerank", fallback: bool | None = None):
             "tokens": 0,
             "degraded": False,
             "fallback_used": False,
+            "uncertain": uncertain,
         }
 
     context = "\n".join(f"- {h['topic']}：{h['text']}" for h in hits)
@@ -1253,6 +1314,7 @@ def rag(req: AskRequest, mode: str = "rerank", fallback: bool | None = None):
             "tokens": 0,
             "degraded": True,
             "fallback_used": False,
+            "uncertain": uncertain,
         }
 
     return {
@@ -1264,4 +1326,5 @@ def rag(req: AskRequest, mode: str = "rerank", fallback: bool | None = None):
         "tokens": resp.usage.total_tokens,
         "degraded": False,
         "fallback_used": False,
+        "uncertain": uncertain,
     }
