@@ -1,0 +1,8 @@
+# 行尾按平台定死。不写这个，Windows 上提交的 .sh 会变成 CRLF，
+# clone 到 Linux/macOS 直接报 "bad interpreter: /usr/bin/env bash^M"。
+* text=auto
+*.sh   text eol=lf
+*.bat  text eol=crlf
+Dockerfile      text eol=lf
+docker-compose.yml text eol=lf
+.dockerignore   text eol=lf
