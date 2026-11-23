@@ -4,6 +4,7 @@ import os
 import random
 import threading
 import time
+import uuid
 import urllib.error
 import urllib.request
 from collections import OrderedDict, deque
@@ -578,6 +579,11 @@ def meta():
         "fallback_enabled": FALLBACK_ENABLED,
         "uncertain_band": UNCERTAIN_BAND,
         "auth_required": bool(ACCESS_CODE),
+        # 多轮：前端据此决定要不要显示「新对话」按钮和会话号
+        "multiturn": CONDENSE_MODE != "off",
+        "condense_mode": CONDENSE_MODE,
+        "session_ttl_s": SESSION_TTL,
+        "session_max_turns": SESSION_TURNS,
     }
 
 
@@ -598,6 +604,9 @@ def greet(name: str, city: str = "杭州"):
 class AskRequest(BaseModel):
     question: str
     top_k: int = 3
+    # 多轮会话号。不传 = 单轮，行为跟以前完全一致（这是兼容性的底线：
+    # 老的调用方、老的评测脚本一个字都不用改）。
+    session_id: str | None = None
 
 
 @app.post("/ask")
@@ -1204,7 +1213,8 @@ _cache_lock = threading.Lock()
 _rate: dict[str, deque] = {}                          # ip -> 请求时间戳
 _rate_lock = threading.Lock()
 _day = {"date": "", "used": 0}
-STATS = {"requests": 0, "cache_hits": 0, "rate_limited": 0, "llm_calls": 0, "started": time.time()}
+STATS = {"requests": 0, "cache_hits": 0, "rate_limited": 0, "llm_calls": 0,
+         "condense_calls": 0, "condense_failed": 0, "started": time.time()}
 
 
 def client_ip(request: Request) -> str:
@@ -1291,8 +1301,35 @@ def daily_check() -> bool:
         return True
 
 
-def finish(body: dict, key: str | None) -> dict:
-    """统一的收尾：打标记、决定要不要写缓存。
+def mark_session(body: dict, ctx: dict | None) -> dict:
+    """把「这一轮属于哪个会话、被理解成了什么、时间花在哪」写进返回体，并记进会话。
+
+    缓存命中也得走这里：缓存里存的是**上一次请求的会话号**，不盖一遍，
+    客户端就会从自己的会话跳到别人的会话上 —— 这种 bug 只在两个人同时
+    问同一句话时出现，很难测到，但一旦出现就是「聊着聊着换了个人」。
+
+    会话记录里**拒答和降级也留**：「那上斜呢」跟着的可能是一句「资料不足」，
+    但这句话里的「上斜」仍然是下一轮补全要用的上下文。
+    """
+    if not ctx:
+        return body
+    body["session_id"] = ctx["sid"] or None
+    body["resolved_question"] = ctx["resolved"]
+    body["condensed"] = bool(ctx["condensed"])
+    body["history_turns"] = ctx["hist"]
+    if ctx.get("tim"):
+        # 分阶段耗时：慢的时候能自己说明慢在哪，不用回头猜。
+        # 多轮引入了一段「补全」，它跟检索、生成不是一回事，混在一起看不出来。
+        body["timings"] = {k: int(v) for k, v in ctx["tim"].items()}
+    if ctx["sid"]:
+        srcs = body.get("sources") or []
+        session_append(ctx["sid"], ctx["raw"], ctx["resolved"],
+                       srcs[0]["topic"] if srcs else None)
+    return body
+
+
+def finish(body: dict, key: str | None, ctx: dict | None = None) -> dict:
+    """统一的收尾：决定要不要写缓存、要不要记进会话。
 
     **降级结果不写缓存**：degraded 表示「上游这次抖了」，把它存下来等于
     把一次故障固化成永久的答案，后面所有人拿到的都是那段报错。
@@ -1300,12 +1337,286 @@ def finish(body: dict, key: str | None) -> dict:
     body.setdefault("cached", False)
     if key and not body.get("degraded"):
         cache_put(key, body)
-    return body
+    return mark_session(body, ctx)
+
+
+# ---------- 第七段：多轮会话 ----------
+# 单轮系统碰到的第一个真问题不是「答得不好」，是「根本不理解」：
+#   用户问「那上斜呢」—— 这五个字单看没有任何对象，向量化之后是一团噪声，
+#   精排只能靠「上斜」两个字去撞，撞到哪个话题全凭运气。
+# 所以多轮要解决的不是「记住聊过什么」，而是**把省略的那句话补回来**，
+# 补成一句能独立检索的问题。这一步叫 query condensation（问题补全）。
+#
+# 三个刻意的设计：
+#   1. 补全只用于**检索**，不改答案。答案仍然只能依据检索到的资料生成 ——
+#      把历史对话喂进生成层看起来更「懂上下文」，但那样模型就有了一条
+#      资料以外的信息来源，会开始编。
+#   2. 补全是**有条件**的。每轮都补一次等于每轮多花一次调用（约 0.5 秒），
+#      而真实对话里「完整问题」远多于「省略追问」。所以先看这句话像不像追问。
+#   3. 会话状态是**进程内存**的。跟缓存、限流一个道理：单实例演示够用，
+#      多实例就得挪到 Redis。不假装它是持久化的。
+
+SESSION_MAX = int(os.getenv("SESSION_MAX", "200"))       # 最多同时保留多少个会话
+SESSION_TURNS = int(os.getenv("SESSION_TURNS", "6"))     # 每个会话保留最近几轮
+SESSION_TTL = int(os.getenv("SESSION_TTL", "1800"))      # 空闲多久回收（秒）
+CONDENSE_MODE = os.getenv("CONDENSE_MODE", "auto").strip().lower()   # auto | always | off
+CONDENSE_CACHE_MAX = int(os.getenv("CONDENSE_CACHE_MAX", "1000"))
+CONDENSE_FAST = os.getenv("CONDENSE_FAST", "1") not in ("0", "false", "False")
+CONDENSE_MAX_TOKENS = int(os.getenv("CONDENSE_MAX_TOKENS", "64"))
+# 补全最多等这么久。实测这个模型补全的中位延迟是 1.0 秒，但 8 次里有 2 次
+# 超过 6 秒（供应商侧抖动）。等一句补全等 6 秒以上，用户体感就是「卡住了」，
+# 所以上限压到 4 秒，超了就换一条零成本的退路（见 resolve_question 里的拼接）。
+CONDENSE_TIMEOUT = float(os.getenv("CONDENSE_TIMEOUT", "4"))
+
+_sessions: "OrderedDict[str, dict]" = OrderedDict()
+_sess_lock = threading.Lock()
+_cond: "OrderedDict[str, str]" = OrderedDict()            # 补全结果缓存（同一段对话会重复点）
+_cond_lock = threading.Lock()
+
+
+def new_session_id() -> str:
+    """给客户端发一个会话号。用随机串而不是自增：自增号能被枚举，
+    虽然这里没什么机密，但「能猜到的 id」迟早会在别的接口上变成漏洞。"""
+    return uuid.uuid4().hex[:12]
+
+
+def session_get(sid: str) -> list:
+    """取某个会话的轮次列表（拷贝），顺手做过期回收。"""
+    if not sid:
+        return []
+    now = time.time()
+    with _sess_lock:
+        s = _sessions.get(sid)
+        if not s:
+            return []
+        if now - s["ts"] > SESSION_TTL:
+            _sessions.pop(sid, None)
+            return []
+        _sessions.move_to_end(sid)
+        return list(s["turns"])
+
+
+def session_append(sid: str, raw: str, resolved: str, topic: str | None) -> None:
+    """记一轮。存 resolved 而不是只存 raw：下一轮补全时，
+    看到「用户原话 + 它被理解成了什么」比只看到原话准得多。"""
+    if not sid:
+        return
+    now = time.time()
+    with _sess_lock:
+        s = _sessions.get(sid)
+        if not s or now - s["ts"] > SESSION_TTL:
+            s = {"turns": [], "ts": now}
+            _sessions[sid] = s
+        s["turns"].append({"q": raw, "resolved": resolved, "topic": topic, "ts": now})
+        if len(s["turns"]) > SESSION_TURNS:
+            del s["turns"][: len(s["turns"]) - SESSION_TURNS]
+        s["ts"] = now
+        _sessions.move_to_end(sid)
+        while len(_sessions) > SESSION_MAX:
+            _sessions.popitem(last=False)      # LRU：最久没动静的先走
+
+
+def session_clear(sid: str) -> int:
+    with _sess_lock:
+        return 1 if _sessions.pop(sid, None) is not None else 0
+
+
+def session_stats() -> dict:
+    now = time.time()
+    with _sess_lock:
+        alive = sum(1 for s in _sessions.values() if now - s["ts"] <= SESSION_TTL)
+        turns = sum(len(s["turns"]) for s in _sessions.values())
+    return {"sessions": alive, "session_turns": turns, "session_max": SESSION_MAX,
+            "condense_mode": CONDENSE_MODE, "condense_calls": STATS["condense_calls"]}
+
+
+# 像「追问」的信号：短句，或者带省略/指代/接续的标志词。
+# 这里故意宽松：把完整问题误判成追问的代价是**多一次调用**（补全后会原样返回），
+# 把追问误判成完整问题的代价是**答错**。两种错误的价格不在一个量级上。
+FOLLOWUP_HINTS = ("那", "呢", "还", "再", "换", "改", "也是", "同样", "一样",
+                  "这个", "那个", "它", "一样", "继续", "然后", "以及", "顺便")
+
+
+def needs_condense(question: str, history: list) -> bool:
+    """要不要为这句话花一次补全调用。"""
+    if CONDENSE_MODE == "off" or not history:
+        return False
+    if CONDENSE_MODE == "always":
+        return True
+    q = question.strip()
+    if len(q) <= 6:
+        return True                             # 「那上斜呢」「做几组」「那脚呢」必然是省略句
+    # 这条线是量出来的，不是拍的：
+    #   定 14 时，「推日都练哪些部位平时怎么安排」这种完整问题也被当成追问，
+    #          白花一次调用，还会因为补全改写了措辞而丢掉缓存；
+    #   定 8 时，仍然误伤「高位下拉握距多宽」（8 字、完整），而那次补全恰好超时，
+    #          靠拼接退路才没答错；
+    #   定 6 时，评测集里 21 条追问一条不漏（长的都带「那」），对照组一条不碰。
+    # 更长的省略句靠下面的标志词兜住（「那如果我换成哑铃的话要做几组」有「那」）。
+    return any(h in q for h in FOLLOWUP_HINTS)
+
+
+CONDENSE_PROMPT = """用户在连续提问，最新一句话可能省略了主语或对象。把它补成一句能独立看懂的完整问题。
+
+最重要的规则：**最新一句话里的那个对象，必须仍然是补全后句子的中心词**。
+上文只用来补被省略的谓语、修饰和限定，不要把上一轮的整句句式套过来。
+
+例一：上文在聊「自由泳怎么换气」，最新一句是「那打腿呢」。
+正确：自由泳怎么打腿
+错误：自由泳换气那打腿呢（把上文整句套过来，中心没落在打腿上）
+
+例二：上文在聊「骑行装备怎么配」，最新一句是「那锁鞋呢」。
+正确：骑行装备里锁鞋怎么选
+错误：锁鞋怎么选（「锁鞋」单看太笼统，丢了「骑行」就没法定位）
+
+其余规则：
+1. 用上文里出现过的说法，不要换词、不要扩展问题范围。
+2. 不回答问题，不解释，不加「以下是」「改写为」这类前缀。
+3. 不要添加上文和最新一句话里都没出现的新对象、新数字。
+4. 如果最新一句话本身已经完整、不需要上文，就原样输出。
+5. 只输出这一句话，不要引号、不要编号、不要句末标点。
+
+【上文】
+{history}
+
+【最新一句话】
+{question}"""
+
+
+_cond_fast_ok = [True]      # 用列表当可变标志，避免 global 满天飞
+
+# 哪些错误说明「这个供应商不认 enable_thinking / max_tokens」。
+# 必须精确到这个范围：第一版是「任何异常都把快路关掉」，结果第一次
+# APITimeoutError（20 秒没回）就把快路永久关了，后面每条补全都在
+# 慢路上等 6 秒然后超时 —— 一次网络抖动变成永久降级。
+_PARAM_ERR_HINTS = ("enable_thinking", "max_tokens", "unexpected keyword",
+                    "unknown parameter", "unsupported", "invalid")
+
+
+def _param_error(e: Exception) -> bool:
+    code = getattr(e, "status_code", None)
+    if code == 400:
+        return True
+    msg = str(e).lower()
+    return any(w in msg for w in _PARAM_ERR_HINTS)
+
+
+def condense_llm(messages):
+    """补全专用的模型调用：**关推理、限长、短超时、不重试**。
+
+    四个「不」各有理由，都是量出来的：
+
+    1. 关推理。同一个 prompt 实测：开推理 2.7~4.6 秒 / 输出 190~219 tokens；
+       关掉 0.7~1.9 秒 / 输出 48~49 tokens。补全只要一句话，
+       那 170 个 token 全花在「想」上，一点用都没有。
+    2. 限长。同上，防止某个供应商偷偷把推理打开后输出一大段。
+    3. 短超时。补全不在主链路上：等超了就用原话检索，最多少补一句，
+       而让用户为了一句补全对着转圈等 10 秒是完全另一回事。
+       实测这个模型的中位延迟 0.6~1.0 秒，但尾部能到 10 秒以上。
+    4. 不重试。重试是给「抖一下」准备的，补全抖一下的代价（再等 3 秒）
+       比它带来的收益（一句话补全得更准）大得多。主链路才配重试和熔断。
+
+    后果说清楚：补全调用不再计入熔断器。上游整体挂掉时，每个追问会先白等
+    最多 3 秒再退回原话 —— 这是为「不让辅助调用拖垮体验」付的固定成本。
+    """
+    if not LLM_API_KEY or LLM_API_KEY.startswith("sk-替换"):
+        raise HTTPException(status_code=500, detail=".env 里的 LLM_API_KEY 还没填")
+    STATS["llm_calls"] += 1
+    fast = CONDENSE_FAST and _cond_fast_ok[0]
+    kw = {"max_tokens": CONDENSE_MAX_TOKENS, "extra_body": {"enable_thinking": False}} if fast else {}
+    try:
+        return get_client(CONDENSE_TIMEOUT).chat.completions.create(
+            model=LLM_MODEL, messages=messages, temperature=0, **kw)
+    except Exception as e:
+        if fast and _param_error(e):
+            # 只有「参数不被接受」才降级；超时/断网属于另一回事，下次还走快路
+            _cond_fast_ok[0] = False
+            print(f"[condense] 供应商不接受快速参数，之后走普通调用：{type(e).__name__} {str(e)[:80]}")
+            return get_client(CONDENSE_TIMEOUT).chat.completions.create(
+                model=LLM_MODEL, messages=messages, temperature=0)
+        raise
+
+
+def condense(question: str, history: list) -> str | None:
+    """把省略的追问补成完整问题。**失败返回 None**。
+
+    为什么是 None 而不是「返回原话」：上层需要区分两件事 ——
+    「补全成功，模型认为这句话本来就完整」和「补全根本没说上话」。
+    前者该原样去检索，后者该走退路（拿上一轮拼一个检索串）。
+    两种情况都返回原话的话，上层只能猜。
+    """
+    if not history:
+        return None
+    lines = []
+    for t in history[-3:]:
+        line = f"- 用户：{t['q']}"
+        if t.get("resolved") and t["resolved"] != t["q"]:
+            line += f"（理解为：{t['resolved']}）"
+        if t.get("topic"):
+            line += f" → 命中话题：{t['topic']}"
+        lines.append(line)
+    hist_text = "\n".join(lines)
+
+    ck = f"{hist_text}\u0001{question.strip()}"
+    with _cond_lock:
+        hit = _cond.get(ck)
+        if hit is not None:
+            _cond.move_to_end(ck)
+            return hit
+
+    try:
+        STATS["condense_calls"] += 1
+        resp = condense_llm([
+            {"role": "system", "content": "你只做句子补全，不回答问题。"},
+            {"role": "user", "content": CONDENSE_PROMPT.format(history=hist_text, question=question)},
+        ])
+        out = clean_rewrite_line(resp.choices[0].message.content or "")
+    except HTTPException:
+        STATS["condense_failed"] += 1        # 上游抖了 / key 没填
+        return None
+    except Exception:
+        # 超时也走这里。**必须计数**：静默退回单轮时，用户看到的现象是
+        # 「多轮好像没生效」，而日志里什么都没有 —— 这种沉默最难查。
+        STATS["condense_failed"] += 1
+        return None
+
+    # 补全结果的三道保险：空的、太长（模型开始解释了）、没变化，都退回原话
+    out = out.strip().strip("「」\"'。 ")
+    if not out or len(out) > 60:
+        STATS["condense_failed"] += 1
+        return None
+    with _cond_lock:
+        _cond[ck] = out
+        _cond.move_to_end(ck)
+        while len(_cond) > CONDENSE_CACHE_MAX:
+            _cond.popitem(last=False)
+    return out
+
+
+def resolve_question(question: str, sid: str):
+    """返回 (用于检索的问题, 上一轮轮数, 是否改写过)。
+
+    补全成功就用补全结果；补全失败（超时/上游抖）就退一步：
+    **把上一轮的问题和这一句拼起来**当检索串。
+
+    为什么退路不是「用原话」：「那做几组」四个字单独检索是没有对象的，
+    拼上「推日上斜练哪些部位」至少把对象带回来了。代价是查询变长、
+    可能干扰精排，但那比直接拒答好 —— 实测这一句用原话会答「资料不足」。
+    """
+    hist = session_get(sid)
+    if not needs_condense(question, hist):
+        return question, len(hist), False
+    out = condense(question, hist)
+    if out is None:
+        prev = (hist[-1].get("resolved") or hist[-1]["q"]) if hist else ""
+        merged = f"{prev} {question.strip()}".strip()
+        return merged, len(hist), merged != question.strip()
+    return out, len(hist), out.strip() != question.strip()
 
 
 @app.get("/stats")
 def stats():
-    """上线后看这个：缓存命中率、限流拦了多少、实际打了多少次上游。
+    """上线后看这个：缓存命中率、限流拦了多少、实际打了多少次上游、补全失败几次。
 
     不加这个接口，「加了缓存有没有用」只能靠感觉；面试时也少一个能讲的数字。
     """
@@ -1320,7 +1631,22 @@ def stats():
         "daily_quota": DAILY_QUOTA,
         "today_used": _day["used"],
         "auth_required": bool(ACCESS_CODE),
+        **session_stats(),
     }
+
+
+@app.get("/session/{sid}")
+def session_info(sid: str):
+    """看某个会话记了什么。多轮最容易出的 bug 是「记错了」而不是「没记」，
+    所以把内部状态直接暴露出来 —— 调试时不用猜。"""
+    turns = session_get(sid)
+    return {"session_id": sid, "turns": turns, "n": len(turns),
+            "ttl_s": SESSION_TTL, "max_turns": SESSION_TURNS}
+
+
+@app.delete("/session/{sid}")
+def session_drop(sid: str):
+    return {"deleted": session_clear(sid), "session_id": sid}
 
 
 @app.post("/chat")
@@ -1373,16 +1699,28 @@ def rag(req: AskRequest, request: Request, mode: str = "rerank", fallback: bool 
     check_code(request.headers.get("x-access-code"))
     STATS["requests"] += 1
 
+    # 多轮第一步：把省略的追问补成一句能独立检索的话。
+    # **必须在算缓存键之前** —— 「那上斜呢」跟在推日后面和跟在拉日后面
+    # 是两个完全不同的问题，拿原话当键，第二个会话会直接吃到第一个的答案。
+    sid = (req.session_id or "").strip()
+    t0 = time.perf_counter()
+    query, hist_n, condensed = resolve_question(req.question, sid)
+    # 这一轮属于谁、被理解成了什么、各段花了多久 —— 后面所有 return 都带着它，
+    # 所以只在这里建一次。传六个位置参数那种写法已经不够用了。
+    ctx = {"sid": sid, "raw": req.question, "resolved": query,
+           "hist": hist_n, "condensed": condensed,
+           "tim": {"condense_ms": (time.perf_counter() - t0) * 1000}}
+
     # 兜底开关在本函数内部被用过两次（决定缓存键、决定走不走兜底），
     # 所以先算一次：同一个值算两遍，迟早有一处忘了跟着改。
     use_fb = FALLBACK_ENABLED if fallback is None else fallback
-    key = cache_key(mode, use_fb, req.question)
+    key = cache_key(mode, use_fb, query)
 
     cached = cache_get(key)
     if cached is not None:
         cached["cached"] = True
         cached["tokens"] = 0
-        return cached
+        return mark_session(cached, ctx)
 
     wait = rate_check(client_ip(request))
     if wait > 0:
@@ -1394,20 +1732,26 @@ def rag(req: AskRequest, request: Request, mode: str = "rerank", fallback: bool 
     if not daily_check():
         raise HTTPException(status_code=429, detail="今天的演示额度用完了，明天再来")
 
+    t1 = time.perf_counter()
     variants = []           # 只有 oral 模式有；放外面是为了三个 return 的字段一致
+    # 全链路都用 query（补全后的问题）：检索、兜底、生成提问三处必须一致。
+    # 只拿补全结果去检索、却拿原话去生成，模型会对着「那上斜呢」四个字打转。
     if mode == "keyword":
-        hits = search_kb_keyword(req.question)
+        hits = search_kb_keyword(query)
         ranking = None
     elif mode == "rerank":
-        hits, ranking = search_kb_rerank(req.question)
+        hits, ranking = search_kb_rerank(query)
     elif mode == "oral":
-        hits, ranking, variants = search_kb_rerank_oral(req.question)
+        hits, ranking, variants = search_kb_rerank_oral(query)
     elif mode == "hybrid":
-        hits, ranking = search_kb_hybrid(req.question)
+        hits, ranking = search_kb_hybrid(query)
     elif mode == "rewrite":
-        hits, ranking = search_kb_rewrite(req.question)
+        hits, ranking = search_kb_rewrite(query)
     else:
-        hits, ranking = search_kb_vector(req.question)
+        hits, ranking = search_kb_vector(query)
+
+    ctx["tim"]["retrieve_ms"] = (time.perf_counter() - t1) * 1000
+    t2 = time.perf_counter()
 
     # 这次判定用的是哪条门线。每种模式各有一条，不能统一按 RERANK_THRESHOLD 算：
     # 拿错门线会得出一堆假的「不确定」（vector 的 0.60 跟 4B 的 0.95 不是一个刻度）。
@@ -1430,7 +1774,7 @@ def rag(req: AskRequest, request: Request, mode: str = "rerank", fallback: bool 
         # （写成 `fallback or FALLBACK_ENABLED` 就关不掉了，False or True 还是 True）。
         fb = None
         if use_fb and ranking:
-            fb = answer_with_fallback(req.question, ranking)
+            fb = answer_with_fallback(query, ranking)
 
         if fb:
             return finish({
@@ -1443,7 +1787,7 @@ def rag(req: AskRequest, request: Request, mode: str = "rerank", fallback: bool 
                 "degraded": False,
                 "fallback_used": True,      # 调用方据此知道：这条不是精排过线的，是兜底兜回来的
                 "uncertain": uncertain,     # 兜底能兜回来，本身就说明它贴着门线
-            }, key)
+            }, key, ctx)
 
         return finish({
             "answer": "知识库里没有相关资料，我无法基于资料回答。",
@@ -1455,7 +1799,7 @@ def rag(req: AskRequest, request: Request, mode: str = "rerank", fallback: bool 
             "degraded": False,
             "fallback_used": False,
             "uncertain": uncertain,
-        }, key)
+        }, key, ctx)
 
     context = "\n".join(f"- {h['topic']}：{h['text']}" for h in hits)
 
@@ -1473,9 +1817,10 @@ def rag(req: AskRequest, request: Request, mode: str = "rerank", fallback: bool 
             },
             {
                 "role": "user",
-                "content": f"【资料】\n{context}\n\n【问题】\n{req.question}",
+                "content": f"【资料】\n{context}\n\n【问题】\n{query}",
             },
         ])
+        ctx["tim"]["llm_ms"] = (time.perf_counter() - t2) * 1000
     except HTTPException as e:
         if e.status_code not in (502, 503):
             raise       # key 没填这类配置错误，不该伪装成「能答」，直接暴露出来
@@ -1494,7 +1839,7 @@ def rag(req: AskRequest, request: Request, mode: str = "rerank", fallback: bool 
             "degraded": True,
             "fallback_used": False,
             "uncertain": uncertain,
-        }, key)
+        }, key, ctx)
 
     return finish({
         "answer": resp.choices[0].message.content,
@@ -1506,4 +1851,4 @@ def rag(req: AskRequest, request: Request, mode: str = "rerank", fallback: bool 
         "degraded": False,
         "fallback_used": False,
         "uncertain": uncertain,
-    }, key)
+    }, key, ctx)

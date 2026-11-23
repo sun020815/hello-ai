@@ -32,7 +32,8 @@ html = r.text
 check("页面有内容", len(html) > 3000, f"{len(html)} 字节")
 
 print("\n【二、页面依赖的 DOM id 都存在】")
-for dom_id in ("q", "go", "out", "mode", "fb", "examples", "cfg", "dot", "status"):
+for dom_id in ("q", "go", "out", "mode", "fb", "examples", "cfg", "dot", "status",
+               "newchat", "codewrap", "code", "codesave", "codetip"):
     check(f'#{dom_id}', f'id="{dom_id}"' in html)
 
 print("\n【三、页面调的接口后端真的有】")
@@ -40,13 +41,17 @@ called = set(re.findall(r"fetch\('(/[a-z]+)", html))
 routes = {getattr(rt, "path", "") for rt in app.app.routes}
 check("页面至少调一个接口", bool(called), sorted(called))
 for p in sorted(called):
-    check(p, p in routes)
+    # /session/{sid} 这种带路径参数的路由，页面上只能写成 fetch('/session/' + sid)，
+    # 前缀对得上就算数 —— 否则加一个带 id 的接口就会被这条检查误伤。
+    ok = p in routes or any(rt.startswith(p + "/{") for rt in routes)
+    check(p, ok, sorted(routes))
 
 print("\n【四、/meta 的字段和类型】")
 m = TestClient(app.app).get("/meta").json()
 for k, t in (("kb_chunks", int), ("kb_topics", int), ("rerank_model", str),
              ("rerank_threshold", float), ("fallback_enabled", bool),
-             ("uncertain_band", float)):
+             ("uncertain_band", float), ("multiturn", bool),
+             ("condense_mode", str), ("session_max_turns", int)):
     check(f"{k} 是 {t.__name__}", isinstance(m.get(k), t), repr(m.get(k)))
 check("语料条数 > 0", m.get("kb_chunks", 0) > 0, m.get("kb_chunks"))
 check("阈值在 0~1 之间", 0 < m.get("rerank_threshold", -1) < 1, m.get("rerank_threshold"))
@@ -55,7 +60,10 @@ print("\n【五、页面读的字段，后端返回体里确实有】")
 # 这一条是粗粒度双向检查：字段名两边都得出现。真正的字段级验证在 e2e_fallback.py 里。
 src = (HERE / "main.py").read_text(encoding="utf-8")
 for field in ("answer", "sources", "fallback_used", "tokens", "mode",
-              "topic", "text", "score", "uncertain"):
+              "topic", "text", "score", "uncertain",
+              # 多轮：字段名两边必须一致，少一个前端就静默拿不到上文
+              "session_id", "resolved_question", "condensed", "history_turns",
+              "timings"):
     check(f"{field}: HTML + main.py 都有", field in html and field in src)
 
 print("\n【六、uncertain 的判定语义（纯函数，不花钱）】")

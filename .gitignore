@@ -78,3 +78,7 @@ eval_cases.json.bak-*
 # 边界抖动测量（本地产物，重算要花钱）
 .stability.json
 .stability.log
+
+# 多轮诊断的本地产物（检索缓存重算要花钱）
+.diag_multiturn*.json
+.diag_mt*.log

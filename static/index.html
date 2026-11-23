@@ -89,6 +89,31 @@
   }
   button.primary:hover{filter:brightness(1.08)}
   button.primary:disabled{opacity:.45;cursor:not-allowed}
+  button.ghost{
+    background:transparent;color:var(--muted);border:1px solid var(--line);
+    border-radius:8px;padding:8px 14px;font:inherit;font-size:13px;cursor:pointer;
+    transition:color .15s,border-color .15s;
+  }
+  button.ghost:hover{color:var(--text);border-color:#414b59}
+
+  /* ---- 多轮：每一轮是一条「问 + 答」 ---- */
+  .turn{margin-bottom:20px;animation:turnIn .18s ease-out}
+  @keyframes turnIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .turn-q{
+    display:flex;gap:8px;align-items:baseline;font-size:14px;
+    color:var(--text-2);margin-bottom:9px;
+  }
+  .turn-q::before{
+    content:"问";flex:none;font-size:11px;color:var(--muted);
+    border:1px solid var(--line);border-radius:4px;padding:0 5px;line-height:16px;
+  }
+  /* 补全结果单独一行：用户能看到「它把我的话理解成了什么」，
+     补错了一眼就能看出来，不用对着答案猜。 */
+  .turn-resolved{
+    font-size:12.5px;color:var(--muted);margin:-3px 0 9px 30px;
+    display:flex;gap:6px;align-items:baseline;
+  }
+  .turn-resolved b{color:#9fb4cc;font-weight:500}
 
   /* ---- 示例 ---- */
   .examples{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
@@ -213,6 +238,7 @@
         生成层兜底
       </label>
       <div class="spacer"></div>
+      <button class="ghost" id="newchat" title="清空上文，从新的一段对话开始">新对话</button>
       <button class="primary" id="go">提问</button>
     </div>
     <div class="code-row" id="codewrap">
@@ -240,6 +266,19 @@
   var out = $('#out'), btn = $('#go'), ta = $('#q');
   var busy = false;
   var META = null;          // /meta 的返回，拒答时要拿阈值来解释原因
+  // 会话号由**客户端**生成，服务端只负责记。
+  // 为什么不服务端发：那样第一轮就得先请求一次「给我个号」，多一个来回；
+  // 或者让 /rag 在没带号时自动造一个 —— 但那样「单轮调用」就变成了
+  // 「每次都是新会话的开始」，服务端会话表会被纯单轮流量灌满。
+  // 号码不是密钥，可猜无所谓，能对上就行。
+  // 只放在内存里，刷新即新对话：存 localStorage 反而会让人以为它在服务端是持久的。
+  var SID = null;
+  function newSid() {
+    if (window.crypto && crypto.randomUUID) {
+      return crypto.randomUUID().replace(/-/g, '').slice(0, 12);
+    }
+    return 's' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+  }
 
   var EXAMPLES = [
     { tag: '书面', q: '推日都练哪些部位？' },
@@ -305,7 +344,9 @@
       '<b>' + m.kb_chunks + '</b> 条语料 / <b>' + m.kb_topics + '</b> 个话题 · ' +
       '精排 <b>' + m.rerank_model.split('/').pop() + '</b> · ' +
       '阈值 <b>' + m.rerank_threshold + '</b> · ' +
-      '兜底 <b>' + (m.fallback_enabled ? '开启' : '关闭') + '</b>';
+      '兜底 <b>' + (m.fallback_enabled ? '开启' : '关闭') + '</b>' +
+      (m.multiturn ? ' · 多轮 <b>' +
+        (m.condense_mode === 'always' ? '每轮补全' : '按需补全') + '</b>' : ' · 多轮 <b>关闭</b>');
     if (m.auth_required && !code) showCode('这台服务需要访问口令');
   }).catch(function () {
     $('#dot').className = 'dot err';
@@ -346,6 +387,27 @@
     var srcs = d.sources || [];
     var refused = srcs.length === 0;
 
+    // 多轮：会话号由服务端发，客户端只负责带回去。
+    // 不自己生成是为了让「会话」这件事只有一个真相来源 ——
+    // 两边各生成一个 id，迟早有一边记的和另一边不一样。
+    if (d.session_id) SID = d.session_id;   // 服务端回什么就用什么，保持一个真相
+
+    var turn = el('div', 'turn');
+    var qline = el('div', 'turn-q');
+    qline.appendChild(el('span', null, q));
+    if (d.history_turns) {
+      qline.appendChild(el('span', 'badge cache', '第 ' + (d.history_turns + 1) + ' 轮'));
+    }
+    turn.appendChild(qline);
+
+    // 补全过才显示：这句话单独看没意义，是上文把它补成这样的
+    if (d.condensed && d.resolved_question) {
+      var rl = el('div', 'turn-resolved');
+      rl.appendChild(el('span', null, '结合上文理解为'));
+      rl.appendChild(el('b', null, d.resolved_question));
+      turn.appendChild(rl);
+    }
+
     var card = el('div', 'card');
     var head = el('div', 'card-head');
 
@@ -376,6 +438,10 @@
 
     var meta = [];
     meta.push((ms / 1000).toFixed(2) + 's');
+    // 补全那一段单独报出来：不然「多轮怎么慢了一秒」只能靠猜
+    if (d.timings && d.timings.condense_ms) {
+      meta.push('其中补全 ' + (d.timings.condense_ms / 1000).toFixed(2) + 's');
+    }
     if (!refused) meta.push(srcs.length + ' 段');
     if (d.tokens) meta.push(d.tokens + ' tok');
     head.appendChild(el('span', 'metrics', meta.join('  ·  ')));
@@ -404,16 +470,22 @@
       card.appendChild(box);
     }
 
-    out.innerHTML = '';
-    out.appendChild(card);
+    turn.appendChild(card);
+    out.appendChild(turn);
+    // 新一轮进来时滚到底部：多轮里最该看见的永远是最新那条
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
   }
 
-  function fail(msg) {
-    out.innerHTML = '';
+  function fail(msg, q) {
+    // 之前这里是 out.innerHTML=''，单轮时代没问题；多轮里那等于
+    // 「问错一句就把前面聊过的全擦了」。现在只追加一条错误。
+    var turn = el('div', 'turn');
+    if (q) turn.appendChild(el('div', 'turn-q')).appendChild(el('span', null, q));
     var box = el('div', 'err');
     box.appendChild(el('b', null, '请求失败'));
     box.appendChild(document.createTextNode(msg));
-    out.appendChild(box);
+    turn.appendChild(box);
+    out.appendChild(turn);
   }
 
   /* ---- 提问 ---- */
@@ -423,25 +495,37 @@
     busy = true;
     btn.disabled = true;
 
-    out.innerHTML = '';
+    if (!SID) SID = newSid();
+
+    // 空状态只擦一次，之后的每一轮都往后追加
+    var empty = out.querySelector('.empty');
+    if (empty) out.innerHTML = '';
+
     var ld = el('div', 'card');
     var lw = el('div', 'loading');
     lw.appendChild(el('div', 'spin'));
-    lw.appendChild(el('span', null, '检索中：向量召回 → 精排 → 生成'));
+    lw.appendChild(el('span', null, '检索中：向量召回 → 精排 → 生成' +
+      (SID ? '（含上文补全）' : '')));
     ld.appendChild(lw);
-    out.appendChild(ld);
+    var ldTurn = el('div', 'turn');
+    ldTurn.appendChild(ld);
+    out.appendChild(ldTurn);
 
+    var body0 = null;
     var mode = $('#mode').value;
     var fb = $('#fb').checked ? '1' : '0';
     var t0 = performance.now();
 
-    fetch('/rag?mode=' + encodeURIComponent(mode) + '&fallback=' + fb, {
+    // 必须 return：?q= 连续问下去靠的就是这个 promise 串行
+    return fetch('/rag?mode=' + encodeURIComponent(mode) + '&fallback=' + fb, {
       method: 'POST',
       headers: authHeaders(),
-      body: JSON.stringify({ question: q })
+      body: JSON.stringify({ question: q, session_id: SID })
     }).then(function (r) {
       var ms = performance.now() - t0;
       return r.json().then(function (body) {
+        if (ldTurn.parentNode) ldTurn.parentNode.removeChild(ldTurn);
+        body0 = body;
         if (r.ok) { render(q, body, ms); return; }
 
         var detail = body && body.detail;
@@ -462,12 +546,26 @@
         throw new Error('HTTP ' + r.status + '\n' + detail);
       });
     }).catch(function (e) {
-      fail(e.message || String(e));
+      if (ldTurn.parentNode) ldTurn.parentNode.removeChild(ldTurn);
+      fail(e.message || String(e), q);
     }).then(function () {
       busy = false;
       btn.disabled = false;
+      return body0;                    // 交回这一轮的返回体，方便串行复现整段对话
     });
   }
+
+  $('#newchat').onclick = function () {
+    if (SID) {                       // 服务端那份也删掉，不留半个会话在那儿
+      fetch('/session/' + encodeURIComponent(SID), {
+        method: 'DELETE', headers: authHeaders()
+      }).catch(function () {});
+    }
+    SID = null;
+    out.innerHTML = '<div class="empty">新对话。上一段已经清掉了，这一句不会带上任何上文。</div>';
+    ta.value = '';
+    ta.focus();
+  };
 
   btn.onclick = function () { ask(ta.value); };
   ta.addEventListener('keydown', function (e) {
@@ -477,9 +575,15 @@
     }
   });
 
-  /* 支持 ?q=问题 直接提问，方便把「这个问题在这套系统里的表现」作为链接发给别人 */
-  var preset = new URLSearchParams(location.search).get('q');
-  if (preset) { ta.value = preset; ask(preset); }
+  /* 支持 ?q=问题 直接提问，方便把「这个问题在这套系统里的表现」作为链接发给别人。
+     支持重复多个 ?q=：按顺序问下去，问的就是**同一段多轮对话** ——
+     想跟人说明「追问到底有没有用」，发一条链接比截图强。 */
+  var presets = new URLSearchParams(location.search).getAll('q');
+  (function runPreset(i) {
+    if (i >= presets.length) return;
+    ta.value = presets[i];
+    ask(presets[i]).then(function () { runPreset(i + 1); });
+  })(0);
 })();
 </script>
 </body>
