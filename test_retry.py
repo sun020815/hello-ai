@@ -182,15 +182,40 @@ def live_dead_port_test():
     return ok
 
 
+def test_error_translation():
+    """外部异常 -> HTTP 状态码的翻译。
+
+    这一段是踩出来的：评测跑到一半崩了，报的是「502 调用 embedding 失败（已试 3 次）」，
+    真实原因是上游 402 余额不足。502 会让人去查网络，402 才指向「去充值」——
+    翻译错了，排障方向就全错了。顺带把「已试 3 次」改成真实次数：
+    401 这种只试 1 次的错，报成 3 次同样是误导。"""
+    print("\n=== 6. 错误翻译：别把计费错误说成上游挂了 ===")
+    cases = [
+        (FakeStatus(402), "余额不足", 500),
+        (FakeStatus(401), "密钥无效", 500),
+        (FakeStatus(404), "模型名不存在", 500),
+        (FakeStatus(502), "试了 3 次", 502),
+    ]
+    ok_all = True
+    for exc, want_text, want_code in cases:
+        stat = {"attempts": 1 if want_code == 500 else 3}
+        e = main.external_error(exc, "调用模型", stat)
+        ok = e.status_code == want_code and want_text in str(e.detail)
+        ok_all &= ok
+        print(f"  [{'PASS' if ok else 'FAIL'}] {exc.status_code} -> {e.status_code}：{e.detail[:40]}")
+    return ok_all
+
+
 if __name__ == "__main__":
     import sys
 
     ok = main_test()
+    ok = test_error_translation() and ok
 
     # 默认只跑离线部分（2 秒）；加 --live 才发真实请求
     if "--live" in sys.argv:
         ok = live_dead_port_test() and ok
     else:
-        print("\n（跳过第 5 档：真实链路测试，加 --live 运行）")
+        print("\n（跳过真实链路测试，加 --live 运行）")
 
     raise SystemExit(0 if ok else 1)

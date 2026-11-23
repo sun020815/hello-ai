@@ -23,9 +23,19 @@ EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-m3")
 RERANK_MODEL = os.getenv("RERANK_MODEL", "BAAI/bge-reranker-v2-m3")
 
 # 相似度低于这个值就当「资料里没有」，不调模型
-# 0.60 是扩库到 40 条之后重扫出来的：0.58~0.61 是平台区间（整体 93~94%），
-# 取 0.60 偏保守一侧 —— 健身建议答错比不答更糟，宁可漏答也别给错方案。
-# 4 条库时的 0.55 在 40 条库上会放行太多无关问题（拒答率只有 75%）。见 tune_threshold.py
+# 0.60 是 v1 语料（126 条）上扫出来的：0.58~0.61 是平台区间（整体 93~94%），
+# 取偏保守一侧 —— 健身建议答错比不答更糟，宁可漏答也别给错方案。
+#
+# v2 换成 105 条同一体系（谭成义）的语料后，这个阈值「没有变，但不能沿用原来的理由」。
+# 在 98 条新评测集上重扫（tune_threshold.py，纯离线）发现：把阈值抬到 0.65 确实能把
+# 拒答率从 70% 拉到 100%，但代价是同时砍掉 4 条真答案 —— 因为正确和错误的分数是交错的：
+#     0.6144 含胸双杠（对）  0.6257 肌酸（错）  0.6281 三分化循环（对）
+#     0.6327 保加利亚（对）  0.6330 减脂热量（错）  0.6405 生酮（错）  0.6491 半程（对）
+# 0.6327 的正解被夹在 0.6257 和 0.6330 两个错解中间，没有任何一条线能切开。
+# 所以这不是阈值问题，是「饮食配合」那两条 chunk 本身就在讲「每天吃多少」，
+# 与「肌酸吃多少」「减脂吃多少卡」共享同一片语义空间 —— 内容层面的事，调参解决不了。
+# 结论：阈值不动。那 3 条误命中留给生成层的 prompt 兜（system 里写了「资料没提到就说没有」），
+# 但不能说这是已验证的 —— 端到端验证需要真实调用，见 README「v2 语料上的三路对比」。
 VEC_THRESHOLD = 0.60
 # 最多取几条资料塞进 prompt
 VEC_TOP_K = 2
@@ -124,17 +134,23 @@ def _backoff(attempt: int) -> float:
     return delay + random.uniform(0, RETRY_JITTER)
 
 
-def call_with_retry(fn, label: str = "调用"):
+def call_with_retry(fn, label: str = "调用", stat: dict | None = None):
     """把一次可能失败的外部调用包起来：熔断检查 -> 重试 -> 记录成败。
 
     两层为什么要套在一起：重试解决「抖一下」，熔断解决「这一段就是挂」。
     上游整体挂掉的时候，3 次尝试等于把请求量乘 3 —— 那是加压，不是止损。
-    熔断认了怂之后，请求一个包都不发就失败，上游才有喘息的机会。"""
+    熔断认了怂之后，请求一个包都不发就失败，上游才有喘息的机会。
+
+    stat 传一个空字典进来，函数会把「实际试了几次」写进去。
+    为什么要这个：错误信息里写死「已试 3 次」是骗人的 —— 401 这种错只试 1 次就放弃了，
+    报告试了 3 次会让人以为网络真的抖了三次，排障方向直接跑偏。"""
     breaker = get_breaker(label)
     breaker.before_call()       # 熔断中直接抛 CircuitOpenError，不碰网络
+    if stat is None:
+        stat = {}
 
     try:
-        result = _attempt_loop(fn, label)
+        result = _attempt_loop(fn, label, stat)
     except Exception as e:
         # 只有「上游真的有问题」才计入熔断。
         # 401 / 400 这类是上游明确拒绝了我们的请求 —— 它活着，只是我们错了。
@@ -150,9 +166,10 @@ def call_with_retry(fn, label: str = "调用"):
     return result
 
 
-def _attempt_loop(fn, label: str):
+def _attempt_loop(fn, label: str, stat: dict):
     """光管重试，不管熔断。拆出来是为了让上面的 call_with_retry 只负责编排。"""
     for attempt in range(1, MAX_ATTEMPTS + 1):
+        stat["attempts"] = attempt
         try:
             return fn()
         except HTTPException:
@@ -169,6 +186,25 @@ def _attempt_loop(fn, label: str):
                 flush=True,
             )
             time.sleep(wait)
+
+
+def external_error(exc: Exception, what: str, stat: dict) -> HTTPException:
+    """把外部异常翻译成给调用方看的状态码。
+
+    这一步不是形式主义。余额不足（402）如果原样包成 502，排障的人会去查网络、
+    去怀疑上游挂了、去加熔断，而真正该做的是充值 —— 方向完全错。
+    所以 4xx 一律翻成「我们自己这边的配置问题」，只有真正的上游故障才给 502。"""
+    tried = stat.get("attempts", 1)
+    status = getattr(exc, "status_code", None)
+    if status == 402:
+        return HTTPException(500, detail=f"{what}失败：上游账户余额不足（402），重试无用，需要充值")
+    if status in (401, 403):
+        return HTTPException(500, detail=f"{what}失败：密钥无效或无权限（{status}），重试无用")
+    if status == 404:
+        return HTTPException(500, detail=f"{what}失败：模型名不存在（404），重试无用")
+    if status == 400:
+        return HTTPException(500, detail=f"{what}失败：请求被上游拒绝（400）：{exc}")
+    return HTTPException(502, detail=f"{what}失败（试了 {tried} 次）：{exc}")
 
 
 # ---------- 第零段之二：熔断 ----------
@@ -376,17 +412,17 @@ def embed(texts):
     if not LLM_API_KEY or LLM_API_KEY.startswith("sk-替换"):
         raise HTTPException(status_code=500, detail=".env 里的 LLM_API_KEY 还没填")
 
+    stat = {}
     try:
         resp = call_with_retry(
             lambda: get_client(EMBED_TIMEOUT).embeddings.create(model=EMBED_MODEL, input=texts),
             label="embedding",
+            stat=stat,
         )
     except CircuitOpenError as e:
         raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
-        raise HTTPException(
-            status_code=502, detail=f"调用 embedding 模型失败（已试 {MAX_ATTEMPTS} 次）：{e}"
-        )
+        raise external_error(e, "调用 embedding 模型", stat)
     return [d.embedding for d in resp.data]
 
 
@@ -494,14 +530,13 @@ def rerank(query: str, docs):
             # 这不是「代码写错了」，是响应被截断，属于连接层问题，值得重试。
             raise urllib.error.URLError(f"rerank 响应不是合法 JSON：{e}") from e
 
+    stat = {}
     try:
-        data = call_with_retry(_post, label="rerank")
+        data = call_with_retry(_post, label="rerank", stat=stat)
     except CircuitOpenError as e:
         raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
-        raise HTTPException(
-            status_code=502, detail=f"调用 reranker 失败（已试 {MAX_ATTEMPTS} 次）：{e}"
-        )
+        raise external_error(e, "调用 reranker", stat)
 
     return [
         {"index": r["index"], "score": round(r["relevance_score"], 4)}
@@ -699,19 +734,19 @@ def call_llm(messages):
     if not LLM_API_KEY or LLM_API_KEY.startswith("sk-替换"):
         raise HTTPException(status_code=500, detail=".env 里的 LLM_API_KEY 还没填")
 
+    stat = {}
     try:
         return call_with_retry(
             lambda: get_client(LLM_TIMEOUT).chat.completions.create(
                 model=LLM_MODEL, messages=messages
             ),
             label="chat",
+            stat=stat,
         )
     except CircuitOpenError as e:
         raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
-        raise HTTPException(
-            status_code=502, detail=f"调用模型失败（已试 {MAX_ATTEMPTS} 次）：{e}"
-        )
+        raise external_error(e, "调用模型", stat)
 
 
 @app.post("/chat")

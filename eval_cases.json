@@ -1,524 +1,101 @@
 [
- {
-  "q": "肌酸一天吃多少",
-  "expect": "肌酸",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "肌酸需要冲击期吗",
-  "expect": "肌酸",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "肌酸什么时候吃最好",
-  "expect": "肌酸",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "肌酸要一直吃吗",
-  "expect": "肌酸",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "我买的一水肌酸怎么吃",
-  "expect": "肌酸",
-  "kind": "hit",
-  "note": "口语化说法"
- },
- {
-  "q": "力量训练前要不要吃肌酸",
-  "expect": "肌酸",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "一天5克够不够",
-  "expect": "肌酸",
-  "kind": "hit",
-  "note": "完全不提话题名"
- },
- {
-  "q": "肌酸停用了会掉力量吗",
-  "expect": "肌酸",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "肌酸会伤肾吗",
-  "expect": "肌酸",
-  "kind": "hit",
-  "note": "库里有安全性一条"
- },
- {
-  "q": "吃肌酸体检肌酐高怎么办",
-  "expect": "肌酸",
-  "kind": "hit",
-  "note": "细节问题"
- },
- {
-  "q": "蛋白粉怎么喝",
-  "expect": "蛋白质",
-  "kind": "hit",
-  "note": "经典漏召回案例"
- },
- {
-  "q": "一天要吃多少蛋白质",
-  "expect": "蛋白质",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "我70公斤减脂期蛋白吃多少",
-  "expect": "蛋白质",
-  "kind": "hit",
-  "note": "同时涉及两个话题"
- },
- {
-  "q": "蛋白质一顿吃多少",
-  "expect": "蛋白质",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "分几餐吃蛋白比较好",
-  "expect": "蛋白质",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "增肌期蛋白质要吃多少",
-  "expect": "蛋白质",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "不吃蛋白粉能练好吗",
-  "expect": "蛋白质",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "植物蛋白可以替代乳清吗",
-  "expect": "蛋白质",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "每天两个鸡蛋够不够蛋白",
-  "expect": "蛋白质",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "练完半小时内要补蛋白吗",
-  "expect": "蛋白质",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "怎么变瘦",
-  "expect": "减脂",
-  "kind": "hit",
-  "note": "经典漏召回案例"
- },
- {
-  "q": "减脂期要吃多少",
-  "expect": "减脂",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "一天热量缺口多少合适",
-  "expect": "减脂",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "减肥期间还要练力量吗",
-  "expect": "减脂",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "我体脂高怎么减",
-  "expect": "减脂",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "掉秤太慢怎么办",
-  "expect": "减脂",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "只做有氧能减脂吗",
-  "expect": "减脂",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "减脂会不会掉肌肉",
-  "expect": "减脂",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "减脂期能吃碳水吗",
-  "expect": "减脂",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "一个月能减多少斤",
-  "expect": "减脂",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "体重卡住不动了",
-  "expect": "减脂",
-  "kind": "hit",
-  "note": "平台期"
- },
- {
-  "q": "昨天吃咸了今天重了两斤",
-  "expect": "减脂",
-  "kind": "hit",
-  "note": "体重波动"
- },
- {
-  "q": "深蹲蹲多深",
-  "expect": "深蹲",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "深蹲膝盖要不要过脚尖",
-  "expect": "深蹲",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "深蹲起来的时候先顶髋还是先伸腿",
-  "expect": "深蹲",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "半蹲和全蹲哪个好",
-  "expect": "深蹲",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "杠铃深蹲站距多宽",
-  "expect": "深蹲",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "蹲腿的时候膝盖往里扣",
-  "expect": "深蹲",
-  "kind": "hit",
-  "note": "不提话题名，口语化"
- },
- {
-  "q": "深蹲时脚跟离地怎么办",
-  "expect": "深蹲",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "卧推怎么练",
-  "expect": "卧推",
-  "kind": "hit",
-  "note": "扩库后从拒答改为命中"
- },
- {
-  "q": "卧推肩膀疼是什么原因",
-  "expect": "卧推",
-  "kind": "hit",
-  "note": "细节问题"
- },
- {
-  "q": "硬拉腰疼怎么办",
-  "expect": "硬拉",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "一周练几次比较好",
-  "expect": "训练计划",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "每个部位一周练几组",
-  "expect": "训练计划",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "重量什么时候该往上加",
-  "expect": "训练计划",
-  "kind": "hit",
-  "note": "渐进超负荷"
- },
- {
-  "q": "推拉腿怎么分",
-  "expect": "训练计划",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "每组都要练到力竭吗",
-  "expect": "训练计划",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "增肌要睡几个小时",
-  "expect": "恢复",
-  "kind": "hit",
-  "note": "扩库后从拒答改为命中"
- },
- {
-  "q": "练完一直酸痛正常吗",
-  "expect": "恢复",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "休息日该干什么",
-  "expect": "恢复",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "怎么判断自己练过头了",
-  "expect": "恢复",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "每天脂肪要吃多少克",
-  "expect": "饮食",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "一天要喝多少水",
-  "expect": "饮食",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "代餐能代替正餐吗",
-  "expect": "饮食",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "喝酒影响增肌吗",
-  "expect": "饮食",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "训练前喝咖啡有用吗",
-  "expect": "补剂",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "补剂先买哪个",
-  "expect": "补剂",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "练腹肌能减肚子吗",
-  "expect": "误区",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "空腹跑步更减脂吗",
-  "expect": "误区",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "女生练力量会变壮吗",
-  "expect": "误区",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "肌肉会变成脂肪吗",
-  "expect": "误区",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "胸肌不涨怎么办",
-  "expect": "胸肌",
-  "kind": "hit",
-  "note": "新话题，来自公众号文章"
- },
- {
-  "q": "卧推胸没感觉",
-  "expect": "胸肌",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "练胸要不要顺带练三头",
-  "expect": "胸肌",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "增肌和减脂能一起做吗",
-  "expect": "增肌",
-  "kind": "hit",
-  "note": "新话题"
- },
- {
-  "q": "增肌期要不要做有氧",
-  "expect": "增肌",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "找不到发力感怎么办",
-  "expect": "动作技术",
-  "kind": "hit",
-  "note": "新话题"
- },
- {
-  "q": "深蹲的时候该想什么",
-  "expect": "动作技术",
-  "kind": "hit",
-  "note": "意念口诀"
- },
- {
-  "q": "三倍碳水减脂法怎么操作",
-  "expect": "减脂",
-  "kind": "hit",
-  "note": "文章专有内容"
- },
- {
-  "q": "减脂该吃高碳还是低碳",
-  "expect": "减脂",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "练完不酸是不是没练到",
-  "expect": "恢复",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "肩怎么练宽",
-  "expect": "肩部训练",
-  "kind": "hit",
-  "note": "中束决定肩宽"
- },
- {
-  "q": "练肩脖子酸是怎么回事",
-  "expect": "肩部训练",
-  "kind": "hit",
-  "note": "代偿，口语"
- },
- {
-  "q": "侧平举怎么做",
-  "expect": "肩部训练",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "练肩要几组",
-  "expect": "肩部训练",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "推肩要不要锁死肘",
-  "expect": "肩部训练",
-  "kind": "hit",
-  "note": "细节，不提话题名"
- },
- {
-  "q": "面拉拉到哪个位置",
-  "expect": "肩部训练",
-  "kind": "hit",
-  "note": ""
- },
- {
-  "q": "今天天气怎么样",
-  "expect": null,
-  "kind": "refuse",
-  "note": "完全无关"
- },
- {
-  "q": "帮我写一首诗",
-  "expect": null,
-  "kind": "refuse",
-  "note": "完全无关"
- },
- {
-  "q": "明天股市会涨吗",
-  "expect": null,
-  "kind": "refuse",
-  "note": "完全无关"
- },
- {
-  "q": "Python 怎么读取文件",
-  "expect": null,
-  "kind": "refuse",
-  "note": "完全无关"
- },
- {
-  "q": "跑步机买什么牌子好",
-  "expect": null,
-  "kind": "refuse",
-  "note": "健身相关但库里没有"
- },
- {
-  "q": "膝盖半月板损伤怎么康复",
-  "expect": null,
-  "kind": "refuse",
-  "note": "健身相关但库里没有，最难的一条"
- },
- {
-  "q": "健身需要买什么装备",
-  "expect": null,
-  "kind": "refuse",
-  "note": "健身相关但库里没有"
- },
- {
-  "q": "推荐一部健身题材的电影",
-  "expect": null,
-  "kind": "refuse",
-  "note": "带健身关键词但无关"
- },
- {
-  "q": "膝盖疼吃什么药",
-  "expect": null,
-  "kind": "refuse",
-  "note": "库里有膝盖相关内容但没有用药，极限难例"
- },
- {
-  "q": "健身教练证怎么考",
-  "expect": null,
-  "kind": "refuse",
-  "note": "行业相关但库里没有"
- }
+ {"q": "推日都练哪些部位", "expect": "推日", "kind": "hit", "note": ""},
+ {"q": "推日先练胸还是先练肩", "expect": "推日", "kind": "hit", "note": ""},
+ {"q": "推日练完怎么判断今天练到位了", "expect": "推日", "kind": "hit", "note": ""},
+ {"q": "推日五个动作分别做几组", "expect": "推日", "kind": "hit", "note": ""},
+ {"q": "卧推握多宽才合适", "expect": "卧推技术", "kind": "hit", "note": ""},
+ {"q": "卧推杠铃应该落在胸口哪个位置", "expect": "卧推技术", "kind": "hit", "note": ""},
+ {"q": "卧推手肘打开多少度", "expect": "卧推技术", "kind": "hit", "note": ""},
+ {"q": "卧推为什么一定要慢慢下放", "expect": "卧推技术", "kind": "hit", "note": ""},
+ {"q": "卧推的时候腰要不要离开凳面", "expect": "卧推技术", "kind": "hit", "note": ""},
+ {"q": "卧推憋气怎么呼吸才对", "expect": "卧推技术", "kind": "hit", "note": ""},
+ {"q": "躺下之后六步顺序是什么", "expect": "卧推技术", "kind": "hit", "note": ""},
+ {"q": "上斜卧推凳子调多少度", "expect": "上胸", "kind": "hit", "note": ""},
+ {"q": "上胸用哑铃还是杠铃效果好", "expect": "上胸", "kind": "hit", "note": ""},
+ {"q": "上斜卧推推到顶哑铃要不要碰", "expect": "上胸", "kind": "hit", "note": ""},
+ {"q": "上胸日先做哪个动作", "expect": "上胸", "kind": "hit", "note": ""},
+ {"q": "中胸日第一个动作做什么", "expect": "中胸", "kind": "hit", "note": ""},
+ {"q": "中位绳索夹胸手往哪个方向夹", "expect": "中胸", "kind": "hit", "note": ""},
+ {"q": "器械推胸座椅调多高", "expect": "中胸", "kind": "hit", "note": ""},
+ {"q": "胸肌分几个区各管什么", "expect": "中胸", "kind": "hit", "note": ""},
+ {"q": "下斜卧推凳子角度多少", "expect": "下胸与中缝", "kind": "hit", "note": ""},
+ {"q": "双杠臂屈伸怎么练到下胸", "expect": "下胸与中缝", "kind": "hit", "note": ""},
+ {"q": "胸肌中缝怎么练出来", "expect": "下胸与中缝", "kind": "hit", "note": ""},
+ {"q": "下胸要不要单独安排一天", "expect": "下胸与中缝", "kind": "hit", "note": ""},
+ {"q": "含胸双杠和普通双杠有什么区别", "expect": "下胸与中缝", "kind": "hit", "note": ""},
+ {"q": "绳索夹胸滑轮放哪个高度", "expect": "绳索夹胸", "kind": "hit", "note": ""},
+ {"q": "夹胸的时候手臂能不能伸直", "expect": "绳索夹胸", "kind": "hit", "note": ""},
+ {"q": "夹胸回程要放多远", "expect": "绳索夹胸", "kind": "hit", "note": ""},
+ {"q": "拉日练哪些部位", "expect": "拉日", "kind": "hit", "note": ""},
+ {"q": "拉日的主项是哪个动作", "expect": "拉日", "kind": "hit", "note": ""},
+ {"q": "拉日之前要热身什么", "expect": "拉日", "kind": "hit", "note": ""},
+ {"q": "拉日为什么要单侧练", "expect": "拉日", "kind": "hit", "note": ""},
+ {"q": "练背总是找不到发力感", "expect": "背训技术", "kind": "hit", "note": ""},
+ {"q": "下拉的时候肩胛骨要不要主动往后缩", "expect": "背训技术", "kind": "hit", "note": ""},
+ {"q": "高位下拉是往下还是往后发力", "expect": "背训技术", "kind": "hit", "note": ""},
+ {"q": "划船练完腰比背还酸", "expect": "背训技术", "kind": "hit", "note": ""},
+ {"q": "练背次数为什么可以多一点", "expect": "背训技术", "kind": "hit", "note": ""},
+ {"q": "高位下拉握多宽", "expect": "高位下拉", "kind": "hit", "note": ""},
+ {"q": "高位下拉怎么呼吸", "expect": "高位下拉", "kind": "hit", "note": ""},
+ {"q": "高位下拉身体能不能后仰", "expect": "高位下拉", "kind": "hit", "note": ""},
+ {"q": "练肩先练哪个部位", "expect": "肩部训练", "kind": "hit", "note": ""},
+ {"q": "练肩脖子酸是怎么回事", "expect": "肩部训练", "kind": "hit", "note": ""},
+ {"q": "肩部日动作怎么排", "expect": "肩部训练", "kind": "hit", "note": ""},
+ {"q": "前平举正握还是对握", "expect": "肩部训练", "kind": "hit", "note": ""},
+ {"q": "练肩之前为什么要激活", "expect": "肩部训练", "kind": "hit", "note": ""},
+ {"q": "Y字侧平举怎么做", "expect": "侧平举", "kind": "hit", "note": ""},
+ {"q": "侧平举为什么总是耸肩", "expect": "侧平举", "kind": "hit", "note": ""},
+ {"q": "侧平举顶峰要不要停一下", "expect": "侧平举", "kind": "hit", "note": ""},
+ {"q": "后束怎么练", "expect": "后束", "kind": "hit", "note": ""},
+ {"q": "反向飞鸟意念想什么", "expect": "后束", "kind": "hit", "note": ""},
+ {"q": "怎么判断后束够不够", "expect": "后束", "kind": "hit", "note": ""},
+ {"q": "腿日先练肩还是先练腿", "expect": "腿日", "kind": "hit", "note": ""},
+ {"q": "腿日为什么不练大重量深蹲", "expect": "腿日", "kind": "hit", "note": ""},
+ {"q": "练腿之前热身做什么", "expect": "腿日", "kind": "hit", "note": ""},
+ {"q": "哥本哈根支撑有什么用", "expect": "腿日", "kind": "hit", "note": ""},
+ {"q": "颈前深蹲杠铃放哪里", "expect": "深蹲", "kind": "hit", "note": ""},
+ {"q": "深蹲膝盖能不能过脚尖", "expect": "深蹲", "kind": "hit", "note": ""},
+ {"q": "犀牛蹲怎么做", "expect": "深蹲", "kind": "hit", "note": ""},
+ {"q": "高脚杯深蹲怎么握", "expect": "深蹲", "kind": "hit", "note": ""},
+ {"q": "罗马尼亚硬拉怎么做", "expect": "硬拉", "kind": "hit", "note": ""},
+ {"q": "单腿硬拉有什么用", "expect": "硬拉", "kind": "hit", "note": ""},
+ {"q": "腰有伤还能不能硬拉", "expect": "硬拉", "kind": "hit", "note": ""},
+ {"q": "山羊挺身做多大行程", "expect": "硬拉", "kind": "hit", "note": ""},
+ {"q": "保加利亚蹲两种做法有什么区别", "expect": "单腿训练", "kind": "hit", "note": ""},
+ {"q": "保加利亚蹲后腿总在发力", "expect": "单腿训练", "kind": "hit", "note": ""},
+ {"q": "左右腿力量差很多怎么练", "expect": "单腿训练", "kind": "hit", "note": ""},
+ {"q": "腿弯举内旋外旋有什么区别", "expect": "腿部孤立", "kind": "hit", "note": ""},
+ {"q": "坐姿腿屈伸有几个变式", "expect": "腿部孤立", "kind": "hit", "note": ""},
+ {"q": "腿屈伸做多少组合适", "expect": "腿部孤立", "kind": "hit", "note": ""},
+ {"q": "RM是什么意思", "expect": "训练参数", "kind": "hit", "note": ""},
+ {"q": "RPE8是什么强度", "expect": "训练参数", "kind": "hit", "note": ""},
+ {"q": "渐进超负荷怎么加", "expect": "训练参数", "kind": "hit", "note": ""},
+ {"q": "为什么要安排减载周", "expect": "训练参数", "kind": "hit", "note": ""},
+ {"q": "组间休息多久合适", "expect": "训练参数", "kind": "hit", "note": ""},
+ {"q": "半程动作效果差多少", "expect": "训练参数", "kind": "hit", "note": ""},
+ {"q": "一周只能练三天怎么安排", "expect": "分化与频率", "kind": "hit", "note": ""},
+ {"q": "三分化怎么循环", "expect": "分化与频率", "kind": "hit", "note": ""},
+ {"q": "一周练四天怎么排", "expect": "分化与频率", "kind": "hit", "note": ""},
+ {"q": "胸的三个模块怎么轮换", "expect": "分化与频率", "kind": "hit", "note": ""},
+ {"q": "第一次进健身房用多重", "expect": "新手上路", "kind": "hit", "note": ""},
+ {"q": "肌肉酸痛还能不能继续练", "expect": "新手上路", "kind": "hit", "note": ""},
+ {"q": "练了两个月不涨了怎么办", "expect": "新手上路", "kind": "hit", "note": ""},
+ {"q": "动作质量比重量重要吗", "expect": "新手上路", "kind": "hit", "note": ""},
+ {"q": "增肌每天要吃多少热量", "expect": "饮食配合", "kind": "hit", "note": ""},
+ {"q": "蛋白质一天吃多少克", "expect": "饮食配合", "kind": "hit", "note": ""},
+ {"q": "增肌期体重一周涨多少正常", "expect": "饮食配合", "kind": "hit", "note": ""},
+ {"q": "推日之前要热身哪几个动作", "expect": "热身与激活", "kind": "hit", "note": ""},
+ {"q": "热身要多长时间", "expect": "热身与激活", "kind": "hit", "note": ""},
+ {"q": "大重量之前要不要先推空杆", "expect": "热身与激活", "kind": "hit", "note": ""},
+
+ {"q": "肌酸一天吃多少", "expect": null, "kind": "refuse", "note": "新库没有补剂内容"},
+ {"q": "肌酸要不要冲击期", "expect": null, "kind": "refuse", "note": "新库没有补剂内容"},
+ {"q": "减脂期每天吃多少卡", "expect": null, "kind": "refuse", "note": "新库只讲增肌热量盈余，没有减脂缺口"},
+ {"q": "空腹有氧更减脂吗", "expect": null, "kind": "refuse", "note": "新库没有有氧与减脂"},
+ {"q": "减脂会不会掉肌肉", "expect": null, "kind": "refuse", "note": "新库没有减脂期营养"},
+ {"q": "蛋白粉买哪个牌子", "expect": null, "kind": "refuse", "note": "新库不涉及品牌"},
+ {"q": "生酮饮食适合增肌吗", "expect": null, "kind": "refuse", "note": "新库没有生酮"},
+ {"q": "膝盖半月板损伤怎么康复", "expect": null, "kind": "refuse", "note": "无康复医学内容，只有换动作建议"},
+ {"q": "帮我写一首诗", "expect": null, "kind": "refuse", "note": "完全无关"},
+ {"q": "推荐一部健身题材的电影", "expect": null, "kind": "refuse", "note": "完全无关"}
 ]

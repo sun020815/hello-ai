@@ -285,4 +285,19 @@ def run_report():
 
 
 if __name__ == "__main__":
+    import sys
+
+    # 支持只跑一部分模式：uv run python eval.py --modes vector,hybrid
+    # 为什么要这个：rewrite 和 rerank 每跑一次都要花钱（改写 + 精排各一通调用），
+    # 而 keyword/vector/hybrid 全是本地计算 —— 题目向量和库向量都在缓存里，零成本。
+    # 上游余额不足的那次，就是 rewrite 跑到一半把整轮结果全废掉的，
+    # 前面三个模式明明已经算完了。
+    if "--modes" in sys.argv:
+        picked = sys.argv[sys.argv.index("--modes") + 1].split(",")
+        bad = [m for m in picked if m not in MODES]
+        if bad:
+            raise SystemExit(f"未知模式 {bad}，可选：{MODES}")
+        MODES = picked
     run_report()
+    if len(MODES) < 5:
+        print(f"（只跑了 {MODES}，其余模式需调用上游接口，不在本次范围）")
