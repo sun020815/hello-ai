@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-"""检索评测：同一批问题，分别用「关键词」和「向量」跑一遍，算命中率。
+"""检索评测：同一批问题，分别用「关键词」「向量」「向量+reranker」跑一遍，算命中率。
 
-只测检索，不调大模型 —— 快、免费、每次结果一样。
+只测检索，不调大模型 —— 快、免费、每次结果一样（rerank 结果本地缓存）。
 用法：uv run python eval.py
 """
 import json
@@ -12,6 +12,7 @@ import main as app
 HERE = Path(__file__).parent
 CASES = json.loads((HERE / "eval_cases.json").read_text(encoding="utf-8"))
 Q_CACHE = HERE / ".eval_qvecs.json"
+RERANK_CACHE = HERE / ".eval_reranks.json"
 QUESTIONS = [c["q"] for c in CASES]
 
 
@@ -67,9 +68,62 @@ def predict_keyword(questions):
     return results
 
 
+def kb_docs():
+    """reranker 的输入文本：和线上接口保持一致（话题名 + 正文）"""
+    return [f"{name}：{text}" for name, text in app.KB.items()]
+
+
+def get_rerank_scores():
+    """每条问题调一次 reranker，结果缓存到本地。
+    每调一次都要花钱，而调参要反复跑很多遍，所以必须缓存。
+    改了知识库或换了模型会自动失效重算。"""
+    docs = kb_docs()
+    scores = {}
+    if RERANK_CACHE.exists():
+        try:
+            c = json.loads(RERANK_CACHE.read_text(encoding="utf-8"))
+            if c.get("model") == app.RERANK_MODEL and c.get("docs") == docs:
+                scores = c.get("scores", {})
+        except Exception:
+            pass
+
+    todo = [q for q in QUESTIONS if q not in scores]
+    if todo:
+        print(f"  reranker 需新算 {len(todo)} 条（其余走缓存）")
+        for i, q in enumerate(todo, 1):
+            scores[q] = app.rerank(q, docs)
+            print(f"    {i}/{len(todo)}", end="\r", flush=True)
+        print()
+        RERANK_CACHE.write_text(
+            json.dumps({"model": app.RERANK_MODEL, "docs": docs, "scores": scores},
+                       ensure_ascii=False),
+            encoding="utf-8",
+        )
+    return scores
+
+
+def predict_rerank(questions):
+    """向量召回全部 4 条（现在库里就 4 条）→ reranker 精排 → 按 rerank 分数过阈值"""
+    scores = get_rerank_scores()
+    names = list(app.KB.keys())
+    results = []
+    for q in questions:
+        ranked = sorted(scores[q], key=lambda x: x["score"], reverse=True)
+        kept = [names[r["index"]] for r in ranked if r["score"] >= app.RERANK_THRESHOLD]
+        results.append({"topics": kept[: app.RERANK_TOP_K], "score": ranked[0]["score"]})
+    return results
+
+
+PREDICTORS = {
+    "keyword": predict_keyword,
+    "vector": predict_vector,
+    "rerank": predict_rerank,
+}
+
+
 def evaluate(mode):
     questions = [c["q"] for c in CASES]
-    preds = predict_vector(questions) if mode == "vector" else predict_keyword(questions)
+    preds = PREDICTORS[mode](questions)
 
     rows = []
     for case, pred in zip(CASES, preds):
@@ -111,7 +165,7 @@ def run_report():
           f"应拒答 {sum(1 for c in CASES if c['kind']=='refuse')} 条）\n")
 
     all_rows = {}
-    for mode in ("keyword", "vector"):
+    for mode in ("keyword", "vector", "rerank"):
         rows = evaluate(mode)
         all_rows[mode] = rows
         m = summarize(rows)
@@ -131,12 +185,12 @@ def run_report():
                     print(f"    [期望 {r['expect']}] {r['q']}  →  {r['got'] or '拒答'}")
         print()
 
-    # 两次结果对比，只列出结论有变化的
-    print("===== 逐条对比（只显示答案不同的）=====")
-    for k, v in zip(all_rows["keyword"], all_rows["vector"]):
-        if k["got"] != v["got"]:
-            arrow = "✅" if (v["hit1"] and not k["hit1"]) else ("❌" if (k["hit1"] and not v["hit1"]) else "·")
-            print(f"  {arrow} {k['q']:<22} 关键词={k['got'] or '拒答':<6} 向量={v['got'] or '拒答'}")
+    # 三种方式逐条对比，只列出结论有变化的
+    print("===== 逐条对比（只显示三种结论不完全一致的）=====")
+    for k, v, r in zip(all_rows["keyword"], all_rows["vector"], all_rows["rerank"]):
+        if not (k["got"] == v["got"] == r["got"]):
+            print(f"  {k['q']:<22} 关键词={k['got'] or '拒答':<6} "
+                  f"向量={v['got'] or '拒答':<6} rerank={r['got'] or '拒答'}")
 
     (HERE / "eval_results.json").write_text(
         json.dumps({m: {"summary": summarize(all_rows[m]), "rows": all_rows[m]} for m in all_rows},

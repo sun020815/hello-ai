@@ -1,5 +1,6 @@
 import json
 import os
+import urllib.request
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -15,6 +16,7 @@ LLM_API_KEY = os.getenv("LLM_API_KEY", "")
 LLM_BASE_URL = os.getenv("LLM_BASE_URL", "https://api.siliconflow.cn/v1")
 LLM_MODEL = os.getenv("LLM_MODEL", "Qwen/Qwen3-8B")
 EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-m3")
+RERANK_MODEL = os.getenv("RERANK_MODEL", "BAAI/bge-reranker-v2-m3")
 
 # 相似度低于这个值就当「资料里没有」，不调模型
 # 0.55 不是拍出来的：46 条评测集上扫了 0.45~0.72，0.45~0.56 是平台区间
@@ -22,6 +24,15 @@ EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-m3")
 VEC_THRESHOLD = 0.55
 # 最多取几条资料塞进 prompt
 VEC_TOP_K = 2
+
+# 两段式检索：向量先宽松召回 RECALL_K 条（不求准），reranker 再精排
+RECALL_K = 4
+RERANK_TOP_K = 2
+# rerank 分数低于这个值就当「资料里没有」
+# 注意它和余弦相似度不是一个量纲：0.55 那一套完全不能套用。
+# 46 条评测集上以 0.002 步长扫了 0~0.10，0.006~0.018 是平台区间（整体准确率都是 87%），
+# 取中段 0.01。即便这样，它仍不如纯向量（93%）。见 tune_rerank.py 与 README
+RERANK_THRESHOLD = 0.01
 
 # 知识库向量的本地缓存，避免每次重启都重新算（算一次要花钱）
 CACHE_PATH = Path(__file__).parent / ".kb_vectors.json"
@@ -132,6 +143,70 @@ def search_kb_vector(q: str, top_k: int = VEC_TOP_K, threshold: float = VEC_THRE
     return hits, ranking
 
 
+# ---------- 第三段：reranker 精排 ----------
+
+def rerank(query: str, docs):
+    """把「问题 + 若干段资料」交给 reranker，它会逐条判断：这段资料到底有没有回答这个问题。
+
+    跟 embedding 的区别：embedding 比的是「两段文字意思像不像」，
+    reranker 比的是「这段资料是不是这个问题的答案」。后者才对得上「该不该答」。
+    返回 [{"index": 原文下标, "score": 0~1}, ...]，按分数降序。"""
+    if not LLM_API_KEY or LLM_API_KEY.startswith("sk-替换"):
+        raise HTTPException(status_code=500, detail=".env 里的 LLM_API_KEY 还没填")
+
+    payload = json.dumps({
+        "model": RERANK_MODEL,
+        "query": query,
+        "documents": docs,
+        "top_n": len(docs),
+    }).encode()
+
+    req = urllib.request.Request(
+        LLM_BASE_URL.rstrip("/") + "/rerank",
+        data=payload,
+        headers={
+            "Authorization": f"Bearer {LLM_API_KEY}",
+            "Content-Type": "application/json",
+        },
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=40) as resp:
+            data = json.loads(resp.read().decode())
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"调用 reranker 失败：{e}")
+
+    return [
+        {"index": r["index"], "score": round(r["relevance_score"], 4)}
+        for r in data["results"]
+    ]
+
+
+def search_kb_rerank(q: str, top_k: int = RERANK_TOP_K, threshold: float = RERANK_THRESHOLD):
+    """两段式检索：向量宽松召回 -> reranker 精排 -> 按 rerank 分数决定答不答。
+    返回 (命中的资料, 完整排名)，排名里同时留着两套分数方便对比。"""
+    q_vec = embed([q])[0]
+    recalled = []
+    for (name, text), kb_vec in zip(KB.items(), get_kb_vectors()):
+        recalled.append({
+            "topic": name,
+            "text": text,
+            "vec_score": round(cosine(q_vec, kb_vec), 4),
+        })
+    recalled.sort(key=lambda x: x["vec_score"], reverse=True)
+    recalled = recalled[:RECALL_K]      # 召回阶段故意放宽，准确率交给下一段
+
+    scores = rerank(q, [f"{r['topic']}：{r['text']}" for r in recalled])
+    ranking = []
+    for s in scores:
+        item = dict(recalled[s["index"]])
+        item["score"] = s["score"]       # 统一用 score 字段，方便前端只认一个
+        ranking.append(item)
+    ranking.sort(key=lambda x: x["score"], reverse=True)
+
+    hits = [r for r in ranking[:top_k] if r["score"] >= threshold]
+    return hits, ranking
+
+
 @app.get("/kb")
 def kb(q: str):
     hits = search_kb_keyword(q)
@@ -168,10 +243,14 @@ def chat(req: AskRequest):
 
 @app.post("/rag")
 def rag(req: AskRequest, mode: str = "vector"):
-    """mode=vector 用向量检索（默认），mode=keyword 用老的关键词匹配，方便对比"""
+    """mode=vector 纯向量检索（默认）
+    mode=rerank 向量召回 + reranker 精排（两段式）
+    mode=keyword 老的关键词匹配，方便对比"""
     if mode == "keyword":
         hits = search_kb_keyword(req.question)
         ranking = None
+    elif mode == "rerank":
+        hits, ranking = search_kb_rerank(req.question)
     else:
         hits, ranking = search_kb_vector(req.question)
 
