@@ -41,3 +41,19 @@ kb.json.bak-*
 # doc2query A/B 的精排缓存（本地产物，重算要花钱）
 .ab_rerank_off.json
 .ab_rerank_on.json
+
+# 自问法体检 / 口语对照 / reranker 模型对比（本地产物，重算要花钱）
+.selfquery*.json
+.selfquery.log
+.phrasing_ab.json
+.rewrite_rerank.json
+.oral_prompt_ab.json
+.oral_rewrites.json
+.rerank_models.json
+.rerank_models.log
+.eval_oral*.json
+.eval_oral*.log
+.eval_4b_*.log
+.eval_reranks.bge.json
+eval_results.4b_*.json
+eval_results.bge.json

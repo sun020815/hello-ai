@@ -143,24 +143,29 @@ def main():
           f"整体 {best['acc']*100:.0f}%")
 
     print("\n【三、这个拒答率有多可信（Wilson 95% 区间）】\n")
-    for th_x in sorted({0.40, 0.45, 0.50, 0.535, 0.60, best["th"]}):
+    # 候选点跟着最优阈值走，不写死。
+    # 换 reranker 后分数尺度会整体搬家（Qwen3 系列集中在 0.9 以上），
+    # 写死 0.40~0.60 会打印出一排「拒答 100%」的假象 —— 看起来很好，其实什么都没测到。
+    probes = sorted({round(max(0.0, min(1.0, best["th"] + d)), 4)
+                     for d in (-0.10, -0.05, -0.02, 0.0, 0.02, 0.05)})
+    for th_x in probes:
         m = score_at(th_x)
         lo, hi = wilson(m["ref_ok"], m["ref_n"])
         print(f"  阈值 {th_x:.3f}: 拒答 {m['ref_ok']}/{m['ref_n']} = {m['refuse']*100:.0f}%"
               f"   95% 区间 {lo*100:.0f}%~{hi*100:.0f}%")
 
-    print("\n【四、分层拒答率（阈值 0.50）：难例被总数掩盖了】\n")
-    m50 = score_at(0.50)
+    print(f"\n【四、分层拒答率（阈值 {best['th']:.3f}）：难例被总数掩盖了】\n")
+    mb = score_at(best["th"])
     name = {"A": "A 完全无关", "B": "B 领域整块缺失", "C": "C 邻近难例"}
     for L in ("A", "B", "C"):
-        if L not in m50["by_layer"]:
+        if L not in mb["by_layer"]:
             continue
-        ok, n = m50["by_layer"][L]
+        ok, n = mb["by_layer"][L]
         print(f"  {name[L]:<14} {ok:>2}/{n:<2} = {ok/n*100:>5.0f}%")
 
-    print("\n【五、0.50 下判错的拒答题（这些是内容问题，不是阈值问题）】\n")
-    if m50["wrong_refuse"]:
-        for s, q, got in sorted(m50["wrong_refuse"], reverse=True):
+    print(f"\n【五、{best['th']:.3f} 下判错的拒答题（这些是内容问题，不是阈值问题）】\n")
+    if mb["wrong_refuse"]:
+        for s, q, got in sorted(mb["wrong_refuse"], reverse=True):
             print(f"  {s:.4f}  {q:<22} -> 被当成「{got}」")
     else:
         print("  无")

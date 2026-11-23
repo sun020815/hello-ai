@@ -194,12 +194,104 @@ def predict_rewrite(questions):
     return results
 
 
+ORAL_SCORES = HERE / ".eval_oral.json"
+
+
+def get_oral_scores(variants):
+    """改写文本逐条走精排，按**改写文本**缓存。
+
+    不能按原问题存：一条改写可能被多条原问题共用（「卧推时腰下面空多少」和
+    「卧推要不要起桥」可能改写出同一句），按问题存会重复花钱。
+    """
+    cache = {}
+    if ORAL_SCORES.exists():
+        try:
+            c = json.loads(ORAL_SCORES.read_text(encoding="utf-8"))
+            if c.get("model") == app.RERANK_MODEL and c.get("fingerprint") == KB_FINGERPRINT:
+                cache = c.get("scores", {})
+        except Exception:
+            pass
+
+    todo = [v for v in variants if v not in cache]
+    if todo:
+        print(f"  oral reranker 需新算 {len(todo)} 条（其余走缓存）")
+        kb_vecs = app.get_kb_vectors()
+        for i, v in enumerate(todo, 1):
+            vv = app.embed([v])[0]
+            cand = sorted(
+                ((app.cosine(vv, kv), d) for d, kv in zip(app.KB, kb_vecs)),
+                key=lambda x: x[0], reverse=True,
+            )[: app.RECALL_K]
+            docs = [app.rerank_text(d) for _, d in cand]
+            out = app.rerank(v, docs)
+            cache[v] = {cand[s["index"]][1]["id"]: s["score"] for s in out}
+            print(f"    {i}/{len(todo)}", end="\r", flush=True)
+        print()
+        ORAL_SCORES.write_text(
+            json.dumps({"model": app.RERANK_MODEL, "fingerprint": KB_FINGERPRINT,
+                        "scores": cache}, ensure_ascii=False),
+            encoding="utf-8",
+        )
+    return cache
+
+
+def _as_pred(ranking, threshold):
+    kept = app.pick_hits(ranking, app.RERANK_TOP_K, threshold)
+    return {"topics": [r["topic"] for r in kept],
+            "ids": [r["id"] for r in kept],
+            "score": ranking[0]["score"] if ranking else None}
+
+
+def predict_oral(questions):
+    """和线上 search_kb_rerank_oral 同一口径：先正常精排，**拒答了才**用改写补一刀。
+
+    早期版本是「3 条改写取最大」，那样在评测集上等于让所有题都吃改写的漂移风险；
+    线上实现改成级联之后，评测必须跟着改，否则测的不是同一件事。
+    """
+    base = get_rerank_scores()
+    by_id = {d["id"]: d for d in app.KB}
+
+    # 先算原问法的结果，只收集「被拒答」的题去改写。
+    # 线上也是这个顺序：答得出来就绝不发改写请求，评测不能比线上多花钱。
+    preds, need = {}, []
+    for q in questions:
+        ranking = [{"id": i, "topic": by_id[i]["topic"], "score": s}
+                   for i, s in base[q].items()]
+        ranking.sort(key=lambda x: x["score"], reverse=True)
+        preds[q] = (_as_pred(ranking, app.RERANK_THRESHOLD), ranking)
+        if not preds[q][0]["topics"]:
+            need.append(q)
+
+    rewrites = app.rewrite_many(need) if need else {}
+    flat = list(dict.fromkeys(
+        v for q in need for v in rewrites.get(q, [])[: app.ORAL_N]))
+    o_scores = get_oral_scores(flat) if flat else {}
+
+    results = []
+    for q in questions:
+        pred, ranking = preds[q]
+        vs = [v for v in rewrites.get(q, [])[: app.ORAL_N] if v in o_scores]
+        if pred["topics"] or not vs:            # 原本答得出，或改写没拿到
+            results.append(pred)
+            continue
+        best_v = max(vs, key=lambda v: max(o_scores[v].values()))
+        r2 = [{"id": i, "topic": by_id[i]["topic"], "score": s}
+              for i, s in o_scores[best_v].items()]
+        r2.sort(key=lambda x: x["score"], reverse=True)
+        if r2[0]["score"] <= ranking[0]["score"]:
+            results.append(pred)                # 改写没更强，维持拒答
+        else:
+            results.append(_as_pred(r2, app.ORAL_THRESHOLD))
+    return results
+
+
 PREDICTORS = {
     "keyword": predict_keyword,
     "vector": predict_vector,
     "hybrid": predict_hybrid,
     "rewrite": predict_rewrite,
     "rerank": predict_rerank,
+    "oral": predict_oral,
 }
 
 
@@ -242,7 +334,7 @@ def pct(x):
     return f"{x * 100:.0f}%"
 
 
-MODES = ("keyword", "vector", "hybrid", "rewrite", "rerank")
+MODES = ("keyword", "vector", "hybrid", "rewrite", "rerank", "oral")
 
 
 def run_report():
@@ -320,6 +412,15 @@ def save_results(new: dict):
 if __name__ == "__main__":
     import sys
 
+    # 换评测集：uv run python eval.py --cases eval_cases_colloquial.json
+    # 为什么要这个：综合集 200 题偏书面，rerank 已到 94.7%，天花板效应，
+    # 口语改写在这里根本看不出好处。要用纯口语的 24 题才量得出来。
+    if "--cases" in sys.argv:
+        name = sys.argv[sys.argv.index("--cases") + 1]
+        CASES = json.loads((HERE / name).read_text(encoding="utf-8"))
+        QUESTIONS = [c["q"] for c in CASES]
+        print(f"评测集换成 {name}：{len(CASES)} 题")
+
     # 支持只跑一部分模式：uv run python eval.py --modes vector,hybrid
     # 为什么要这个：rewrite 和 rerank 每跑一次都要花钱（改写 + 精排各一通调用），
     # 而 keyword/vector/hybrid 全是本地计算 —— 题目向量和库向量都在缓存里，零成本。
@@ -332,5 +433,5 @@ if __name__ == "__main__":
             raise SystemExit(f"未知模式 {bad}，可选：{MODES}")
         MODES = picked
     run_report()
-    if len(MODES) < 5:
+    if len(MODES) < 6:
         print(f"（只跑了 {MODES}，其余模式需调用上游接口，不在本次范围）")

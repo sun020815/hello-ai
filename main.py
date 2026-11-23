@@ -22,7 +22,9 @@ LLM_API_KEY = os.getenv("LLM_API_KEY", "")
 LLM_BASE_URL = os.getenv("LLM_BASE_URL", "https://api.siliconflow.cn/v1")
 LLM_MODEL = os.getenv("LLM_MODEL", "Qwen/Qwen3-8B")
 EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-m3")
-RERANK_MODEL = os.getenv("RERANK_MODEL", "BAAI/bge-reranker-v2-m3")
+# 精排默认用 Qwen3-Reranker-4B：bge 对口语疑问句系统性压分（同一道题 0.04 对 0.80），
+# 换成 4B 后 20 条最难的问法从 8/20 命中升到 14/20，AUC 0.648 → 0.875。
+RERANK_MODEL = os.getenv("RERANK_MODEL", "Qwen/Qwen3-Reranker-4B")
 
 # 相似度低于这个值就当「资料里没有」，不调模型
 # 0.60 是 v1 语料（126 条）上扫出来的：0.58~0.61 是平台区间（整体 93~94%），
@@ -79,7 +81,11 @@ RERANK_TOP_K = 2
 # 另外分数会抖：哥本哈根离线缓存 0.5404、实时调有时 >0.55；肌酸探针跑两次
 # 差 0.001。边界题不可靠，这也是不把阈值贴着某个分数取的原因。
 # 换 reranker 模型必须重扫：这是 bge-reranker-v2-m3 的输出分布，不是通用刻度。
-RERANK_THRESHOLD = 0.50
+# 实测过的分布差异：同一道题 bge 给 0.04、Qwen3-Reranker-4B 给 0.80，
+# 阈值原样搬过去等于换了个判定标准，所以做成可配置，跟着模型一起换。
+# 4B 在 200 题上的最优区间是 0.95~0.985（见 README 的模型对比表），默认取 0.95：
+# 综合集 88% 与 0.985 的 92% 只差 4 点，但 0.985 会把口语集里 5 条本来答对的题拒掉。
+RERANK_THRESHOLD = float(os.getenv("RERANK_THRESHOLD", "0.50"))
 
 # ---------- doc2query：让精排也看到「这条资料能回答什么」 ----------
 # 病因是诊断出来的，不是猜的（diag_lowscore.py 扫了 95 条命中题）：
@@ -736,10 +742,15 @@ def rerank(query: str, docs):
     ]
 
 
-def search_kb_rerank(q: str, top_k: int = RERANK_TOP_K, threshold: float = RERANK_THRESHOLD):
-    """两段式检索：向量宽松召回 -> reranker 精排 -> 按 rerank 分数决定答不答。
-    返回 (命中的资料, 完整排名)，排名里同时留着两套分数方便对比。"""
-    q_vec = embed([q])[0]
+def rank_one(q: str, q_vec=None):
+    """一条查询走完「全库向量召回 12 条 -> 精排 -> 排序」，返回完整 ranking。
+
+    单独抽出来是因为口语改写要连跑 3 条。如果让两条路各写一遍召回和精排，
+    改了一处忘了另一处，分数口径就会悄悄分叉 —— 这个项目已经因为
+    「两份逻辑看起来一样」吃过一次亏（eval.py 覆盖写）。
+    """
+    if q_vec is None:
+        q_vec = embed([q])[0]
     recalled = []
     for d, kb_vec in zip(KB, get_kb_vectors()):
         recalled.append({
@@ -759,9 +770,70 @@ def search_kb_rerank(q: str, top_k: int = RERANK_TOP_K, threshold: float = RERAN
         item["score"] = s["score"]       # 统一用 score 字段，方便前端只认一个
         ranking.append(item)
     ranking.sort(key=lambda x: x["score"], reverse=True)
+    return ranking
 
-    hits = pick_hits(ranking, top_k, threshold)
-    return hits, ranking
+
+def search_kb_rerank(q: str, top_k: int = RERANK_TOP_K, threshold: float = RERANK_THRESHOLD):
+    """两段式检索：向量宽松召回 -> reranker 精排 -> 按 rerank 分数决定答不答。
+    返回 (命中的资料, 完整排名)，排名里同时留着两套分数方便对比。"""
+    ranking = rank_one(q)
+    return pick_hits(ranking, top_k, threshold), ranking
+
+
+# ---------- 第三点五段：口语改写后再精排 ----------
+# 证据链在三个脚本里，别凭印象：
+#   diag_selfquery.py   420 个「这条资料该回答的问题」反向考语料，57 条 chunk 接不住自己
+#                       第一版把 18% 判成「未召回」，其实是同话题兄弟抢走向量排名 —— 已改成双口径
+#   ab_phrasing.py      语料一个字不动，只把问法换成书面：均分 0.155 -> 0.549，过门槛 0/20 -> 13/20
+#   ab_rewrite_rerank.py 改写 + 精排（20 条最难）：过门槛 0/20 -> 11/20，top1 落对话题 8 -> 14
+#
+# 抽检 6 条时最能说明问题：问「为什么每个人合适的重量都不一样」，正文最后一句就是答案，
+# reranker 给 0.031。所以不是「没有内容」，是它不认口语疑问句。
+#
+# 那为什么之前的 rewrite 模式只涨 1%？两个原因，都不是「改写没用」：
+#   1. 它走纯向量，精排根本没接上，判别力丢了
+#   2. 综合集 200 题里书面题已到 94.7%，天花板效应，没空间可涨
+#
+# 但改写不是万能药，更不能全量放开：
+#   20 条最难问法里，有 10 条的改写把 top1 带到了**错的话题**
+#   （「每次吸气要吸到多满」被改成「下拉时的呼吸」，4 次里 2 票跑高位下拉）。
+#   把这些改写铺到所有请求上，等于给本来答对的 94.7% 引入漂移风险。
+#
+# 所以只在**原问法已经拒答**时才启动改写，风险只落在「本来什么都拿不到」的区间：
+#   原问法过门槛 -> 直接答，一次额外调用都不发，行为完全不变
+#   原问法拒答   -> 改写 3 条、各精排一次，谁分高用谁
+#
+# 实测收益（20 条最难口语问法，「安全命中」= 过门槛且话题对）：0/20 -> 8/20。
+
+ORAL_N = 3
+ORAL_THRESHOLD = 0.50
+
+
+def search_kb_rerank_oral(q: str, top_k: int = RERANK_TOP_K, threshold: float = ORAL_THRESHOLD):
+    """先走正常精排；只有它拒答了，才用口语改写补一刀。
+
+    改写复用 rewrite_query 那套 prompt —— 实测它比专门写的「书面化」prompt 更好
+    （安全命中 8/20 vs 7/20），因为专门那版容易把问题里的具体对象写丢。
+
+    返回的第三项 variants 只用来告诉调用方「这次改写成了什么」，没改写就是空列表。
+    """
+    hits, ranking = search_kb_rerank(q, top_k, threshold)
+    if hits:
+        return hits, ranking, []        # 原问法就答了，不额外花钱、不改行为
+
+    variants = rewrite_query(q)[:ORAL_N]
+    if not variants:
+        return hits, ranking, []        # 改写失败：维持原判，不因为锦上添花挂掉检索
+
+    vecs = embed(variants)              # 3 条一起嵌入，省 2 次往返
+    best_rank = None
+    for v, vv in zip(variants, vecs):
+        r = rank_one(v, vv)
+        if best_rank is None or r[0]["score"] > best_rank[0]["score"]:
+            best_rank = r
+    if best_rank[0]["score"] <= ranking[0]["score"]:
+        return hits, ranking, variants  # 改写没比原问法更强，维持拒答
+    return pick_hits(best_rank, top_k, threshold), best_rank, variants
 
 
 # ---------- 第四段：混合检索（向量 + BM25）----------
@@ -961,6 +1033,7 @@ def rag(req: AskRequest, mode: str = "rerank"):
     mode=vector 纯向量检索（整体 86% / 拒答 70%）
     mode=hybrid 向量 + BM25 混合检索（排序融合，门控仍看向量分）
     mode=rewrite 先把问题改写成 3 条资料风格表述，再取最大相似度
+    mode=oral    先改写成 3 条书面表述，再各走一遍精排，取最高分那次
     mode=keyword 老的关键词匹配，方便对比
 
     为什么默认从 vector 换成 rerank：同一批 98 条题上，rerank 精排 + 0.50 门控
@@ -968,11 +1041,14 @@ def rag(req: AskRequest, mode: str = "rerank"):
     上游调用（约 0.27 秒），换来的主要不是排序变好，而是**判别力**——
     reranker 的分数在单一体系语料上能把「该答的」和「该拒的」切开，余弦相似度切不开。
     """
+    variants = []           # 只有 oral 模式有；放外面是为了三个 return 的字段一致
     if mode == "keyword":
         hits = search_kb_keyword(req.question)
         ranking = None
     elif mode == "rerank":
         hits, ranking = search_kb_rerank(req.question)
+    elif mode == "oral":
+        hits, ranking, variants = search_kb_rerank_oral(req.question)
     elif mode == "hybrid":
         hits, ranking = search_kb_hybrid(req.question)
     elif mode == "rewrite":
@@ -986,6 +1062,7 @@ def rag(req: AskRequest, mode: str = "rerank"):
             "sources": [],
             "ranking": ranking,
             "mode": mode,
+            "variants": variants,
             "tokens": 0,
             "degraded": False,
         }
@@ -1025,6 +1102,7 @@ def rag(req: AskRequest, mode: str = "rerank"):
             "sources": sources,
             "ranking": ranking,
             "mode": mode,
+            "variants": variants,
             "tokens": 0,
             "degraded": True,
         }
@@ -1034,6 +1112,7 @@ def rag(req: AskRequest, mode: str = "rerank"):
         "sources": sources,
         "ranking": ranking,
         "mode": mode,
+        "variants": variants,
         "tokens": resp.usage.total_tokens,
         "degraded": False,
     }
