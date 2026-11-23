@@ -69,6 +69,17 @@
   {"q": "女生练力量会变壮吗", "expect": "误区", "kind": "hit", "note": ""},
   {"q": "肌肉会变成脂肪吗", "expect": "误区", "kind": "hit", "note": ""},
 
+  {"q": "胸肌不涨怎么办", "expect": "胸肌", "kind": "hit", "note": "新话题，来自公众号文章"},
+  {"q": "卧推胸没感觉", "expect": "胸肌", "kind": "hit", "note": ""},
+  {"q": "练胸要不要顺带练三头", "expect": "胸肌", "kind": "hit", "note": ""},
+  {"q": "增肌和减脂能一起做吗", "expect": "增肌", "kind": "hit", "note": "新话题"},
+  {"q": "增肌期要不要做有氧", "expect": "增肌", "kind": "hit", "note": ""},
+  {"q": "找不到发力感怎么办", "expect": "动作技术", "kind": "hit", "note": "新话题"},
+  {"q": "深蹲的时候该想什么", "expect": "动作技术", "kind": "hit", "note": "意念口诀"},
+  {"q": "三倍碳水减脂法怎么操作", "expect": "减脂", "kind": "hit", "note": "文章专有内容"},
+  {"q": "减脂该吃高碳还是低碳", "expect": "减脂", "kind": "hit", "note": ""},
+  {"q": "练完不酸是不是没练到", "expect": "恢复", "kind": "hit", "note": ""},
+
   {"q": "今天天气怎么样", "expect": null, "kind": "refuse", "note": "完全无关"},
   {"q": "帮我写一首诗", "expect": null, "kind": "refuse", "note": "完全无关"},
   {"q": "明天股市会涨吗", "expect": null, "kind": "refuse", "note": "完全无关"},
@@ -76,5 +87,7 @@
   {"q": "跑步机买什么牌子好", "expect": null, "kind": "refuse", "note": "健身相关但库里没有"},
   {"q": "膝盖半月板损伤怎么康复", "expect": null, "kind": "refuse", "note": "健身相关但库里没有，最难的一条"},
   {"q": "健身需要买什么装备", "expect": null, "kind": "refuse", "note": "健身相关但库里没有"},
-  {"q": "推荐一部健身题材的电影", "expect": null, "kind": "refuse", "note": "带健身关键词但无关"}
+  {"q": "推荐一部健身题材的电影", "expect": null, "kind": "refuse", "note": "带健身关键词但无关"},
+  {"q": "膝盖疼吃什么药", "expect": null, "kind": "refuse", "note": "库里有膝盖相关内容但没有用药，极限难例"},
+  {"q": "健身教练证怎么考", "expect": null, "kind": "refuse", "note": "行业相关但库里没有"}
 ]

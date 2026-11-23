@@ -1,13 +1,13 @@
 {
   "keyword": {
     "summary": {
-      "n": 69,
-      "hit1": 0.4098360655737705,
-      "hit2": 0.4098360655737705,
+      "n": 81,
+      "hit1": 0.4084507042253521,
+      "hit2": 0.4225352112676056,
       "refuse": 1.0,
-      "acc": 0.4782608695652174,
-      "hit_n": 61,
-      "ref_n": 8
+      "acc": 0.48148148148148145,
+      "hit_n": 71,
+      "ref_n": 10
     },
     "rows": [
       {
@@ -484,7 +484,7 @@
         "q": "增肌要睡几个小时",
         "expect": "恢复",
         "kind": "hit",
-        "got": null,
+        "got": "增肌",
         "hit1": false,
         "hit2": false,
         "score": null,
@@ -554,7 +554,7 @@
         "q": "喝酒影响增肌吗",
         "expect": "饮食",
         "kind": "hit",
-        "got": null,
+        "got": "增肌",
         "hit1": false,
         "hit2": false,
         "score": null,
@@ -613,6 +613,106 @@
       {
         "q": "肌肉会变成脂肪吗",
         "expect": "误区",
+        "kind": "hit",
+        "got": null,
+        "hit1": false,
+        "hit2": false,
+        "score": null,
+        "note": ""
+      },
+      {
+        "q": "胸肌不涨怎么办",
+        "expect": "胸肌",
+        "kind": "hit",
+        "got": "胸肌",
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": "新话题，来自公众号文章"
+      },
+      {
+        "q": "卧推胸没感觉",
+        "expect": "胸肌",
+        "kind": "hit",
+        "got": "卧推",
+        "hit1": false,
+        "hit2": false,
+        "score": null,
+        "note": ""
+      },
+      {
+        "q": "练胸要不要顺带练三头",
+        "expect": "胸肌",
+        "kind": "hit",
+        "got": null,
+        "hit1": false,
+        "hit2": false,
+        "score": null,
+        "note": ""
+      },
+      {
+        "q": "增肌和减脂能一起做吗",
+        "expect": "增肌",
+        "kind": "hit",
+        "got": "减脂",
+        "hit1": false,
+        "hit2": true,
+        "score": null,
+        "note": "新话题"
+      },
+      {
+        "q": "增肌期要不要做有氧",
+        "expect": "增肌",
+        "kind": "hit",
+        "got": "增肌",
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": ""
+      },
+      {
+        "q": "找不到发力感怎么办",
+        "expect": "动作技术",
+        "kind": "hit",
+        "got": null,
+        "hit1": false,
+        "hit2": false,
+        "score": null,
+        "note": "新话题"
+      },
+      {
+        "q": "深蹲的时候该想什么",
+        "expect": "动作技术",
+        "kind": "hit",
+        "got": "深蹲",
+        "hit1": false,
+        "hit2": false,
+        "score": null,
+        "note": "意念口诀"
+      },
+      {
+        "q": "三倍碳水减脂法怎么操作",
+        "expect": "减脂",
+        "kind": "hit",
+        "got": "减脂",
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": "文章专有内容"
+      },
+      {
+        "q": "减脂该吃高碳还是低碳",
+        "expect": "减脂",
+        "kind": "hit",
+        "got": "减脂",
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": ""
+      },
+      {
+        "q": "练完不酸是不是没练到",
+        "expect": "恢复",
         "kind": "hit",
         "got": null,
         "hit1": false,
@@ -699,18 +799,38 @@
         "hit2": true,
         "score": null,
         "note": "带健身关键词但无关"
+      },
+      {
+        "q": "膝盖疼吃什么药",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": "库里有膝盖相关内容但没有用药，极限难例"
+      },
+      {
+        "q": "健身教练证怎么考",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": null,
+        "note": "行业相关但库里没有"
       }
     ]
   },
   "vector": {
     "summary": {
-      "n": 69,
-      "hit1": 0.9344262295081968,
-      "hit2": 0.9508196721311475,
-      "refuse": 0.875,
-      "acc": 0.927536231884058,
-      "hit_n": 61,
-      "ref_n": 8
+      "n": 81,
+      "hit1": 0.9154929577464789,
+      "hit2": 0.9577464788732394,
+      "refuse": 1.0,
+      "acc": 0.9259259259259259,
+      "hit_n": 71,
+      "ref_n": 10
     },
     "rows": [
       {
@@ -720,7 +840,7 @@
         "got": "肌酸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7864,
+        "score": 0.7868,
         "note": ""
       },
       {
@@ -730,7 +850,7 @@
         "got": "肌酸",
         "hit1": true,
         "hit2": true,
-        "score": 0.6665,
+        "score": 0.6654,
         "note": ""
       },
       {
@@ -740,7 +860,7 @@
         "got": "肌酸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7509,
+        "score": 0.7498,
         "note": ""
       },
       {
@@ -750,7 +870,7 @@
         "got": "肌酸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7384,
+        "score": 0.7382,
         "note": ""
       },
       {
@@ -770,7 +890,7 @@
         "got": "肌酸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7499,
+        "score": 0.75,
         "note": ""
       },
       {
@@ -780,7 +900,7 @@
         "got": "肌酸",
         "hit1": true,
         "hit2": true,
-        "score": 0.6567,
+        "score": 0.6565,
         "note": "完全不提话题名"
       },
       {
@@ -790,7 +910,7 @@
         "got": "肌酸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7898,
+        "score": 0.7894,
         "note": ""
       },
       {
@@ -800,7 +920,7 @@
         "got": "肌酸",
         "hit1": true,
         "hit2": true,
-        "score": 0.6985,
+        "score": 0.6992,
         "note": "库里有安全性一条"
       },
       {
@@ -810,7 +930,7 @@
         "got": "肌酸",
         "hit1": true,
         "hit2": true,
-        "score": 0.6724,
+        "score": 0.673,
         "note": "细节问题"
       },
       {
@@ -820,7 +940,7 @@
         "got": "蛋白质",
         "hit1": true,
         "hit2": true,
-        "score": 0.7049,
+        "score": 0.7046,
         "note": "经典漏召回案例"
       },
       {
@@ -830,7 +950,7 @@
         "got": "蛋白质",
         "hit1": true,
         "hit2": true,
-        "score": 0.7561,
+        "score": 0.7562,
         "note": ""
       },
       {
@@ -840,7 +960,7 @@
         "got": "蛋白质",
         "hit1": true,
         "hit2": true,
-        "score": 0.777,
+        "score": 0.7775,
         "note": "同时涉及两个话题"
       },
       {
@@ -860,7 +980,7 @@
         "got": "蛋白质",
         "hit1": true,
         "hit2": true,
-        "score": 0.782,
+        "score": 0.7825,
         "note": ""
       },
       {
@@ -870,7 +990,7 @@
         "got": "蛋白质",
         "hit1": true,
         "hit2": true,
-        "score": 0.818,
+        "score": 0.8177,
         "note": ""
       },
       {
@@ -880,7 +1000,7 @@
         "got": "蛋白质",
         "hit1": true,
         "hit2": true,
-        "score": 0.6425,
+        "score": 0.6419,
         "note": ""
       },
       {
@@ -890,7 +1010,7 @@
         "got": "蛋白质",
         "hit1": true,
         "hit2": true,
-        "score": 0.7672,
+        "score": 0.768,
         "note": ""
       },
       {
@@ -900,7 +1020,7 @@
         "got": "蛋白质",
         "hit1": true,
         "hit2": true,
-        "score": 0.6931,
+        "score": 0.6933,
         "note": ""
       },
       {
@@ -910,27 +1030,27 @@
         "got": "蛋白质",
         "hit1": true,
         "hit2": true,
-        "score": 0.76,
+        "score": 0.7601,
         "note": ""
       },
       {
         "q": "怎么变瘦",
         "expect": "减脂",
         "kind": "hit",
-        "got": "误区",
-        "hit1": false,
-        "hit2": false,
-        "score": 0.6106,
+        "got": "减脂",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.6506,
         "note": "经典漏召回案例"
       },
       {
         "q": "减脂期要吃多少",
         "expect": "减脂",
         "kind": "hit",
-        "got": "饮食",
-        "hit1": false,
+        "got": "减脂",
+        "hit1": true,
         "hit2": true,
-        "score": 0.7633,
+        "score": 0.7913,
         "note": ""
       },
       {
@@ -940,7 +1060,7 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.7553,
+        "score": 0.7554,
         "note": ""
       },
       {
@@ -950,7 +1070,7 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.7373,
+        "score": 0.737,
         "note": ""
       },
       {
@@ -960,7 +1080,7 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.6929,
+        "score": 0.7049,
         "note": ""
       },
       {
@@ -970,7 +1090,7 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.6206,
+        "score": 0.6665,
         "note": ""
       },
       {
@@ -980,7 +1100,7 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.7019,
+        "score": 0.7379,
         "note": ""
       },
       {
@@ -990,7 +1110,7 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.7148,
+        "score": 0.7159,
         "note": ""
       },
       {
@@ -1000,7 +1120,7 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.8138,
+        "score": 0.8136,
         "note": ""
       },
       {
@@ -1010,7 +1130,7 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.6748,
+        "score": 0.6948,
         "note": ""
       },
       {
@@ -1020,7 +1140,7 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.6354,
+        "score": 0.6351,
         "note": "平台期"
       },
       {
@@ -1030,7 +1150,7 @@
         "got": null,
         "hit1": false,
         "hit2": false,
-        "score": 0.586,
+        "score": 0.5853,
         "note": "体重波动"
       },
       {
@@ -1040,7 +1160,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.7225,
+        "score": 0.7222,
         "note": ""
       },
       {
@@ -1050,7 +1170,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.8153,
+        "score": 0.8154,
         "note": ""
       },
       {
@@ -1060,7 +1180,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.6711,
+        "score": 0.67,
         "note": ""
       },
       {
@@ -1070,7 +1190,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.7023,
+        "score": 0.7032,
         "note": ""
       },
       {
@@ -1080,7 +1200,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.7002,
+        "score": 0.6993,
         "note": ""
       },
       {
@@ -1090,7 +1210,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.7067,
+        "score": 0.7109,
         "note": "不提话题名，口语化"
       },
       {
@@ -1100,7 +1220,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.7807,
+        "score": 0.781,
         "note": ""
       },
       {
@@ -1110,7 +1230,7 @@
         "got": "卧推",
         "hit1": true,
         "hit2": true,
-        "score": 0.7466,
+        "score": 0.7463,
         "note": "扩库后从拒答改为命中"
       },
       {
@@ -1120,7 +1240,7 @@
         "got": "卧推",
         "hit1": true,
         "hit2": true,
-        "score": 0.669,
+        "score": 0.6697,
         "note": "细节问题"
       },
       {
@@ -1130,7 +1250,7 @@
         "got": "硬拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.6268,
+        "score": 0.6275,
         "note": ""
       },
       {
@@ -1140,7 +1260,7 @@
         "got": "训练计划",
         "hit1": true,
         "hit2": true,
-        "score": 0.7504,
+        "score": 0.7501,
         "note": ""
       },
       {
@@ -1150,7 +1270,7 @@
         "got": "训练计划",
         "hit1": true,
         "hit2": true,
-        "score": 0.7553,
+        "score": 0.7549,
         "note": ""
       },
       {
@@ -1160,7 +1280,7 @@
         "got": "训练计划",
         "hit1": true,
         "hit2": true,
-        "score": 0.6448,
+        "score": 0.6446,
         "note": "渐进超负荷"
       },
       {
@@ -1170,7 +1290,7 @@
         "got": null,
         "hit1": false,
         "hit2": false,
-        "score": 0.5658,
+        "score": 0.5662,
         "note": ""
       },
       {
@@ -1190,7 +1310,7 @@
         "got": "恢复",
         "hit1": true,
         "hit2": true,
-        "score": 0.7086,
+        "score": 0.7085,
         "note": "扩库后从拒答改为命中"
       },
       {
@@ -1200,7 +1320,7 @@
         "got": "恢复",
         "hit1": true,
         "hit2": true,
-        "score": 0.7766,
+        "score": 0.7773,
         "note": ""
       },
       {
@@ -1210,7 +1330,7 @@
         "got": "恢复",
         "hit1": true,
         "hit2": true,
-        "score": 0.6164,
+        "score": 0.6166,
         "note": ""
       },
       {
@@ -1220,7 +1340,7 @@
         "got": "恢复",
         "hit1": true,
         "hit2": true,
-        "score": 0.7359,
+        "score": 0.7358,
         "note": ""
       },
       {
@@ -1230,7 +1350,7 @@
         "got": "饮食",
         "hit1": true,
         "hit2": true,
-        "score": 0.714,
+        "score": 0.7144,
         "note": ""
       },
       {
@@ -1240,7 +1360,7 @@
         "got": "饮食",
         "hit1": true,
         "hit2": true,
-        "score": 0.7242,
+        "score": 0.7248,
         "note": ""
       },
       {
@@ -1250,7 +1370,7 @@
         "got": "饮食",
         "hit1": true,
         "hit2": true,
-        "score": 0.7181,
+        "score": 0.7178,
         "note": ""
       },
       {
@@ -1260,7 +1380,7 @@
         "got": "饮食",
         "hit1": true,
         "hit2": true,
-        "score": 0.6867,
+        "score": 0.6864,
         "note": ""
       },
       {
@@ -1270,7 +1390,7 @@
         "got": "补剂",
         "hit1": true,
         "hit2": true,
-        "score": 0.7273,
+        "score": 0.7275,
         "note": ""
       },
       {
@@ -1280,7 +1400,7 @@
         "got": "补剂",
         "hit1": true,
         "hit2": true,
-        "score": 0.6935,
+        "score": 0.6936,
         "note": ""
       },
       {
@@ -1290,7 +1410,7 @@
         "got": "误区",
         "hit1": true,
         "hit2": true,
-        "score": 0.7777,
+        "score": 0.7784,
         "note": ""
       },
       {
@@ -1300,7 +1420,7 @@
         "got": "误区",
         "hit1": true,
         "hit2": true,
-        "score": 0.7729,
+        "score": 0.7728,
         "note": ""
       },
       {
@@ -1310,7 +1430,7 @@
         "got": "误区",
         "hit1": true,
         "hit2": true,
-        "score": 0.8008,
+        "score": 0.8017,
         "note": ""
       },
       {
@@ -1320,7 +1440,107 @@
         "got": "误区",
         "hit1": true,
         "hit2": true,
-        "score": 0.7315,
+        "score": 0.7318,
+        "note": ""
+      },
+      {
+        "q": "胸肌不涨怎么办",
+        "expect": "胸肌",
+        "kind": "hit",
+        "got": "胸肌",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7005,
+        "note": "新话题，来自公众号文章"
+      },
+      {
+        "q": "卧推胸没感觉",
+        "expect": "胸肌",
+        "kind": "hit",
+        "got": "卧推",
+        "hit1": false,
+        "hit2": true,
+        "score": 0.6258,
+        "note": ""
+      },
+      {
+        "q": "练胸要不要顺带练三头",
+        "expect": "胸肌",
+        "kind": "hit",
+        "got": "胸肌",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7596,
+        "note": ""
+      },
+      {
+        "q": "增肌和减脂能一起做吗",
+        "expect": "增肌",
+        "kind": "hit",
+        "got": "增肌",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7614,
+        "note": "新话题"
+      },
+      {
+        "q": "增肌期要不要做有氧",
+        "expect": "增肌",
+        "kind": "hit",
+        "got": "减脂",
+        "hit1": false,
+        "hit2": true,
+        "score": 0.7747,
+        "note": ""
+      },
+      {
+        "q": "找不到发力感怎么办",
+        "expect": "动作技术",
+        "kind": "hit",
+        "got": null,
+        "hit1": false,
+        "hit2": false,
+        "score": 0.5658,
+        "note": "新话题"
+      },
+      {
+        "q": "深蹲的时候该想什么",
+        "expect": "动作技术",
+        "kind": "hit",
+        "got": "深蹲",
+        "hit1": false,
+        "hit2": true,
+        "score": 0.6823,
+        "note": "意念口诀"
+      },
+      {
+        "q": "三倍碳水减脂法怎么操作",
+        "expect": "减脂",
+        "kind": "hit",
+        "got": "减脂",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7652,
+        "note": "文章专有内容"
+      },
+      {
+        "q": "减脂该吃高碳还是低碳",
+        "expect": "减脂",
+        "kind": "hit",
+        "got": "减脂",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.8159,
+        "note": ""
+      },
+      {
+        "q": "练完不酸是不是没练到",
+        "expect": "恢复",
+        "kind": "hit",
+        "got": "恢复",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.6396,
         "note": ""
       },
       {
@@ -1330,7 +1550,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4445,
+        "score": 0.457,
         "note": "完全无关"
       },
       {
@@ -1340,7 +1560,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.3489,
+        "score": 0.3911,
         "note": "完全无关"
       },
       {
@@ -1350,7 +1570,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4418,
+        "score": 0.4416,
         "note": "完全无关"
       },
       {
@@ -1360,7 +1580,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4018,
+        "score": 0.4014,
         "note": "完全无关"
       },
       {
@@ -1370,17 +1590,17 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4495,
+        "score": 0.4496,
         "note": "健身相关但库里没有"
       },
       {
         "q": "膝盖半月板损伤怎么康复",
         "expect": null,
         "kind": "refuse",
-        "got": "深蹲",
-        "hit1": false,
-        "hit2": false,
-        "score": 0.6006,
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.5996,
         "note": "健身相关但库里没有，最难的一条"
       },
       {
@@ -1390,7 +1610,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5731,
+        "score": 0.5725,
         "note": "健身相关但库里没有"
       },
       {
@@ -1400,20 +1620,40 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4876,
+        "score": 0.5181,
         "note": "带健身关键词但无关"
+      },
+      {
+        "q": "膝盖疼吃什么药",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.5212,
+        "note": "库里有膝盖相关内容但没有用药，极限难例"
+      },
+      {
+        "q": "健身教练证怎么考",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.5187,
+        "note": "行业相关但库里没有"
       }
     ]
   },
   "rerank": {
     "summary": {
-      "n": 69,
-      "hit1": 0.9180327868852459,
-      "hit2": 0.9836065573770492,
-      "refuse": 0.875,
-      "acc": 0.9130434782608695,
-      "hit_n": 61,
-      "ref_n": 8
+      "n": 81,
+      "hit1": 0.9014084507042254,
+      "hit2": 0.971830985915493,
+      "refuse": 0.8,
+      "acc": 0.8888888888888888,
+      "hit_n": 71,
+      "ref_n": 10
     },
     "rows": [
       {
@@ -1433,7 +1673,7 @@
         "got": "肌酸",
         "hit1": true,
         "hit2": true,
-        "score": 0.9656,
+        "score": 0.9655,
         "note": ""
       },
       {
@@ -1483,7 +1723,7 @@
         "got": "肌酸",
         "hit1": true,
         "hit2": true,
-        "score": 0.4986,
+        "score": 0.5007,
         "note": "完全不提话题名"
       },
       {
@@ -1533,7 +1773,7 @@
         "got": "蛋白质",
         "hit1": true,
         "hit2": true,
-        "score": 0.9367,
+        "score": 0.937,
         "note": ""
       },
       {
@@ -1543,7 +1783,7 @@
         "got": "蛋白质",
         "hit1": true,
         "hit2": true,
-        "score": 0.9948,
+        "score": 0.9949,
         "note": "同时涉及两个话题"
       },
       {
@@ -1553,7 +1793,7 @@
         "got": "蛋白质",
         "hit1": true,
         "hit2": true,
-        "score": 0.9589,
+        "score": 0.9584,
         "note": ""
       },
       {
@@ -1583,7 +1823,7 @@
         "got": "蛋白质",
         "hit1": true,
         "hit2": true,
-        "score": 0.3079,
+        "score": 0.3059,
         "note": ""
       },
       {
@@ -1603,7 +1843,7 @@
         "got": "蛋白质",
         "hit1": true,
         "hit2": true,
-        "score": 0.2858,
+        "score": 0.2849,
         "note": ""
       },
       {
@@ -1620,20 +1860,20 @@
         "q": "怎么变瘦",
         "expect": "减脂",
         "kind": "hit",
-        "got": "饮食",
-        "hit1": false,
+        "got": "减脂",
+        "hit1": true,
         "hit2": true,
-        "score": 0.7263,
+        "score": 0.9016,
         "note": "经典漏召回案例"
       },
       {
         "q": "减脂期要吃多少",
         "expect": "减脂",
         "kind": "hit",
-        "got": "饮食",
-        "hit1": false,
-        "hit2": false,
-        "score": 0.9137,
+        "got": "减脂",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.9904,
         "note": ""
       },
       {
@@ -1643,7 +1883,7 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.9757,
+        "score": 0.9755,
         "note": ""
       },
       {
@@ -1653,7 +1893,7 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.9949,
+        "score": 0.9948,
         "note": ""
       },
       {
@@ -1663,7 +1903,7 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.7014,
+        "score": 0.8905,
         "note": ""
       },
       {
@@ -1673,7 +1913,7 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.2244,
+        "score": 0.3272,
         "note": ""
       },
       {
@@ -1683,7 +1923,7 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.9802,
+        "score": 0.9872,
         "note": ""
       },
       {
@@ -1693,7 +1933,7 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.9754,
+        "score": 0.9756,
         "note": ""
       },
       {
@@ -1713,17 +1953,17 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.2813,
+        "score": 0.767,
         "note": ""
       },
       {
         "q": "体重卡住不动了",
         "expect": "减脂",
         "kind": "hit",
-        "got": "恢复",
-        "hit1": false,
+        "got": "减脂",
+        "hit1": true,
         "hit2": true,
-        "score": 0.3472,
+        "score": 0.7071,
         "note": "平台期"
       },
       {
@@ -1733,7 +1973,7 @@
         "got": "减脂",
         "hit1": true,
         "hit2": true,
-        "score": 0.8566,
+        "score": 0.8559,
         "note": "体重波动"
       },
       {
@@ -1763,7 +2003,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.9984,
+        "score": 0.9983,
         "note": ""
       },
       {
@@ -1773,7 +2013,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.9918,
+        "score": 0.9917,
         "note": ""
       },
       {
@@ -1793,7 +2033,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.9316,
+        "score": 0.9697,
         "note": "不提话题名，口语化"
       },
       {
@@ -1813,7 +2053,7 @@
         "got": "卧推",
         "hit1": true,
         "hit2": true,
-        "score": 0.9865,
+        "score": 0.9863,
         "note": "扩库后从拒答改为命中"
       },
       {
@@ -1822,18 +2062,18 @@
         "kind": "hit",
         "got": "恢复",
         "hit1": false,
-        "hit2": true,
-        "score": 0.1906,
+        "hit2": false,
+        "score": 0.1884,
         "note": "细节问题"
       },
       {
         "q": "硬拉腰疼怎么办",
         "expect": "硬拉",
         "kind": "hit",
-        "got": "硬拉",
-        "hit1": true,
+        "got": "动作技术",
+        "hit1": false,
         "hit2": true,
-        "score": 0.3133,
+        "score": 0.483,
         "note": ""
       },
       {
@@ -1843,7 +2083,7 @@
         "got": "训练计划",
         "hit1": true,
         "hit2": true,
-        "score": 0.9513,
+        "score": 0.9507,
         "note": ""
       },
       {
@@ -1853,17 +2093,17 @@
         "got": "训练计划",
         "hit1": true,
         "hit2": true,
-        "score": 0.9096,
+        "score": 0.9087,
         "note": ""
       },
       {
         "q": "重量什么时候该往上加",
         "expect": "训练计划",
         "kind": "hit",
-        "got": "卧推",
+        "got": "深蹲",
         "hit1": false,
         "hit2": true,
-        "score": 0.2437,
+        "score": 0.1774,
         "note": "渐进超负荷"
       },
       {
@@ -1873,7 +2113,7 @@
         "got": "训练计划",
         "hit1": true,
         "hit2": true,
-        "score": 0.0986,
+        "score": 0.0964,
         "note": ""
       },
       {
@@ -1890,10 +2130,10 @@
         "q": "增肌要睡几个小时",
         "expect": "恢复",
         "kind": "hit",
-        "got": "恢复",
-        "hit1": true,
+        "got": "增肌",
+        "hit1": false,
         "hit2": true,
-        "score": 0.7973,
+        "score": 0.92,
         "note": "扩库后从拒答改为命中"
       },
       {
@@ -1913,7 +2153,7 @@
         "got": "恢复",
         "hit1": true,
         "hit2": true,
-        "score": 0.9645,
+        "score": 0.9649,
         "note": ""
       },
       {
@@ -1930,10 +2170,10 @@
         "q": "每天脂肪要吃多少克",
         "expect": "饮食",
         "kind": "hit",
-        "got": "饮食",
-        "hit1": true,
+        "got": "减脂",
+        "hit1": false,
         "hit2": true,
-        "score": 0.5249,
+        "score": 0.5727,
         "note": ""
       },
       {
@@ -1943,7 +2183,7 @@
         "got": "饮食",
         "hit1": true,
         "hit2": true,
-        "score": 0.5347,
+        "score": 0.5256,
         "note": ""
       },
       {
@@ -2023,7 +2263,107 @@
         "got": "误区",
         "hit1": true,
         "hit2": true,
-        "score": 0.9973,
+        "score": 0.9972,
+        "note": ""
+      },
+      {
+        "q": "胸肌不涨怎么办",
+        "expect": "胸肌",
+        "kind": "hit",
+        "got": "胸肌",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.6116,
+        "note": "新话题，来自公众号文章"
+      },
+      {
+        "q": "卧推胸没感觉",
+        "expect": "胸肌",
+        "kind": "hit",
+        "got": "胸肌",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.8525,
+        "note": ""
+      },
+      {
+        "q": "练胸要不要顺带练三头",
+        "expect": "胸肌",
+        "kind": "hit",
+        "got": "胸肌",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.9953,
+        "note": ""
+      },
+      {
+        "q": "增肌和减脂能一起做吗",
+        "expect": "增肌",
+        "kind": "hit",
+        "got": "误区",
+        "hit1": false,
+        "hit2": true,
+        "score": 0.999,
+        "note": "新话题"
+      },
+      {
+        "q": "增肌期要不要做有氧",
+        "expect": "增肌",
+        "kind": "hit",
+        "got": "减脂",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.9987,
+        "note": ""
+      },
+      {
+        "q": "找不到发力感怎么办",
+        "expect": "动作技术",
+        "kind": "hit",
+        "got": "动作技术",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.2504,
+        "note": "新话题"
+      },
+      {
+        "q": "深蹲的时候该想什么",
+        "expect": "动作技术",
+        "kind": "hit",
+        "got": "动作技术",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.9189,
+        "note": "意念口诀"
+      },
+      {
+        "q": "三倍碳水减脂法怎么操作",
+        "expect": "减脂",
+        "kind": "hit",
+        "got": "减脂",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.9892,
+        "note": "文章专有内容"
+      },
+      {
+        "q": "减脂该吃高碳还是低碳",
+        "expect": "减脂",
+        "kind": "hit",
+        "got": "减脂",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.9991,
+        "note": ""
+      },
+      {
+        "q": "练完不酸是不是没练到",
+        "expect": "恢复",
+        "kind": "hit",
+        "got": "恢复",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.6271,
         "note": ""
       },
       {
@@ -2033,7 +2373,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0005,
+        "score": 0.0004,
         "note": "完全无关"
       },
       {
@@ -2043,7 +2383,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0001,
+        "score": 0.0112,
         "note": "完全无关"
       },
       {
@@ -2063,7 +2403,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0004,
+        "score": 0.0,
         "note": "完全无关"
       },
       {
@@ -2073,7 +2413,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0213,
+        "score": 0.0432,
         "note": "健身相关但库里没有"
       },
       {
@@ -2093,18 +2433,38 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0323,
+        "score": 0.0328,
         "note": "健身相关但库里没有"
       },
       {
         "q": "推荐一部健身题材的电影",
         "expect": null,
         "kind": "refuse",
+        "got": "减脂",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.1017,
+        "note": "带健身关键词但无关"
+      },
+      {
+        "q": "膝盖疼吃什么药",
+        "expect": null,
+        "kind": "refuse",
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0526,
-        "note": "带健身关键词但无关"
+        "score": 0.0594,
+        "note": "库里有膝盖相关内容但没有用药，极限难例"
+      },
+      {
+        "q": "健身教练证怎么考",
+        "expect": null,
+        "kind": "refuse",
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.0205,
+        "note": "行业相关但库里没有"
       }
     ]
   }
