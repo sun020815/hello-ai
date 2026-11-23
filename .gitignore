@@ -21,3 +21,12 @@ wheels/
 
 # rerank 评测缓存（本地产物）
 .eval_reranks.json
+
+# 微信接口临时 token，绝不能提交
+.wx_token.tmp
+
+# 从公众号拉下来的文章（派生内容，可用 pull_wechat_articles.py 重新生成）
+.wechat_pull/
+
+# 编辑知识库时的本地备份
+kb.json.bak-*
