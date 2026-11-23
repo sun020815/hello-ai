@@ -5,6 +5,7 @@ import threading
 import time
 import urllib.error
 import urllib.request
+from collections import deque
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -123,13 +124,20 @@ def get_client(timeout: float) -> OpenAI:
     return _clients[timeout]
 
 
+def _status_of(exc: Exception) -> int | None:
+    """从异常里挖出 HTTP 状态码。两种来源：openai 的 status_code、urllib 的 code。
+    抽成函数是因为重试和熔断都要判断，各写一份迟早不一致。"""
+    status = getattr(exc, "status_code", None)
+    if status is None and isinstance(exc, urllib.error.HTTPError):
+        status = exc.code
+    return status
+
+
 def _should_retry(exc: Exception) -> bool:
     """这个错值不值得再试一次。"""
     # 先看状态码。注意 urllib.error.HTTPError 是 URLError 的子类，
     # 顺序反了的话 401 会被当成「网络问题」重试两次，白等三秒。
-    status = getattr(exc, "status_code", None)
-    if status is None and isinstance(exc, urllib.error.HTTPError):
-        status = exc.code
+    status = _status_of(exc)
     if status is not None:
         return status in RETRYABLE_STATUS
 
@@ -173,7 +181,7 @@ def call_with_retry(fn, label: str = "调用", stat: dict | None = None):
         # 把这种错也算进熔断，会出现最坑的现场：key 填错之后所有请求都报「熔断中」，
         # 掩盖掉真正的原因。
         if _should_retry(e):
-            breaker.on_failure()
+            breaker.on_failure(e)   # 把异常传进去，冷却时长按错误类型定
         else:
             breaker.on_client_error()
         raise
@@ -229,15 +237,55 @@ def external_error(exc: Exception, what: str, stat: dict) -> HTTPException:
 #   熔断：这一段时间它就是不行的，别试了，试了也是白试，还把它的负载乘 3。
 #
 # 三个状态：
-#   closed     正常放行，数「连续」失败几次
+#   closed     正常放行，边跑边记录成功/失败
 #   open       一律拒绝，直到冷却结束 —— 这段时间一个网络包都不发
 #   half_open  冷却结束，只放一个请求去试探。成功就关回去，失败就再开
 #
-# 为什么必须「连续」而不是「累计」：累计计数永远回不到零，跑一天下来总会攒够 5 次
-# 偶发失败，然后无辜地熔断。一次成功就清零，「连续」才反映「现在是不是正在挂」。
+# 判定用两条规则，缺一条都会漏：
+#   A. 滑动窗口错误率：最近 30 秒内失败占比超过 50%（且样本 ≥ 10 次）
+#      —— 抓「间歇性故障」。30% 的请求失败但从不连续失败，连续计数永远凑不够数，
+#         等于永远不熔断，而上游其实已经在带病工作。
+#   B. 连续失败 5 次
+#      —— 抓「低频调用 + 彻底挂掉」。embedding 这种可能几十秒才调一次，
+#         窗口里凑不满 10 个样本，规则 A 永远不触发，只能靠这条兜住。
+#
+# 为什么规则 A 必须有 min_samples：只有 1 次调用失败时错误率就是 100%，
+# 服务一启动第一次请求抖动就直接熔断 30 秒 —— 这是最典型的「小样本误判」。
+# 样本不够时宁可不判，交给规则 B。
 
-BREAKER_THRESHOLD = 5       # 连续失败 5 次才熔断。太小会被一次抖动误伤，太大就没有保护意义
-BREAKER_COOLDOWN = 30.0     # 熔断 30 秒后放一个探针
+BREAKER_WINDOW = 30.0         # 滑动窗口长度（秒）
+BREAKER_MIN_SAMPLES = 10      # 窗口内样本数少于这个就不做错误率判定
+BREAKER_ERROR_RATE = 0.50     # 窗口内失败率超过这个就熔断
+BREAKER_CONSECUTIVE = 5       # 连续失败兜底阈值
+BREAKER_COOLDOWN = 30.0       # 默认冷却（5xx / 未知故障）
+
+
+def cooldown_for(exc: Exception | None) -> float:
+    """按错误类型给冷却时长。一刀切 30 秒是错的，两个方向都错：
+
+    - 429 限流：上游活着，只是想让你慢一点。等 30 秒是白等，
+      而且这 30 秒里本来可以正常处理的请求全被拒了。
+    - 连接层彻底断了：等 5 秒就放探针等于自己打自己，需要更长的喘息时间。
+
+    这些数字是经验值，没有压测依据。要定准得知道上游各类故障的实际恢复时间分布，
+    现在没这个数据 —— 和阈值一样，认这一点比编一个精确数字好。"""
+    status = _status_of(exc)
+
+    if status == 429:
+        return 5.0          # 限流：上游健康，短冷却
+    if status == 408:
+        return 10.0         # 请求超时：可能是瞬时拥塞
+    if status == 503:
+        return 20.0         # 服务不可用：过载，通常恢复比重启快
+    if status is not None and 500 <= status < 600:
+        return 30.0         # 502/504：网关或上游真挂了
+
+    if isinstance(exc, (APITimeoutError, TimeoutError)):
+        return 10.0
+    if isinstance(exc, (APIConnectionError, urllib.error.URLError, ConnectionError)):
+        return 15.0         # 连接层：可能只是网络抖，也可能彻底不通
+
+    return BREAKER_COOLDOWN
 
 
 class CircuitOpenError(Exception):
@@ -252,11 +300,16 @@ class CircuitBreaker:
     两个请求可能同时改状态 —— 竞态下最典型的 bug 是「探针放出去两个」，
     那等于上游在恢复期被双倍流量再打一次。"""
 
-    def __init__(self, name, threshold=BREAKER_THRESHOLD,
-                 cooldown=BREAKER_COOLDOWN, clock=time.monotonic):
+    def __init__(self, name, consecutive=BREAKER_CONSECUTIVE,
+                 cooldown=BREAKER_COOLDOWN, window=BREAKER_WINDOW,
+                 min_samples=BREAKER_MIN_SAMPLES, error_rate=BREAKER_ERROR_RATE,
+                 clock=time.monotonic):
         self.name = name
-        self.threshold = threshold
+        self.consecutive = consecutive
         self.cooldown = cooldown
+        self.window = window
+        self.min_samples = min_samples
+        self.error_rate = error_rate
         self._clock = clock          # 测试里换成假时钟，不用真等 30 秒
         self._lock = threading.Lock()
         self.state = "closed"
@@ -264,6 +317,10 @@ class CircuitBreaker:
         self.opened_at = None
         self.probing = False         # half_open 时，探针是不是已经飞出去了
         self.trips = 0               # 一共熔断过几次，给监控看
+        self.last_reason = ""        # 最近一次是因为哪条规则熔断的
+        # 滑动窗口：deque 里放 (时间戳, 是否成功)。用 deque 而不是 list 是因为
+        # 每次都要从左边弹掉过期样本，list.pop(0) 是 O(n)，长期跑会越拖越慢。
+        self.events = deque()
 
     def before_call(self):
         """放行或拒绝。拒绝时抛 CircuitOpenError，不发任何请求。"""
@@ -288,51 +345,102 @@ class CircuitBreaker:
                 raise CircuitOpenError(f"{self.name} 正在探活，暂不接新请求")
             self.probing = True
 
+    # ---------- 窗口维护 ----------
+
+    def _prune(self, now):
+        """弹掉窗口外的旧样本。不弹的话「最近 30 秒失败率」会变成「历史上失败率」，
+        跑一整天之后永远是坏的。"""
+        cutoff = now - self.window
+        while self.events and self.events[0][0] < cutoff:
+            self.events.popleft()
+
+    def _record(self, ok, now):
+        self.events.append((now, ok))
+        self._prune(now)
+
+    def _stats(self, now):
+        self._prune(now)
+        total = len(self.events)
+        fails = sum(1 for _, ok in self.events if not ok)
+        return total, fails
+
+    # ---------- 结果回调 ----------
+
     def on_success(self):
         with self._lock:
+            now = self._clock()
             if self.state != "closed":
                 print(f"  [breaker:{self.name}] 探针成功，恢复正常", flush=True)
-            self.state = "closed"
+                # 恢复时必须清空窗口。不清的话，刚恢复的第一次请求会立刻
+                # 被窗口里那些历史失败再判一次死刑 —— 刚救回来又打回去。
+                self.events.clear()
+                self.state = "closed"
+                self.failures = 0
+                self.opened_at = None
+                self.probing = False
+                return
             self.failures = 0
-            self.opened_at = None
-            self.probing = False
+            self._record(True, now)
 
     def on_client_error(self):
         """上游回了 4xx：它活着，只是我们请求写错了。不计故障，
-        但必须放掉探针，否则 half_open 会永远卡在「探针在飞」，后面全被拒。"""
+        但必须放掉探针，否则 half_open 会永远卡在「探针在飞」，后面全被拒。
+
+        记为「成功样本」而不是「不记录」：4xx 证明上游在工作，
+        让它按健康样本稀释错误率才是对的。否则一串 400 会把错误率推高，
+        最后因为「我们自己的请求写错了」把上游熔断掉。"""
         with self._lock:
             self.probing = False
             if self.state == "half_open":
                 self.state = "closed"
                 self.failures = 0
                 self.opened_at = None
+                self.events.clear()
+            self._record(True, self._clock())
 
-    def on_failure(self):
+    def on_failure(self, exc=None):
+        """exc 用来决定冷却多长。不传就按默认 30 秒。"""
         with self._lock:
             self.probing = False
+            now = self._clock()
+            self._record(False, now)
+
             if self.state == "half_open":
                 # 探针也失败了：说明还没好，立刻重新熔断，冷却从此刻重新计时
-                self._trip()
+                self.failures += 1
+                self._trip(exc, f"探针失败（{type(exc).__name__ if exc else '未知'}）")
                 return
-            self.failures += 1
-            if self.failures >= self.threshold:
-                self._trip()
 
-    def _trip(self):
+            self.failures += 1
+            total, fails = self._stats(now)
+            rate = fails / total if total else 0.0
+
+            if total >= self.min_samples and rate >= self.error_rate:
+                self._trip(exc, f"窗口 {total} 次里失败 {fails} 次（{rate:.0%}）")
+            elif self.failures >= self.consecutive:
+                self._trip(exc, f"连续失败 {self.failures} 次")
+
+    def _trip(self, exc, reason):
         self.state = "open"
         self.opened_at = self._clock()
         self.trips += 1
-        print(
-            f"  [breaker:{self.name}] 连续失败 {self.failures} 次，"
-            f"熔断 {self.cooldown:.0f} 秒",
-            flush=True,
-        )
+        self.last_reason = reason
+        # 冷却按错误类型定。注意这里是「本次」的冷却，会写进 self，
+        # 因为 before_call 判断剩余时间要用同一个值。
+        self.cooldown = cooldown_for(exc) if exc is not None else BREAKER_COOLDOWN
+        print(f"  [breaker:{self.name}] {reason}，熔断 {self.cooldown:.0f} 秒", flush=True)
 
     def snapshot(self):
         with self._lock:
+            total, fails = self._stats(self._clock())
             return {
                 "state": self.state,
                 "consecutive_failures": self.failures,
+                "window_samples": total,
+                "window_failures": fails,
+                "window_error_rate": round(fails / total, 2) if total else 0.0,
+                "last_trip_reason": self.last_reason,
+                "cooldown_seconds": self.cooldown,
                 "trips": self.trips,
                 "cooldown_left": (
                     round(max(0.0, self.cooldown - (self._clock() - self.opened_at)), 1)

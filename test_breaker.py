@@ -48,9 +48,9 @@ def check(name, got, want):
     return ok
 
 
-def fresh(threshold=5, cooldown=30.0, name="test"):
+def fresh(consecutive=5, cooldown=30.0, name="test", **kw):
     clock = Clock()
-    return CircuitBreaker(name, threshold=threshold, cooldown=cooldown, clock=clock), clock
+    return CircuitBreaker(name, consecutive=consecutive, cooldown=cooldown, clock=clock, **kw), clock
 
 
 def test_state_machine():
@@ -149,6 +149,137 @@ def test_state_machine():
     main._breakers.clear()
 
 
+def test_window_and_cooldown():
+    """第十、十一组：两条新规则各自的存在理由，以及它们一起工作时的边界。"""
+    from main import cooldown_for
+
+    print("\n=== 10. 滑动窗口：间歇性失败也能熔断 ===")
+    # 这是加窗口的**唯一理由**。失败-成功交替，连续失败次数永远是 1，
+    # 老版本（纯连续计数）在这里永远不熔断，而上游其实已经在一半请求上失败了。
+    b, _ = fresh()
+    for i in range(1, 11):
+        b.on_failure(FakeStatus(502))
+        if b.state == "open":
+            break
+        b.on_success()
+    check("交替失败的场景最终会熔断", b.state, "open")
+    check("不是靠连续计数（它只有 1）", b.failures <= 1, True)
+    check("熔断原因写明是窗口错误率", "窗口" in b.last_reason, True)
+    print(f"         原因：{b.last_reason}")
+
+    print("\n=== 11. 小样本不误判：1 次失败不熔断 ===")
+    # 错误率 100%，但样本只有 1 个。不设 min_samples 的话，
+    # 服务启动后第一个请求抖一下就直接熔断 30 秒。
+    b, _ = fresh()
+    b.on_failure(FakeStatus(502))
+    check("1 次失败（错误率 100%）仍然 closed", b.state, "closed")
+
+    print("\n=== 12. 窗口会滑动，旧样本过期 ===")
+    b, clock = fresh(consecutive=1000)      # 关掉规则 B，只观察规则 A
+    for _ in range(9):
+        b.on_failure(FakeStatus(502))
+    check("9 次失败：样本不足 10，不熔断", b.state, "closed")
+    clock.advance(31)                        # 窗口滑过去
+    b.on_success()
+    total, fails = b._stats(clock())
+    check("窗口过期后旧失败被清空", fails, 0)
+
+    print("\n=== 13. 冷却按错误类型区分 ===")
+    for exc, want, label in [
+        (FakeStatus(429), 5.0, "429 限流"),
+        (FakeStatus(408), 10.0, "408 超时"),
+        (FakeStatus(503), 20.0, "503 过载"),
+        (FakeStatus(502), 30.0, "502 网关错"),
+        (ConnectionError("refused"), 15.0, "连接被拒"),
+        (TimeoutError(), 10.0, "socket 超时"),
+        (None, 30.0, "未知"),
+    ]:
+        check(f"{label} → {want:.0f}s", cooldown_for(exc), want)
+
+    print("\n=== 14. 冷却真的生效（不只是算出来） ===")
+    b, clock = fresh(cooldown=30.0)
+    for _ in range(5):
+        b.on_failure(FakeStatus(429))
+    check("429 熔断后冷却被改成 5 秒", b.cooldown, 5.0)
+    clock.advance(5.5)
+    b.before_call()
+    check("5.5 秒后就放探针了（不是等 30 秒）", b.state, "half_open")
+
+    b2, clock2 = fresh(cooldown=30.0)
+    for _ in range(5):
+        b2.on_failure(FakeStatus(502))
+    clock2.advance(5.5)
+    blocked = False
+    try:
+        b2.before_call()
+    except CircuitOpenError:
+        blocked = True
+    check("同样 5.5 秒，502 仍然拒绝（冷却 30 秒）", blocked, True)
+
+    print("\n=== 15. 恢复时清空窗口，否则刚救活又被打死 ===")
+    b, clock = fresh()
+    for _ in range(5):
+        b.on_failure(FakeStatus(502))
+    check("已熔断", b.state, "open")
+    clock.advance(30.5)
+    b.before_call()                          # 放探针
+    b.on_success()                           # 探针成功
+    check("恢复后窗口清空", len(b.events), 0)
+    # 不清空的话：5 条历史失败 + 这 1 条 = 100%，立刻二次熔断，永远恢复不了
+    b.on_failure(FakeStatus(502))
+    check("恢复后 1 次失败不该立刻再熔断", b.state, "closed")
+
+    print("\n=== 16. 4xx 算健康样本，不该把自己（上游）熔断 ===")
+    b, clock = fresh(consecutive=1000)
+    for _ in range(9):
+        b.on_failure(FakeStatus(502))
+    for _ in range(20):
+        b.on_client_error()                  # 上游一直在正常回 400，是我们请求写错了
+    b.on_failure(FakeStatus(502))
+    total, fails = b._stats(clock())
+    check("20 次 4xx 把错误率稀释到 50% 以下", fails / total < 0.5, True)
+    check("因此没有熔断", b.state, "closed")
+    print(f"         窗口 {total} 条，失败 {fails} 条，错误率 {fails/total:.0%}")
+
+
+def test_cooldown_wiring():
+    """冷却时长是在 _trip 里算的，要证明真实调用链能把它带出来。"""
+    print("\n=== 17. 接线：429 打到真实 embed 链路上，熔断后的冷却应该是 5 秒 ===")
+
+    class FakeEmbeddings:
+        def create(self, **kwargs):
+            raise FakeStatus(429)
+
+    class FakeClient:
+        def __init__(self):
+            self.embeddings = FakeEmbeddings()
+
+    real_get_client, real_time, real_jitter = main.get_client, main.time, main.RETRY_JITTER
+    main.get_client = lambda timeout: FakeClient()
+    main.time = type("T", (), {"sleep": lambda self, s: None, "monotonic": real_time.monotonic})()
+    main.RETRY_JITTER = 0
+    main._breakers.clear()
+
+    from fastapi import HTTPException
+
+    try:
+        for _ in range(6):
+            try:
+                main.embed(["测试"])
+            except HTTPException as e:
+                if e.status_code == 503:
+                    break
+        br = main.get_breaker("embedding")
+        check("429 触发熔断后，冷却记录为 5 秒", br.cooldown, 5.0)
+        check("熔断原因说明是窗口或连续失败", br.last_reason != "", True)
+        snap = br.snapshot()
+        check("快照能看出窗口样本数", snap["window_samples"] > 0, True)
+        print(f"         快照：{snap}")
+    finally:
+        main.get_client, main.time, main.RETRY_JITTER = real_get_client, real_time, real_jitter
+        main._breakers.clear()
+
+
 def test_wiring():
     """离线测试只能证明状态机对，证明不了「embed 真的接上了熔断器」。
     这里把 get_client 换成一个永远 502 的假 client，走真实的 embed 调用链。"""
@@ -193,6 +324,8 @@ def test_wiring():
 
 if __name__ == "__main__":
     test_state_machine()
+    test_window_and_cooldown()
     test_wiring()
+    test_cooldown_wiring()
     print(f"\n{'=' * 46}\n{passed}/{total} 通过\n{'=' * 46}")
     raise SystemExit(0 if passed == total else 1)
