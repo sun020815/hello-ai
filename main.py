@@ -6,11 +6,11 @@ import threading
 import time
 import urllib.error
 import urllib.request
-from collections import deque
+from collections import OrderedDict, deque
 from pathlib import Path
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from openai import OpenAI, APIConnectionError, APITimeoutError, RateLimitError
@@ -577,6 +577,7 @@ def meta():
         "recall_k": RECALL_K,
         "fallback_enabled": FALLBACK_ENABLED,
         "uncertain_band": UNCERTAIN_BAND,
+        "auth_required": bool(ACCESS_CODE),
     }
 
 
@@ -1097,6 +1098,7 @@ def call_llm(messages, temperature: float = 0.0):
     """
     if not LLM_API_KEY or LLM_API_KEY.startswith("sk-替换"):
         raise HTTPException(status_code=500, detail=".env 里的 LLM_API_KEY 还没填")
+    STATS["llm_calls"] += 1         # 只在下游真被调用时加，缓存命中不会走到这里
 
     stat = {}
     try:
@@ -1181,8 +1183,159 @@ def answer_with_fallback(q: str, ranking, top_n: int = FALLBACK_TOP_N):
     return {"answer": text, "sources": ctx, "tokens": resp.usage.total_tokens}
 
 
+# ---------- 第六段：上线三件套（缓存 / 限流 / 口令）----------
+# 挂公网之前必须有的三层，缺任何一层都会被一个链接搞崩：
+#   缓存   demo 的问题高度集中（页面那几个示例点来点去），一次回答重复计费很蠢；
+#           更重要的是它把「被刷」的边际成本压到 0 —— 命中缓存不打上游。
+#   限流   缓存挡不住「每次都换个问法」，所以还要有每分钟/每天的硬上限。
+#   口令   链接会被转发。只靠限流，陌生人也能把日额度吃光；口令把「谁能用」收窄。
+#
+# 三层的顺序有讲究：**先查口令，再查缓存，最后才限流**。
+# 缓存命中不消耗配额 —— 否则页面上的示例点两次就被 429，体验最差的地方
+# 恰好是最便宜的地方。
+
+ACCESS_CODE = os.getenv("ACCESS_CODE", "").strip()
+RATE_LIMIT_PER_MIN = int(os.getenv("RATE_LIMIT_PER_MIN", "12"))
+DAILY_QUOTA = int(os.getenv("DAILY_QUOTA", "300"))
+CACHE_MAX = int(os.getenv("CACHE_MAX", "500"))
+
+_cache: "OrderedDict[str, dict]" = OrderedDict()      # 键 -> 完整返回体
+_cache_lock = threading.Lock()
+_rate: dict[str, deque] = {}                          # ip -> 请求时间戳
+_rate_lock = threading.Lock()
+_day = {"date": "", "used": 0}
+STATS = {"requests": 0, "cache_hits": 0, "rate_limited": 0, "llm_calls": 0, "started": time.time()}
+
+
+def client_ip(request: Request) -> str:
+    """取真实来源 IP。
+
+    上线后请求会先到一个反代，`request.client.host` 永远是反代自己，按它限流
+    等于全站共用一个桶 —— 一个人刷完，所有人都用不了。所以优先读 X-Forwarded-For
+    的第一跳。这个头客户端可以伪造，但配合「每天总配额」已经够用：
+    伪造只能绕过「每人每分钟」，绕不过「全站每天」。
+
+    只取第一段（最靠近客户端那个），因为后面几段是各级代理自己追加的。
+    """
+    xff = request.headers.get("x-forwarded-for", "")
+    if xff:
+        return xff.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
+
+def check_code(code: str | None) -> None:
+    """口令校验。没配 ACCESS_CODE 就放行 —— 本地开发和离线测试都靠这条。"""
+    if not ACCESS_CODE:
+        return
+    if (code or "").strip() != ACCESS_CODE:
+        raise HTTPException(status_code=401, detail="访问口令不正确")
+
+
+def cache_key(mode: str, fallback: bool, question: str) -> str:
+    """键必须带上 mode 和 fallback：同一句话在 rerank 和 vector 下答案不同，
+    带不带兜底也不同。漏掉任何一个，用户就会拿到「另一个模式」的答案。"""
+    return f"{mode}|{int(bool(fallback))}|{question.strip()}"
+
+
+def cache_get(key: str) -> dict | None:
+    with _cache_lock:
+        body = _cache.get(key)
+        if body is None:
+            return None
+        _cache.move_to_end(key)       # LRU：刚被用过的挪到队尾
+        STATS["cache_hits"] += 1
+        return dict(body)             # 浅拷一层，避免调用方改到缓存里的对象
+
+
+def cache_put(key: str, body: dict) -> None:
+    with _cache_lock:
+        _cache[key] = dict(body)
+        _cache.move_to_end(key)
+        while len(_cache) > CACHE_MAX:
+            _cache.popitem(last=False)
+
+
+def rate_check(ip: str) -> float:
+    """滑动窗口，返回 0 表示放行，返回正数表示要等几秒。
+
+    用滑动窗口而不是固定窗口：固定窗口在整分钟边界上会放过 2 倍流量
+    （59 秒打满 + 01 秒再打满），对「防刷」这种场景刚好是最坏的形状。
+    """
+    now = time.monotonic()
+    with _rate_lock:
+        q = _rate.setdefault(ip, deque())
+        while q and now - q[0] > 60:
+            q.popleft()
+        if len(q) >= RATE_LIMIT_PER_MIN:
+            STATS["rate_limited"] += 1
+            return 60 - (now - q[0])
+        q.append(now)
+
+        # 顺手回收长期不活跃的 ip，否则这个字典只增不减 —— 被扫一遍就吃掉几 MB
+        if len(_rate) > 2000:
+            stale = [k for k, v in _rate.items() if not v or now - v[-1] > 300]
+            for k in stale:
+                _rate.pop(k, None)
+        return 0.0
+
+
+def daily_check() -> bool:
+    """全站每天的总配额。这是最后一道闸：前面两层都能被绕过，这个绕不过。"""
+    today = time.strftime("%Y-%m-%d")
+    with _rate_lock:
+        if _day["date"] != today:
+            _day["date"], _day["used"] = today, 0
+        if _day["used"] >= DAILY_QUOTA:
+            return False
+        _day["used"] += 1
+        return True
+
+
+def finish(body: dict, key: str | None) -> dict:
+    """统一的收尾：打标记、决定要不要写缓存。
+
+    **降级结果不写缓存**：degraded 表示「上游这次抖了」，把它存下来等于
+    把一次故障固化成永久的答案，后面所有人拿到的都是那段报错。
+    """
+    body.setdefault("cached", False)
+    if key and not body.get("degraded"):
+        cache_put(key, body)
+    return body
+
+
+@app.get("/stats")
+def stats():
+    """上线后看这个：缓存命中率、限流拦了多少、实际打了多少次上游。
+
+    不加这个接口，「加了缓存有没有用」只能靠感觉；面试时也少一个能讲的数字。
+    """
+    hit_rate = STATS["cache_hits"] / STATS["requests"] if STATS["requests"] else 0.0
+    return {
+        **STATS,
+        "uptime_s": round(time.time() - STATS["started"], 1),
+        "cache_size": len(_cache),
+        "cache_max": CACHE_MAX,
+        "cache_hit_rate": round(hit_rate, 3),
+        "rate_limit_per_min": RATE_LIMIT_PER_MIN,
+        "daily_quota": DAILY_QUOTA,
+        "today_used": _day["used"],
+        "auth_required": bool(ACCESS_CODE),
+    }
+
+
 @app.post("/chat")
-def chat(req: AskRequest):
+def chat(req: AskRequest, request: Request):
+    # 这个口子没有检索、直接打模型，是最容易被拿来白嫖的一个 ——
+    # 所以口令、限流的判断跟 /rag 完全一致，不能因为「只是个演示接口」就漏掉。
+    check_code(request.headers.get("x-access-code"))
+    STATS["requests"] += 1
+    wait = rate_check(client_ip(request))
+    if wait > 0:
+        raise HTTPException(status_code=429, detail=f"问得太快了，{int(wait) + 1} 秒后再试",
+                            headers={"Retry-After": str(int(wait) + 1)})
+    if not daily_check():
+        raise HTTPException(status_code=429, detail="今天的演示额度用完了，明天再来")
+
     resp = call_llm([
         {"role": "system", "content": "你是一名健身教练。回答要简短具体，给数字，不说套话。"},
         {"role": "user", "content": req.question},
@@ -1196,7 +1349,7 @@ def chat(req: AskRequest):
 
 
 @app.post("/rag")
-def rag(req: AskRequest, mode: str = "rerank", fallback: bool | None = None):
+def rag(req: AskRequest, request: Request, mode: str = "rerank", fallback: bool | None = None):
     """mode=rerank 向量召回 + reranker 精排（默认，200 题整体 88% / 拒答 81%）
     mode=vector 纯向量检索（整体 86% / 拒答 70%）
     mode=hybrid 向量 + BM25 混合检索（排序融合，门控仍看向量分）
@@ -1213,7 +1366,34 @@ def rag(req: AskRequest, mode: str = "rerank", fallback: bool | None = None):
     比纯向量高 8 个点（94% vs 86%），拒答率也从 70% 提到 90%。代价是每题多一次
     上游调用（约 0.27 秒），换来的主要不是排序变好，而是**判别力**——
     reranker 的分数在单一体系语料上能把「该答的」和「该拒的」切开，余弦相似度切不开。
+
+    上线三层（口令 -> 缓存 -> 限流）都在这个函数入口，顺序不能换，原因见上面那段注释。
+    缓存命中直接返回，`cached: true` 且 `tokens: 0` —— 缓存命中没收钱，就别报钱。
     """
+    check_code(request.headers.get("x-access-code"))
+    STATS["requests"] += 1
+
+    # 兜底开关在本函数内部被用过两次（决定缓存键、决定走不走兜底），
+    # 所以先算一次：同一个值算两遍，迟早有一处忘了跟着改。
+    use_fb = FALLBACK_ENABLED if fallback is None else fallback
+    key = cache_key(mode, use_fb, req.question)
+
+    cached = cache_get(key)
+    if cached is not None:
+        cached["cached"] = True
+        cached["tokens"] = 0
+        return cached
+
+    wait = rate_check(client_ip(request))
+    if wait > 0:
+        raise HTTPException(
+            status_code=429,
+            detail=f"问得太快了，{int(wait) + 1} 秒后再试（每分钟 {RATE_LIMIT_PER_MIN} 次）",
+            headers={"Retry-After": str(int(wait) + 1)},
+        )
+    if not daily_check():
+        raise HTTPException(status_code=429, detail="今天的演示额度用完了，明天再来")
+
     variants = []           # 只有 oral 模式有；放外面是为了三个 return 的字段一致
     if mode == "keyword":
         hits = search_kb_keyword(req.question)
@@ -1246,15 +1426,14 @@ def rag(req: AskRequest, mode: str = "rerank", fallback: bool | None = None):
     if not hits:
         # 第二道闸：检索层严格拒了，但召回里确实有弱相关资料。
         # 让生成层自己判断「这些够不够回答」——它能拒，也能把本来被埋掉的答案捞出来。
-        # fallback 三态：不传走全局默认，显式 ?fallback=0 必须能关掉
+        # fallback 三态在函数入口就算好了：不传走全局默认，显式 ?fallback=0 必须能关掉
         # （写成 `fallback or FALLBACK_ENABLED` 就关不掉了，False or True 还是 True）。
-        use_fb = FALLBACK_ENABLED if fallback is None else fallback
         fb = None
         if use_fb and ranking:
             fb = answer_with_fallback(req.question, ranking)
 
         if fb:
-            return {
+            return finish({
                 "answer": fb["answer"],
                 "sources": public_sources(fb["sources"]),
                 "ranking": ranking,
@@ -1264,9 +1443,9 @@ def rag(req: AskRequest, mode: str = "rerank", fallback: bool | None = None):
                 "degraded": False,
                 "fallback_used": True,      # 调用方据此知道：这条不是精排过线的，是兜底兜回来的
                 "uncertain": uncertain,     # 兜底能兜回来，本身就说明它贴着门线
-            }
+            }, key)
 
-        return {
+        return finish({
             "answer": "知识库里没有相关资料，我无法基于资料回答。",
             "sources": [],
             "ranking": ranking,
@@ -1276,7 +1455,7 @@ def rag(req: AskRequest, mode: str = "rerank", fallback: bool | None = None):
             "degraded": False,
             "fallback_used": False,
             "uncertain": uncertain,
-        }
+        }, key)
 
     context = "\n".join(f"- {h['topic']}：{h['text']}" for h in hits)
 
@@ -1304,7 +1483,7 @@ def rag(req: AskRequest, mode: str = "rerank", fallback: bool | None = None):
         # 502 = 试过了确实失败，503 = 上游熔断中压根没试。
         # 两种情况下资料都是真实命中的 —— 把资料原样交出去，比一句报错有用。
         # 但必须打上 degraded 标记，否则调用方会以为这是模型润色过的答案。
-        return {
+        return finish({
             "answer": "模型服务暂时不稳定（重试或熔断），以下是命中的原始资料：\n"
                       + "\n".join(f"- {h['topic']}：{h['text']}" for h in hits),
             "sources": sources,
@@ -1315,9 +1494,9 @@ def rag(req: AskRequest, mode: str = "rerank", fallback: bool | None = None):
             "degraded": True,
             "fallback_used": False,
             "uncertain": uncertain,
-        }
+        }, key)
 
-    return {
+    return finish({
         "answer": resp.choices[0].message.content,
         "sources": sources,
         "ranking": ranking,
@@ -1327,4 +1506,4 @@ def rag(req: AskRequest, mode: str = "rerank", fallback: bool | None = None):
         "degraded": False,
         "fallback_used": False,
         "uncertain": uncertain,
-    }
+    }, key)

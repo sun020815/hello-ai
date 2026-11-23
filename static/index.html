@@ -60,6 +60,20 @@
   }
   textarea::placeholder{color:#5d6777}
   .row{display:flex;align-items:center;gap:12px;margin-top:10px;flex-wrap:wrap}
+  /* 口令行：只在服务端配了 ACCESS_CODE 时出现，本地跑永远看不到 */
+  .code-row{display:none;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+  .code-row.on{display:flex}
+  .code-row input{
+    flex:1;min-width:180px;background:var(--bg-2);border:1px solid var(--line);
+    border-radius:8px;padding:8px 11px;color:var(--text);font-size:13.5px;outline:none;
+  }
+  .code-row input:focus{border-color:#39424f}
+  .code-row .hint{font-size:12.5px;color:var(--muted)}
+  .code-row button{
+    background:var(--bg-2);border:1px solid var(--line);color:var(--text);
+    border-radius:8px;padding:8px 16px;font-size:13px;cursor:pointer;font-family:inherit;
+  }
+  .code-row button:hover{border-color:#414b59;color:#fff}
   .spacer{flex:1}
   .ctl{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted)}
   select{
@@ -112,6 +126,7 @@
   .badge.refuse{background:rgba(125,136,153,.12);color:#98a3b3;border-color:rgba(125,136,153,.22)}
   .badge.fb{background:rgba(210,153,34,.12);color:#e0ac45;border-color:rgba(210,153,34,.25)}
   .badge.warn{background:rgba(88,166,255,.10);color:#79b8ff;border-color:rgba(88,166,255,.25);cursor:help}
+  .badge.cache{background:rgba(125,136,153,.10);color:#8b96a6;border-color:rgba(125,136,153,.22);cursor:help}
   .badge.mode{background:var(--accent-dim);color:#f07579;border-color:#3d1c1f}
   .metrics{margin-left:auto;font:12px/1 var(--mono);color:var(--muted);white-space:nowrap}
 
@@ -200,6 +215,12 @@
       <div class="spacer"></div>
       <button class="primary" id="go">提问</button>
     </div>
+    <div class="code-row" id="codewrap">
+      <input id="code" type="password" placeholder="访问口令（转发链接时一起给）"
+             autocomplete="off">
+      <button id="codesave">保存</button>
+      <span class="hint" id="codetip">这台服务需要口令，浏览器会记住</span>
+    </div>
   </section>
 
   <div class="examples" id="examples"></div>
@@ -234,6 +255,47 @@
     return n;
   }
 
+  /* ---- 口令 ----
+     为什么要 localStorage 而不是每次手输：链接会被转发，转发的人不该知道口令，
+     但拿到「链接 + 口令」的人希望点开就能用。?k=xxx 进来一次就记住，
+     之后清缓存才会再问。口令只放在请求头，不写进 URL（URL 会进日志和 Referer）。 */
+  var CODE_KEY = 'hello-ai-code';
+  var code = new URLSearchParams(location.search).get('k') || '';
+  if (code) {
+    localStorage.setItem(CODE_KEY, code);
+    // 把 k 从地址栏抹掉，免得被复制到聊天记录里
+    var clean = new URLSearchParams(location.search);
+    clean.delete('k');
+    history.replaceState(null, '', location.pathname + (clean.toString() ? '?' + clean : ''));
+  } else {
+    code = localStorage.getItem(CODE_KEY) || '';
+  }
+
+  function showCode(why) {
+    $('#codewrap').classList.add('on');
+    if (why) $('#codetip').textContent = why;
+    $('#code').focus();
+  }
+
+  function authHeaders() {
+    var h = { 'Content-Type': 'application/json' };
+    if (code) h['X-Access-Code'] = code;
+    return h;
+  }
+
+  $('#codesave').onclick = function () {
+    var v = $('#code').value.trim();
+    if (!v) return;
+    code = v;
+    localStorage.setItem(CODE_KEY, v);
+    $('#codewrap').classList.remove('on');
+    $('#codetip').textContent = '这台服务需要口令，浏览器会记住';
+    ta.focus();
+  };
+  $('#code').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); $('#codesave').click(); }
+  });
+
   /* ---- 顶部配置 ---- */
   fetch('/meta').then(function (r) { return r.json(); }).then(function (m) {
     META = m;
@@ -244,6 +306,7 @@
       '精排 <b>' + m.rerank_model.split('/').pop() + '</b> · ' +
       '阈值 <b>' + m.rerank_threshold + '</b> · ' +
       '兜底 <b>' + (m.fallback_enabled ? '开启' : '关闭') + '</b>';
+    if (m.auth_required && !code) showCode('这台服务需要访问口令');
   }).catch(function () {
     $('#dot').className = 'dot err';
     $('#status').textContent = '服务未响应';
@@ -294,6 +357,14 @@
       head.appendChild(el('span', 'badge ok', '精排命中'));
     }
     head.appendChild(el('span', 'badge mode', d.mode || 'rerank'));
+
+    // 缓存命中：这次没有重新检索，答案和第一次完全一样。
+    // 不说清楚的话，用户会以为「秒回」是因为问得简单。
+    if (d.cached) {
+      var cb = el('span', 'badge cache', '命中缓存');
+      cb.title = '这条问题之前答过，直接复用了上次的结果（tokens 记 0）';
+      head.appendChild(cb);
+    }
 
     // 贴线提醒：这次判定离门线不到 0.006，同一句话重跑有可能翻面。
     // 只做提示，不改结论 —— 改判定的地方只有后端的 pick_hits 一处。
@@ -366,17 +437,29 @@
 
     fetch('/rag?mode=' + encodeURIComponent(mode) + '&fallback=' + fb, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authHeaders(),
       body: JSON.stringify({ question: q })
     }).then(function (r) {
       var ms = performance.now() - t0;
       return r.json().then(function (body) {
-        if (!r.ok) {
-          var detail = body && body.detail;
-          if (typeof detail !== 'string') detail = JSON.stringify(detail || body);
-          throw new Error('HTTP ' + r.status + '\n' + detail);
+        if (r.ok) { render(q, body, ms); return; }
+
+        var detail = body && body.detail;
+        if (typeof detail !== 'string') detail = JSON.stringify(detail || body);
+
+        // 401 和 429 是「能自己解决」的两类，不该跟 500 一样丢一坨红字：
+        // 401 直接把口令框调出来，429 告诉用户等几秒，别让人以为服务坏了。
+        if (r.status === 401) {
+          code = '';
+          localStorage.removeItem(CODE_KEY);
+          showCode('口令不对，重新输一次');
+          throw new Error('需要访问口令。拿到口令后填在上面的输入框里。');
         }
-        render(q, body, ms);
+        if (r.status === 429) {
+          var wait = r.headers.get('Retry-After');
+          throw new Error(detail + (wait ? '（约 ' + wait + ' 秒）' : ''));
+        }
+        throw new Error('HTTP ' + r.status + '\n' + detail);
       });
     }).catch(function (e) {
       fail(e.message || String(e));

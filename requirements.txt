@@ -1,0 +1,10 @@
+# 给公网发布沙箱用的依赖清单。
+# 为什么不用 pyproject + uv：那边的沙箱不一定装了 uv，而 pyproject 里锁了
+# requires-python >= 3.14；沙箱多半是 3.11/3.12，uv sync 会直接拒绝。
+# 这里放宽版本下界，pip 能装就能跑（代码只用到 3.10 的 X | None 语法）。
+fastapi>=0.110
+uvicorn>=0.27
+openai>=1.30
+python-dotenv>=1.0
+jieba>=0.42
+watchfiles>=0.21
