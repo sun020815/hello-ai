@@ -66,14 +66,25 @@ def main():
     print("\n  → 如果「该拒答的最高分」比「该命中的最低分」还高，就说明两类分数有重叠，")
     print("     没有任何一条线能完全切开。下面是扫出来的实际代价。\n")
 
+    # 扫描上限从数据里推出来，不写死。
+    # 上一版写死 0.20（v1 的 rerank 分数就落在那），换语料后分数整体上移，
+    # 真正的最优点在 0.5 附近 —— 结果工具扫到 0.20 就停了，报了个假的"最优"。
+    upper = min(1.0, max(ref_tops[0][0], hit_tops[-1][0]) + 0.05)
+
     print(f"{'阈值':>8}{'hit@1':>9}{'hit@2':>9}{'拒答率':>9}{'整体准确':>10}")
     print("-" * 46)
     best = None
     th = 0.0000
-    while th <= 0.2001:
+    prev = None
+    while th <= upper:
         m = score_at(th)
-        print(f"{th:>8.4f}{m['hit1']*100:>8.0f}%{m['hit2']*100:>8.0f}%"
-              f"{m['refuse']*100:>8.0f}%{m['acc']*100:>9.0f}%")
+        # 只打印「结果真的变了」的那几个点。原来每次 0.005 打一行，
+        # 41 行里有 35 行完全一样，把真正的转折点埋在刷屏里。
+        cur = (m["hit1"], m["hit2"], m["refuse"], m["acc"])
+        if cur != prev:
+            print(f"{th:>8.4f}{m['hit1']*100:>8.0f}%{m['hit2']*100:>8.0f}%"
+                  f"{m['refuse']*100:>8.0f}%{m['acc']*100:>9.0f}%")
+            prev = cur
         if best is None or m["acc"] > best["acc"] or (
             abs(m["acc"] - best["acc"]) < 1e-9 and m["refuse"] > best["refuse"]
         ):
@@ -84,9 +95,13 @@ def main():
     print(f"\n整体准确率最高的一档：阈值 {best['th']:.3f} → "
           f"hit@1 {best['hit1']*100:.0f}% / 拒答 {best['refuse']*100:.0f}% / 整体 {best['acc']*100:.0f}%")
 
-    vec = json.loads((HERE / "eval_results.json").read_text(encoding="utf-8"))["vector"]["summary"]
-    print(f"对照纯向量：                "
-          f"hit@1 {vec['hit1']*100:.0f}% / 拒答 {vec['refuse']*100:.0f}% / 整体 {vec['acc']*100:.0f}%")
+    # 对照纯向量。文件里可能没有 vector（用 --modes 只跑了部分模式时），不能硬取。
+    try:
+        vec = json.loads((HERE / "eval_results.json").read_text(encoding="utf-8"))["vector"]["summary"]
+        print(f"对照纯向量：                "
+              f"hit@1 {vec['hit1']*100:.0f}% / 拒答 {vec['refuse']*100:.0f}% / 整体 {vec['acc']*100:.0f}%")
+    except KeyError:
+        print("对照纯向量：                （eval_results.json 里没有 vector，先跑 eval.py --modes vector）")
 
 
 if __name__ == "__main__":

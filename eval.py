@@ -276,12 +276,42 @@ def run_report():
         print(f"  {group[0]['q']:<22} " + "  ".join(
             f"{m}={g or '拒答'}" for m, g in zip(MODES, gots)))
 
-    (HERE / "eval_results.json").write_text(
-        json.dumps({m: {"summary": summarize(all_rows[m]), "rows": all_rows[m]} for m in all_rows},
-                   ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
+    save_results({m: {"summary": summarize(all_rows[m]), "rows": all_rows[m]} for m in all_rows})
     print("\n明细已写入 eval_results.json")
+
+
+OUT_PATH = HERE / "eval_results.json"
+
+
+def save_results(new: dict):
+    """写入结果，并且**合并**而不是覆盖。
+
+    为什么要合并：rewrite / rerank 每跑一次都花钱，所以经常只跑其中两路，
+    也就是 --modes rewrite,rerank。直接覆盖会把前面零成本算出来的
+    keyword / vector / hybrid 一并抹掉，下次想看对照就得再跑一遍（虽然不花钱，
+    但白等一轮）。这个坑已经踩过一次：tune_rerank.py 读不到 vector 直接崩了。
+
+    为什么要校验：如果语料或评测集换了，旧结果属于上一次实验，合并进来会
+    造出「表格里的数字来自两次不同实验、看起来却像一次跑出来的」这种假报告。
+    这比丢数据危险得多。所以对不上就整份丢弃，重开一条。
+    """
+    meta = {"n_cases": len(CASES), "n_kb": len(app.KB)}
+    merged = {}
+    if OUT_PATH.exists():
+        try:
+            old = json.loads(OUT_PATH.read_text(encoding="utf-8"))
+        except Exception:
+            old = {}
+        if old.get("__meta") == meta:
+            merged = {k: v for k, v in old.items() if not k.startswith("__")}
+        else:
+            kept = [k for k in old if not k.startswith("__")]
+            if kept:
+                print(f"  （已有结果属于另一次实验：{old.get('__meta')} != {meta}，"
+                      f"丢弃 {kept}，只保留本次）")
+    merged.update(new)
+    merged["__meta"] = meta
+    OUT_PATH.write_text(json.dumps(merged, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 if __name__ == "__main__":
