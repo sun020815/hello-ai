@@ -292,6 +292,103 @@ def search_kb_hybrid(q: str, top_k: int = VEC_TOP_K, threshold: float = VEC_THRE
     return hits, ranking
 
 
+# ---------- 第五段：query 改写 ----------
+# 动机是「文档语言 ≠ 查询语言」：资料里写的是陈述句（「沉肩，想的不是往下压」），
+# 用户问的是问题句（「找不到发力感怎么办」），字面一个词都不重合。
+# 做法：先让模型把口语问题改写成 3 条「资料里可能出现的表述」，再取每条 chunk 与
+# 「原问题 + 3 条改写」的最大相似度。
+#
+# 实测结论：hit@1 从 90.9% 升到 92.2%、hit@2 从 94.8% 升到 97.4%，
+# 但拒答率从 100% 掉到 90%，整体准确率 92.0% —— 与纯向量一模一样。
+# 也就是说改写没有引入新信息，只是把工作点沿同一条曲线挪了位置。
+# 原因是「取 K 条最大值」是极值统计，K 个样本的最大值期望必然高于 1 个样本，
+# 该命中的和该拒答的一起被抬上去。详见 README 与 rewrite_experiment.py
+REWRITE_THRESHOLD = 0.64
+REWRITE_N = 3
+
+REWRITE_PROMPT = (
+    "你是检索助手。把用户的口语问题改写成 3 条健身资料里可能出现的表述。\n"
+    "规则：\n"
+    "1. 只换说法，不改变问题意图。不要回答这个问题。\n"
+    "2. 用健身领域术语，比如 发力感、肌肉募集、离心控制、代偿、容量、渐进超负荷。\n"
+    "3. 每条一句话，20 字以内。\n"
+    "4. 三条之间角度要不同，不要只换同义词。\n"
+    "只输出三行改写，不要编号，不要解释。"
+)
+
+REWRITE_CACHE = Path(__file__).parent / ".rewrites.json"
+REWRITE_PROMPT_VER = "v1"
+
+
+def clean_rewrite_line(line: str) -> str:
+    """模型偶尔还是带编号或引号，清掉。"""
+    s = line.strip().strip("\"'“”")
+    for sep in (".", "、", ")", "）"):
+        head, dot, tail = s.partition(sep)
+        if dot and head.isdigit():
+            s = tail.strip()
+    return s
+
+
+def rewrite_query(q: str):
+    """口语问题 -> 3 条资料风格的表述。失败就退回原问题，不让检索整体挂掉。"""
+    try:
+        resp = call_llm([
+            {"role": "system", "content": REWRITE_PROMPT},
+            {"role": "user", "content": q},
+        ])
+    except Exception:
+        return []
+    lines = [clean_rewrite_line(l) for l in resp.choices[0].message.content.splitlines()]
+    return [l for l in lines if l][:REWRITE_N]
+
+
+def rewrite_many(questions):
+    """批量改写 + 落盘缓存。只给评测和离线实验用，线上每次请求都是新问题，命中不了缓存。"""
+    cache = {}
+    if REWRITE_CACHE.exists():
+        try:
+            c = json.loads(REWRITE_CACHE.read_text(encoding="utf-8"))
+            if c.get("model") == LLM_MODEL and c.get("prompt") == REWRITE_PROMPT_VER:
+                cache = c.get("items", {})
+        except Exception:
+            pass
+
+    todo = [q for q in questions if q not in cache]
+    if todo:
+        print(f"  需新改写 {len(todo)} 条（其余走缓存）")
+        for i, q in enumerate(todo, 1):
+            cache[q] = rewrite_query(q)
+            print(f"    {i}/{len(todo)}", end="\r", flush=True)
+        print()
+        REWRITE_CACHE.write_text(
+            json.dumps({"model": LLM_MODEL, "prompt": REWRITE_PROMPT_VER, "items": cache},
+                       ensure_ascii=False, indent=1),
+            encoding="utf-8",
+        )
+    return cache
+
+
+def search_kb_rewrite(q: str, top_k: int = VEC_TOP_K, threshold: float = REWRITE_THRESHOLD):
+    """改写后检索：原问题 + 3 条改写一起嵌入，每条 chunk 取最大相似度。
+    一次 embed 调用发 4 条文本，比逐条调用省 3 次往返。"""
+    variants = [q] + rewrite_query(q)
+    vecs = embed(variants)
+    ranking = []
+    for d, kb_vec in zip(KB, get_kb_vectors()):
+        sims = [cosine(v, kb_vec) for v in vecs]
+        ranking.append({
+            "id": d["id"], "topic": d["topic"], "text": d["text"], "source": d["source"],
+            "score": round(max(sims), 4),
+            # 原问题自己的分留着，方便对比「是改写抬起来的还是本来就够」
+            "orig_score": round(sims[0], 4),
+        })
+    ranking.sort(key=lambda x: x["score"], reverse=True)
+
+    hits = pick_hits(ranking, top_k, threshold)
+    return hits, ranking
+
+
 @app.get("/kb")
 def kb(q: str):
     hits = search_kb_keyword(q)
@@ -331,6 +428,7 @@ def rag(req: AskRequest, mode: str = "vector"):
     """mode=vector 纯向量检索（默认）
     mode=hybrid 向量 + BM25 混合检索（排序融合，门控仍看向量分）
     mode=rerank 向量召回 + reranker 精排（两段式）
+    mode=rewrite 先把问题改写成 3 条资料风格表述，再取最大相似度
     mode=keyword 老的关键词匹配，方便对比"""
     if mode == "keyword":
         hits = search_kb_keyword(req.question)
@@ -339,6 +437,8 @@ def rag(req: AskRequest, mode: str = "vector"):
         hits, ranking = search_kb_rerank(req.question)
     elif mode == "hybrid":
         hits, ranking = search_kb_hybrid(req.question)
+    elif mode == "rewrite":
+        hits, ranking = search_kb_rewrite(req.question)
     else:
         hits, ranking = search_kb_vector(req.question)
 

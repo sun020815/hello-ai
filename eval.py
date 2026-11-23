@@ -145,10 +145,57 @@ def predict_hybrid(questions):
     return results
 
 
+REWRITE_VECS = HERE / ".rewrite_vecs.json"
+
+
+def get_flat_vectors(texts):
+    """任意一批文本的向量，按文本内容缓存。
+    改写的 4×87=348 条文本只在第一次跑时嵌入，之后复用。"""
+    if REWRITE_VECS.exists():
+        try:
+            c = json.loads(REWRITE_VECS.read_text(encoding="utf-8"))
+            if c.get("model") == app.EMBED_MODEL and c.get("texts") == texts:
+                return c["vectors"]
+        except Exception:
+            pass
+
+    vecs = []
+    for part in chunked(texts, 16):
+        vecs.extend(app.embed(part))
+    REWRITE_VECS.write_text(
+        json.dumps({"model": app.EMBED_MODEL, "texts": texts, "vectors": vecs},
+                   ensure_ascii=False), encoding="utf-8")
+    return vecs
+
+
+def predict_rewrite(questions):
+    """query 改写：原问题 + 3 条改写，逐 chunk 取最大相似度。
+    走 app 里同一套 pick_hits，只是阈值换成改写专用的 REWRITE_THRESHOLD。"""
+    rewrites = app.rewrite_many(questions)
+    flat = [t for q in questions for t in [q] + rewrites[q]]
+    vecs = dict(zip(flat, get_flat_vectors(flat)))
+    kb_vecs = app.get_kb_vectors()
+
+    results = []
+    for q in questions:
+        variants = [q] + rewrites[q]
+        ranking = []
+        for d, kv in zip(app.KB, kb_vecs):
+            best = max(app.cosine(vecs[t], kv) for t in variants)
+            ranking.append({"id": d["id"], "topic": d["topic"], "score": round(best, 4)})
+        ranking.sort(key=lambda x: x["score"], reverse=True)
+        kept = app.pick_hits(ranking, app.VEC_TOP_K, app.REWRITE_THRESHOLD)
+        results.append({"topics": [r["topic"] for r in kept],
+                        "ids": [r["id"] for r in kept],
+                        "score": ranking[0]["score"] if ranking else None})
+    return results
+
+
 PREDICTORS = {
     "keyword": predict_keyword,
     "vector": predict_vector,
     "hybrid": predict_hybrid,
+    "rewrite": predict_rewrite,
     "rerank": predict_rerank,
 }
 
@@ -192,13 +239,16 @@ def pct(x):
     return f"{x * 100:.0f}%"
 
 
+MODES = ("keyword", "vector", "hybrid", "rewrite", "rerank")
+
+
 def run_report():
     print(f"知识库：{len(app.KB)} 条 chunk，{len(app.TOPICS)} 个话题")
     print(f"评测集：{len(CASES)} 条（应命中 {sum(1 for c in CASES if c['kind']=='hit')} 条，"
           f"应拒答 {sum(1 for c in CASES if c['kind']=='refuse')} 条）\n")
 
     all_rows = {}
-    for mode in ("keyword", "vector", "hybrid", "rerank"):
+    for mode in MODES:
         rows = evaluate(mode)
         all_rows[mode] = rows
         m = summarize(rows)
@@ -219,12 +269,12 @@ def run_report():
         print()
 
     print("===== 逐条对比（只显示几种结论不完全一致的）=====")
-    for k, v, h, r in zip(all_rows["keyword"], all_rows["vector"],
-                          all_rows["hybrid"], all_rows["rerank"]):
-        if not (k["got"] == v["got"] == h["got"] == r["got"]):
-            print(f"  {k['q']:<22} 关键词={k['got'] or '拒答':<6} "
-                  f"向量={v['got'] or '拒答':<6} 混合={h['got'] or '拒答':<6} "
-                  f"rerank={r['got'] or '拒答'}")
+    for group in zip(*[all_rows[m] for m in MODES]):
+        gots = [r["got"] for r in group]
+        if len(set(gots)) == 1:
+            continue
+        print(f"  {group[0]['q']:<22} " + "  ".join(
+            f"{m}={g or '拒答'}" for m, g in zip(MODES, gots)))
 
     (HERE / "eval_results.json").write_text(
         json.dumps({m: {"summary": summarize(all_rows[m]), "rows": all_rows[m]} for m in all_rows},
