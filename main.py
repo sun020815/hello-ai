@@ -11,6 +11,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from openai import OpenAI, APIConnectionError, APITimeoutError, RateLimitError
 from pydantic import BaseModel
 
@@ -542,9 +544,39 @@ for _label in ("chat", "embedding", "rerank"):
     get_breaker(_label)
 
 
+STATIC_DIR = Path(__file__).parent / "static"
+if STATIC_DIR.is_dir():
+    # 演示页用原生 JS 单文件，不引外部 CDN —— 容器里没网也能打开。
+    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+
 @app.get("/")
 def read_root():
-    return {"message": "hello"}
+    """根路径直接给演示页。没有 static 目录就退回最简 JSON，
+    不让一个缺失的前端把整个服务变成 500。"""
+    page = STATIC_DIR / "index.html"
+    if page.is_file():
+        return FileResponse(page)
+    return {"message": "hello", "demo": "static/index.html 不存在"}
+
+
+@app.get("/meta")
+def meta():
+    """演示页启动时读这个，把「这套系统当前是什么配置」显示出来。
+
+    为什么要有：排障时第一句总是「你跑的到底是哪个模型、哪个阈值」。
+    这些值都来自环境变量，只写在文档里迟早和实际跑的不一致。
+    """
+    return {
+        "kb_chunks": len(KB),
+        "kb_topics": len({d["topic"] for d in KB}),
+        "llm_model": LLM_MODEL,
+        "embed_model": EMBED_MODEL,
+        "rerank_model": RERANK_MODEL,
+        "rerank_threshold": RERANK_THRESHOLD,
+        "recall_k": RECALL_K,
+        "fallback_enabled": FALLBACK_ENABLED,
+    }
 
 
 @app.get("/breaker")
@@ -648,10 +680,13 @@ def get_kb_vectors():
             pass  # 缓存文件坏了就重新算，不影响功能
 
     vectors = embed(texts)
-    CACHE_PATH.write_text(
-        json.dumps({"model": EMBED_MODEL, "texts": texts, "vectors": vectors}, ensure_ascii=False),
-        encoding="utf-8",
-    )
+    try:
+        CACHE_PATH.write_text(
+            json.dumps({"model": EMBED_MODEL, "texts": texts, "vectors": vectors}, ensure_ascii=False),
+            encoding="utf-8",
+        )
+    except OSError:
+        pass        # 只读文件系统（容器里很常见）不该让检索挂掉，下次重启重算一遍而已
     _kb_vectors = vectors
     return _kb_vectors
 
@@ -673,6 +708,25 @@ def pick_hits(ranking, top_k, threshold):
         if len(picked) >= top_k:
             break
     return picked
+
+
+def public_sources(items):
+    """对外暴露的资料字段。**带上 text**：只给话题名和分数的话，
+    用户没法核对答案是不是真从资料里来的 —— 引用要能点开看原文才有意义。
+
+    统一走这个函数而不是在三个 return 里各写一遍：之前 sources 在两处被
+    分别裁剪，加字段时漏掉一处，前端就静默显示空白（2026-11-23 踩过）。
+    """
+    return [
+        {
+            "id": c["id"],
+            "topic": c["topic"],
+            "source": c.get("source", ""),
+            "score": c.get("score"),
+            "text": c.get("text", ""),
+        }
+        for c in items
+    ]
 
 
 def search_kb_vector(q: str, top_k: int = VEC_TOP_K, threshold: float = VEC_THRESHOLD):
@@ -1143,10 +1197,7 @@ def rag(req: AskRequest, mode: str = "rerank", fallback: bool | None = None):
         if fb:
             return {
                 "answer": fb["answer"],
-                "sources": [
-                    {"id": c["id"], "topic": c["topic"], "source": c["source"], "score": c["score"]}
-                    for c in fb["sources"]
-                ],
+                "sources": public_sources(fb["sources"]),
                 "ranking": ranking,
                 "mode": mode,
                 "variants": variants,
@@ -1168,10 +1219,7 @@ def rag(req: AskRequest, mode: str = "rerank", fallback: bool | None = None):
 
     context = "\n".join(f"- {h['topic']}：{h['text']}" for h in hits)
 
-    sources = [
-        {"id": h["id"], "topic": h["topic"], "source": h["source"], "score": h["score"]}
-        for h in hits
-    ]
+    sources = public_sources(hits)
 
     try:
         resp = call_llm([

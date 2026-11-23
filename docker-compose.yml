@@ -1,0 +1,16 @@
+services:
+  rag:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: hello-ai-rag:latest
+    container_name: hello-ai-rag
+    ports:
+      - "8000:8000"
+    # key 只走这个文件，不写进 Dockerfile、不写进 compose
+    env_file:
+      - .env
+    environment:
+      # 容器里不要开热重载；日志立刻刷出来
+      PYTHONUNBUFFERED: "1"
+    restart: unless-stopped

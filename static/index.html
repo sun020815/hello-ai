@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>健身知识库问答</title>
+<style>
+  :root{
+    --bg:#0d1014;
+    --panel:#151a21;
+    --panel-2:#1a202a;
+    --line:#252d38;
+    --line-soft:#1e252f;
+    --text:#e7ebf1;
+    --text-2:#b3bdcb;
+    --muted:#7d8899;
+    --accent:#e5484d;
+    --accent-dim:#2a1518;
+    --ok:#3fb950;
+    --warn:#d29922;
+    --radius:12px;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font:15px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:820px;margin:0 auto;padding:44px 24px 80px}
+
+  /* ---- 页头 ---- */
+  header{margin-bottom:28px}
+  .kicker{
+    display:inline-flex;align-items:center;gap:7px;
+    font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:10px;
+  }
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--muted);transition:background .3s}
+  .dot.ok{background:var(--ok);box-shadow:0 0 0 3px rgba(63,185,80,.12)}
+  .dot.err{background:var(--accent)}
+  h1{font-size:26px;font-weight:650;letter-spacing:-.01em;line-height:1.35}
+  h1 span{color:var(--accent)}
+  .sub{margin-top:8px;color:var(--muted);font-size:13.5px}
+  .sub b{color:var(--text-2);font-weight:500}
+
+  /* ---- 提问区 ---- */
+  .ask{
+    background:var(--panel);border:1px solid var(--line);
+    border-radius:var(--radius);padding:16px;margin-top:22px;
+    transition:border-color .2s;
+  }
+  .ask:focus-within{border-color:#39424f}
+  textarea{
+    width:100%;background:transparent;border:0;outline:0;resize:none;
+    color:var(--text);font:inherit;line-height:1.6;
+    min-height:52px;max-height:180px;
+  }
+  textarea::placeholder{color:#5d6777}
+  .row{display:flex;align-items:center;gap:12px;margin-top:10px;flex-wrap:wrap}
+  .spacer{flex:1}
+  .ctl{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted)}
+  select{
+    background:var(--panel-2);color:var(--text-2);border:1px solid var(--line);
+    border-radius:7px;padding:4px 8px;font-size:12.5px;outline:0;cursor:pointer;
+  }
+  .switch{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
+  .switch input{accent-color:var(--accent);cursor:pointer}
+  button.primary{
+    background:var(--accent);color:#fff;border:0;border-radius:8px;
+    padding:8px 18px;font:inherit;font-size:14px;font-weight:500;
+    cursor:pointer;transition:filter .15s,opacity .15s;
+  }
+  button.primary:hover{filter:brightness(1.08)}
+  button.primary:disabled{opacity:.45;cursor:not-allowed}
+
+  /* ---- 示例 ---- */
+  .examples{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .chip{
+    background:transparent;border:1px solid var(--line);color:var(--muted);
+    border-radius:20px;padding:5px 12px;font-size:12.5px;cursor:pointer;
+    transition:all .15s;font-family:inherit;
+  }
+  .chip:hover{border-color:#414b59;color:var(--text-2)}
+  .chip .tag{color:var(--accent);margin-right:4px}
+
+  /* ---- 结果 ---- */
+  #out{margin-top:26px}
+  .empty{
+    text-align:center;color:#5a6474;font-size:13px;padding:38px 0;
+    border:1px dashed var(--line-soft);border-radius:var(--radius);
+  }
+  .card{
+    background:var(--panel);border:1px solid var(--line);
+    border-radius:var(--radius);overflow:hidden;
+    animation:rise .28s ease-out;
+  }
+  /* 只动位移不动透明度：入场动画在慢设备或截图工具里可能停在第一帧，
+     一旦第一帧是 opacity:0，整张卡片就“消失”了。宁可少一点淡入。 */
+  @keyframes rise{from{transform:translateY(6px)}to{transform:none}}
+  .card-head{
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    padding:12px 18px;border-bottom:1px solid var(--line-soft);
+  }
+  .badge{
+    font-size:11.5px;padding:2px 8px;border-radius:5px;font-weight:500;
+    border:1px solid transparent;
+  }
+  .badge.ok{background:rgba(63,185,80,.12);color:#5cd06f;border-color:rgba(63,185,80,.22)}
+  .badge.refuse{background:rgba(125,136,153,.12);color:#98a3b3;border-color:rgba(125,136,153,.22)}
+  .badge.fb{background:rgba(210,153,34,.12);color:#e0ac45;border-color:rgba(210,153,34,.25)}
+  .badge.mode{background:var(--accent-dim);color:#f07579;border-color:#3d1c1f}
+  .metrics{margin-left:auto;font:12px/1 var(--mono);color:var(--muted);white-space:nowrap}
+
+  .answer{padding:20px 18px;font-size:15.5px;line-height:1.9;color:var(--text);white-space:pre-wrap}
+  .answer.refused{color:var(--muted);font-size:14px}
+  /* 拒答时补一句「为什么拒」：只显示「资料不足」，看的人没法判断是
+     语料没有、还是分数差一点、还是兜底没开。这三个原因的处理方式完全不同。 */
+  .why{
+    padding:0 18px 16px;font-size:12.5px;line-height:1.8;color:#6b7686;
+    border-top:1px dashed var(--line-soft);margin-top:-4px;padding-top:12px;
+  }
+  .why b{color:var(--text-2);font-weight:500;font-family:var(--mono);font-size:12px}
+
+  .srcs{border-top:1px solid var(--line-soft);padding:6px 18px 16px}
+  .srcs-title{
+    font-size:11.5px;letter-spacing:.06em;color:#5f6a7a;
+    text-transform:uppercase;padding:12px 0 8px;
+  }
+  .src{
+    position:relative;padding:10px 12px 10px 14px;margin-bottom:6px;
+    background:var(--panel-2);border-radius:8px;
+  }
+  .src::before{
+    content:"";position:absolute;left:0;top:8px;bottom:8px;width:2px;
+    background:var(--accent);border-radius:2px;opacity:.65;
+  }
+  .src-top{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+  .src-topic{font-size:13px;font-weight:550;color:var(--text)}
+  .src-id{font:11px/1 var(--mono);color:#5f6a7a}
+  .src-score{margin-left:auto;font:12px/1 var(--mono);color:var(--ok)}
+  .src-score.mid{color:var(--warn)}
+  .src-score.low{color:var(--muted)}
+  .src-text{font-size:13px;line-height:1.75;color:var(--text-2)}
+
+  .err{
+    background:var(--accent-dim);border:1px solid #4a2326;border-radius:var(--radius);
+    padding:16px 18px;color:#f2a3a5;font-size:13.5px;white-space:pre-wrap;
+  }
+  .err b{display:block;margin-bottom:4px;color:#ff7b7f;font-size:13px}
+
+  /* 加载 */
+  .loading{display:flex;align-items:center;gap:10px;padding:26px 18px;color:var(--muted);font-size:13px}
+  .spin{
+    width:13px;height:13px;border:2px solid #2c3540;border-top-color:var(--accent);
+    border-radius:50%;animation:spin .7s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line-soft);
+    font-size:12px;color:#596373;line-height:1.9}
+  footer code{font-family:var(--mono);font-size:11.5px;color:#7d8899;
+    background:var(--panel-2);padding:1px 5px;border-radius:4px}
+
+  @media (max-width:560px){
+    .wrap{padding:28px 16px 60px}
+    h1{font-size:22px}
+    .metrics{width:100%;margin-left:0;margin-top:6px}
+    .answer{padding:16px 14px;font-size:15px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="kicker"><span class="dot" id="dot"></span><span id="status">连接中</span></div>
+    <h1>健身知识库问答<br><span>两段式检索 + 生成层兜底</span></h1>
+    <p class="sub" id="cfg">正在读取服务配置…</p>
+  </header>
+
+  <section class="ask">
+    <textarea id="q" rows="2" placeholder="问点什么，比如「深蹲膝盖要不要过脚尖」"></textarea>
+    <div class="row">
+      <div class="ctl">
+        检索
+        <select id="mode">
+          <option value="rerank">精排 rerank（默认）</option>
+          <option value="vector">纯向量 vector</option>
+          <option value="oral">口语改写 oral</option>
+        </select>
+      </div>
+      <label class="ctl switch">
+        <input type="checkbox" id="fb" checked>
+        生成层兜底
+      </label>
+      <div class="spacer"></div>
+      <button class="primary" id="go">提问</button>
+    </div>
+  </section>
+
+  <div class="examples" id="examples"></div>
+
+  <div id="out"><div class="empty">还没有提问。点上面的示例，或自己写一个问题。</div></div>
+
+  <footer>
+    精排分数低于阈值会被判「资料不足」，此时兜底会把 top-2 弱相关资料交给生成层终审。<br>
+    接口：<code>POST /rag</code> · <code>GET /meta</code> · <code>GET /breaker</code> · <code>GET /kb?q=</code>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  var out = $('#out'), btn = $('#go'), ta = $('#q');
+  var busy = false;
+  var META = null;          // /meta 的返回，拒答时要拿阈值来解释原因
+
+  var EXAMPLES = [
+    { tag: '书面', q: '推日都练哪些部位？' },
+    { tag: '口语', q: '每次吸气要吸到多满才算够？' },
+    { tag: '该拒', q: '帮我写一首关于春天的诗' },
+    { tag: '边界', q: '深蹲膝盖要不要过脚尖？' }
+  ];
+
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  /* ---- 顶部配置 ---- */
+  fetch('/meta').then(function (r) { return r.json(); }).then(function (m) {
+    META = m;
+    $('#dot').className = 'dot ok';
+    $('#status').textContent = '服务正常';
+    $('#cfg').innerHTML =
+      '<b>' + m.kb_chunks + '</b> 条语料 / <b>' + m.kb_topics + '</b> 个话题 · ' +
+      '精排 <b>' + m.rerank_model.split('/').pop() + '</b> · ' +
+      '阈值 <b>' + m.rerank_threshold + '</b> · ' +
+      '兜底 <b>' + (m.fallback_enabled ? '开启' : '关闭') + '</b>';
+  }).catch(function () {
+    $('#dot').className = 'dot err';
+    $('#status').textContent = '服务未响应';
+    $('#cfg').textContent = '后端没起来，先运行 uvicorn 或 docker compose up';
+  });
+
+  /* ---- 示例 ---- */
+  EXAMPLES.forEach(function (e) {
+    var b = el('button', 'chip');
+    b.appendChild(el('span', 'tag', e.tag));
+    b.appendChild(document.createTextNode(e.q));
+    b.onclick = function () { ta.value = e.q; ask(e.q); };
+    $('#examples').appendChild(b);
+  });
+
+  /* ---- 渲染 ---- */
+  function whyBox(d) {
+    var parts = [];
+    var top = d.ranking && d.ranking[0];
+    if (top && typeof top.score === 'number' && META) {
+      parts.push('精排最高分 ' + top.score.toFixed(3) + '，阈值 ' + META.rerank_threshold);
+    }
+    if ($('#fb').checked) {
+      parts.push('已交给生成层终审，它也认为资料不足');
+    } else {
+      parts.push('生成层兜底已关闭');
+    }
+    var box = el('div', 'why');
+    box.appendChild(document.createTextNode(parts.join('；') + '。'));
+    if (top && top.topic && top.score > 0) {
+      box.appendChild(document.createTextNode('最接近的话题是「' + top.topic + '」。'));
+    }
+    return box;
+  }
+
+  function render(q, d, ms) {
+    var srcs = d.sources || [];
+    var refused = srcs.length === 0;
+
+    var card = el('div', 'card');
+    var head = el('div', 'card-head');
+
+    if (refused) {
+      head.appendChild(el('span', 'badge refuse', '资料不足'));
+    } else if (d.fallback_used) {
+      head.appendChild(el('span', 'badge fb', '生成层兜底'));
+    } else {
+      head.appendChild(el('span', 'badge ok', '精排命中'));
+    }
+    head.appendChild(el('span', 'badge mode', d.mode || 'rerank'));
+
+    var meta = [];
+    meta.push((ms / 1000).toFixed(2) + 's');
+    if (!refused) meta.push(srcs.length + ' 段');
+    if (d.tokens) meta.push(d.tokens + ' tok');
+    head.appendChild(el('span', 'metrics', meta.join('  ·  ')));
+
+    card.appendChild(head);
+    card.appendChild(el('div', refused ? 'answer refused' : 'answer', d.answer || '（空）'));
+    if (refused) card.appendChild(whyBox(d));
+
+    if (!refused) {
+      var box = el('div', 'srcs');
+      box.appendChild(el('div', 'srcs-title', '引用来源'));
+      srcs.forEach(function (s) {
+        var item = el('div', 'src');
+        var top = el('div', 'src-top');
+        top.appendChild(el('span', 'src-topic', s.topic));
+        top.appendChild(el('span', 'src-id', s.id));
+        var sc = el('span', 'src-score');
+        sc.textContent = (s.score != null ? s.score.toFixed(3) : '--');
+        if (s.score != null && s.score < 0.95) sc.className += ' mid';
+        if (s.score != null && s.score < 0.80) sc.className += ' low';
+        top.appendChild(sc);
+        item.appendChild(top);
+        item.appendChild(el('div', 'src-text', s.text));
+        box.appendChild(item);
+      });
+      card.appendChild(box);
+    }
+
+    out.innerHTML = '';
+    out.appendChild(card);
+  }
+
+  function fail(msg) {
+    out.innerHTML = '';
+    var box = el('div', 'err');
+    box.appendChild(el('b', null, '请求失败'));
+    box.appendChild(document.createTextNode(msg));
+    out.appendChild(box);
+  }
+
+  /* ---- 提问 ---- */
+  function ask(q) {
+    q = (q || '').trim();
+    if (!q || busy) return;
+    busy = true;
+    btn.disabled = true;
+
+    out.innerHTML = '';
+    var ld = el('div', 'card');
+    var lw = el('div', 'loading');
+    lw.appendChild(el('div', 'spin'));
+    lw.appendChild(el('span', null, '检索中：向量召回 → 精排 → 生成'));
+    ld.appendChild(lw);
+    out.appendChild(ld);
+
+    var mode = $('#mode').value;
+    var fb = $('#fb').checked ? '1' : '0';
+    var t0 = performance.now();
+
+    fetch('/rag?mode=' + encodeURIComponent(mode) + '&fallback=' + fb, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question: q })
+    }).then(function (r) {
+      var ms = performance.now() - t0;
+      return r.json().then(function (body) {
+        if (!r.ok) {
+          var detail = body && body.detail;
+          if (typeof detail !== 'string') detail = JSON.stringify(detail || body);
+          throw new Error('HTTP ' + r.status + '\n' + detail);
+        }
+        render(q, body, ms);
+      });
+    }).catch(function (e) {
+      fail(e.message || String(e));
+    }).then(function () {
+      busy = false;
+      btn.disabled = false;
+    });
+  }
+
+  btn.onclick = function () { ask(ta.value); };
+  ta.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
+      e.preventDefault();
+      ask(ta.value);
+    }
+  });
+
+  /* 支持 ?q=问题 直接提问，方便把「这个问题在这套系统里的表现」作为链接发给别人 */
+  var preset = new URLSearchParams(location.search).get('q');
+  if (preset) { ta.value = preset; ask(preset); }
+})();
+</script>
+</body>
+</html>

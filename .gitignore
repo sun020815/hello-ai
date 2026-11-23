@@ -63,3 +63,10 @@ eval_results.bge.json
 .fallback*.log
 # 改判评测集前的备份
 eval_cases.json.bak-*
+
+# 本地起服务的日志 / 截图工具临时产物
+.server.log
+*.log
+.edge*/
+.shot_*.png
+

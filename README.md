@@ -1,22 +1,61 @@
 # hello-ai
 
+![演示页：答案、引用来源、每条的 rerank 分数](docs/screenshot.png)
+
 一个基于 FastAPI 的 AI 应用练习项目。从零实现一套最小可跑的 RAG 闭环：向量检索知识库 → 组装 prompt → 调用大模型 → 带来源返回答案。
 
 知识库是 105 条健身训练资料，全部来自同一个人：健美冠军谭成义（圈内称谭指）的公开教学体系。覆盖三分化（推、拉、腿）、胸部三模块（上胸 / 中胸 / 下胸与中缝）、肩部五步法、腿部跟练、背训细节、训练参数、新手答疑。上一版 126 条的拼凑语料已经整体替换，理由见「语料重建」一节。
+
+## 快速开始
+
+三种起法任选一种。前置条件只有一个：`.env` 里填上 `LLM_API_KEY`（硅基流动，注册送的额度够跑几千次问答）。
+
+**一、Docker（最省事，不用装 Python 和 uv）**
+
+```bash
+cp .env.example .env       # 填入 LLM_API_KEY
+docker compose up --build
+```
+
+打开 `http://127.0.0.1:8000`。key 通过 compose 的 `env_file` 注入，不进镜像层（`.dockerignore` 里也显式排掉了 `.env`）。
+
+**二、一键脚本（本机已装 uv）**
+
+Windows 双击 `start.bat`；macOS / Linux 跑 `./start.sh`。脚本会检查 `.env` 是否存在、`uv` 是否安装，缺哪样就提示补哪样。
+
+**三、手动**
+
+```bash
+uv sync
+cp .env.example .env
+uv run uvicorn main:app --reload
+```
+
+起来之后有三个入口：
+
+| 地址 | 用途 |
+| --- | --- |
+| `/` | 演示页：单页 HTML + 原生 JS，不引外部 CDN，容器里断网也能打开 |
+| `/docs` | FastAPI 自动生成的 OpenAPI 调试页 |
+| `/meta` | 当前实际配置（模型名、阈值、语料条数、兜底开关） |
+
+演示页可以直接切换检索模式（`rerank` / `vector` / `oral`）和开关生成层兜底，用来现场对比同一个问题在不同链路下的差异。拒绝回答的题会显示灰色的「资料不足」，走兜底救回来会标黄「生成层兜底」。
 
 ## 接口
 
 | 方法 | 路径 | 说明 |
 | --- | --- | --- |
-| GET | `/` | 连通性测试 |
+| GET | `/` | 演示页（`static/index.html`），静态目录缺失时退回 JSON |
+| GET | `/meta` | 当前配置：模型、阈值、召回条数、语料条数、兜底开关 |
 | GET | `/greet/{name}?city=` | 路径参数与查询参数示例 |
 | POST | `/ask` | Pydantic 数据校验示例 |
 | GET | `/kb?q=` | 只做检索（关键词版），返回命中的知识条目 |
 | POST | `/chat` | 直接调用大模型，无参考资料 |
-| POST | `/rag?mode=rerank` | 向量召回 + reranker 精排 + 生成，**默认模式**（200 题整体 84%、hit@1 95%） |
+| POST | `/rag?mode=rerank` | 向量召回 + reranker 精排 + 生成，**默认模式**（200 题整体 88%、hit@1 95%、拒答 81%） |
 | POST | `/rag?mode=vector` | 纯向量检索 + 生成（整体 67%、拒答 49%） |
 | POST | `/rag?mode=hybrid` | 向量 + BM25 混合检索 + 生成（v2 语料上与纯向量**结果完全相同**，见下文） |
 | POST | `/rag?mode=rewrite` | 先把口语问题改写成 3 条资料风格表述再检索 + 生成（+1 条，成本翻倍，不设默认） |
+| POST | `/rag?mode=oral` | 口语改写 + 精排级联：原问法拒答后才改写（口语集 +2，综合集拒答 −19，不设默认） |
 | POST | `/rag?mode=keyword` | 关键词检索 + 生成，用于对照实验 |
 | GET | `/breaker` | 熔断器状态：每个上游的 closed / open / half_open、连续失败次数、剩余冷却 |
 
@@ -1360,28 +1399,26 @@ uv run python test_breaker.py
 
 ## 本地运行
 
-```bash
-uv sync
-cp .env.example .env
-```
-
-然后在 `.env` 填入自己的 key，再启动：
-
-```bash
-uv run uvicorn main:app --reload
-```
+三种启动方式见上面的「快速开始」，这里只补环境变量和两个容易踩的点。
 
 环境变量（见 `.env.example`）：
 
 ```
-LLM_API_KEY=       # 硅基流动等 OpenAI 兼容平台的密钥
+LLM_API_KEY=sk-...                        # 必填
 LLM_BASE_URL=https://api.siliconflow.cn/v1
 LLM_MODEL=deepseek-ai/DeepSeek-V4.1-Flash
 EMBED_MODEL=BAAI/bge-m3
-RERANK_MODEL=BAAI/bge-reranker-v2-m3   # 只有 mode=rerank 用得到
+RERANK_MODEL=Qwen/Qwen3-Reranker-4B
+RERANK_THRESHOLD=0.95
 ```
 
-启动后访问 `http://127.0.0.1:8000/docs`，可直接在线调试所有接口。
+两个注意点：
+
+1. **`RERANK_THRESHOLD` 和精排模型是绑定的。** 0.95 是 4B 的输出刻度，换成免费的 bge-reranker-v2-m3 会变成「几乎全部拒答」——bge 对同一批资料的打分通常只到 0.9 上下。换模型先跑 `uv run python tune_rerank.py` 重扫，别直接搬这个数。
+2. **容器里固定单 worker。** 熔断器是进程内存态，多 worker 会各算各的（见已知问题九）。
+3. **`docker compose up` 报 `npipe:////./pipe/dockerDesktopLinuxEngine` 找不到**，不是 compose 的问题，是 Docker Desktop 没启动。先把它打开，等托盘图标变绿再跑。
+
+容器相关文件：`Dockerfile`（`python:3.14-slim` + `uv sync --frozen`，非 root 运行，带 healthcheck）、`docker-compose.yml`（`env_file` 注入 key）、`.dockerignore`（排掉 `.env` 和十几 MB 的实验缓存，但保留 2.4MB 的 `.kb_vectors.json`，容器首次启动不用重新嵌入 105 条语料）。
 
 ## 技术栈
 
@@ -1391,7 +1428,7 @@ RERANK_MODEL=BAAI/bge-reranker-v2-m3   # 只有 mode=rerank 用得到
 - Pydantic —— 请求体校验
 - OpenAI SDK —— 兼容任何 OpenAI 格式的模型服务（对话与 embedding 共用）
 - bge-m3 —— 文本向量化
-- bge-reranker-v2-m3 —— 检索结果精排（实验性，见上文）
+- Qwen3-Reranker-4B —— 检索结果精排（换掉免费的 bge：最难的 20 条问法 8/20 → 14/20，AUC 0.648 → 0.875）
 - jieba —— 中文分词，供 BM25 使用（自定义词典缺失时会切错专业术语，见混合检索一节）
 
 ## 已知问题
@@ -1422,6 +1459,11 @@ RERANK_MODEL=BAAI/bge-reranker-v2-m3   # 只有 mode=rerank 用得到
 
 ```
 main.py              全部接口、检索与向量逻辑，知识库从 kb.json 加载
+static/index.html    演示页：单文件、原生 JS、不引外部 CDN
+Dockerfile           镜像构建：python:3.14-slim + uv sync --frozen，非 root，带 healthcheck
+docker-compose.yml   一条命令起服务，key 走 env_file，端口 8000
+start.bat / start.sh 一键启动：检查 .env 与 uv，再拉 uvicorn 并打开浏览器
+.dockerignore        构建上下文排除：.env、.venv、十几 MB 的实验缓存
 kb_queries.json      每条 chunk 的口语问法（doc2query 产物，实验用，检索默认不读）
 kb.json              知识库：105 条 chunk，字段 id / topic / text / source
 build_kb_tan.py      语料构建：105 条全部内容 + 校验（撞号/重复/长度）+ 分布报表

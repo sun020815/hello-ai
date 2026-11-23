@@ -1,0 +1,43 @@
+# 构建上下文排除项。不排除的话 .rewrite_vecs.json（17MB）、.selfquery.json（9.6MB）
+# 都会被塞进镜像，而且 .env 里有 key，绝对不能进镜像层。
+
+.venv/
+__pycache__/
+*.pyc
+.git/
+.gitignore
+.wechat_pull/
+
+# 密钥：只能通过 --env-file / compose 的 env_file 注入
+.env
+.env.*
+!.env.example
+
+*.log
+eval_results*.json
+eval_cases.json.bak-*
+
+# 实验产物（都是本地缓存，重算要花钱，但运行时用不到）
+.selfquery.json
+.selfquery_report.json
+.rewrite_vecs.json
+.rewrite_rerank.json
+.rewrite_sample.json
+.rewrite_vote.json
+.rewrites.json
+.rewrite.log
+.phrasing_ab.json
+.oral_prompt_ab.json
+.oral_rewrites.json
+.rerank_models.json
+.eval_qvecs.json
+.eval_reranks.json
+.eval_reranks.bge.json
+.eval_oral.json
+.ab_rerank_off.json
+.ab_rerank_on.json
+.fallback.json
+.fallback_oral20.json
+.fallback_v1_notemp.json
+
+# .kb_vectors.json 故意保留：2.4MB，带上它容器首次启动就不用重新嵌入 105 条语料
