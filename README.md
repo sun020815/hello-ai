@@ -1416,9 +1416,15 @@ RERANK_THRESHOLD=0.95
 
 1. **`RERANK_THRESHOLD` 和精排模型是绑定的。** 0.95 是 4B 的输出刻度，换成免费的 bge-reranker-v2-m3 会变成「几乎全部拒答」——bge 对同一批资料的打分通常只到 0.9 上下。换模型先跑 `uv run python tune_rerank.py` 重扫，别直接搬这个数。
 2. **容器里固定单 worker。** 熔断器是进程内存态，多 worker 会各算各的（见已知问题九）。
-3. **`docker compose up` 报 `npipe:////./pipe/dockerDesktopLinuxEngine` 找不到**，不是 compose 的问题，是 Docker Desktop 没启动。先把它打开，等托盘图标变绿再跑。
+3. **Windows 上 Docker Desktop 必须依赖 WSL2。** 两个不同的报错要分开看：
+   - Docker Desktop 一启动就弹 `WSL not installed`，只有一个 `Quit` 按钮 → WSL2 没装。管理员 PowerShell 跑 `wsl --install`，**然后必须重启**。
+   - Docker 起来了，但 `docker compose up` 报 `npipe:////./pipe/dockerDesktopLinuxEngine` 找不到 → 引擎还在 `Engine starting`，等托盘图标变绿再跑。
+
+   要注意一种半装好的状态：`Microsoft-Windows-Subsystem-Linux` 和 `VirtualMachinePlatform` 两个可选功能**都是已启用**，但 `LxssManager` 服务不存在、Store 版 WSL 包没装。从 Windows 11 22H2 起 WSL 已从「可选功能」改成 Store 应用，光开功能开关不够，`wsl.exe` 会报「必须更新到最新版本才能继续」。判断方法：看 `Get-Service WSLService`（新版服务名）和 `Get-AppxPackage MicrosoftCorporationII.WindowsSubsystemForLinux`。
 
 容器相关文件：`Dockerfile`（`python:3.14-slim` + `uv sync --frozen`，非 root 运行，带 healthcheck）、`docker-compose.yml`（`env_file` 注入 key）、`.dockerignore`（排掉 `.env` 和十几 MB 的实验缓存，但保留 2.4MB 的 `.kb_vectors.json`，容器首次启动不用重新嵌入 105 条语料）。
+
+实测（Windows 11 + Docker Desktop 29.9.3 + WSL 3.0.5）：`docker compose up -d --build` 1 分 48 秒，镜像 763MB，容器起来 12 秒转 `healthy`，空闲内存 74MB。容器内 `/rag` 能正常出网调模型（386 tokens），拒答路径的生成层兜底同样生效。
 
 ## 技术栈
 

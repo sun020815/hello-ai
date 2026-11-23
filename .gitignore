@@ -70,3 +70,6 @@ eval_cases.json.bak-*
 .edge*/
 .shot_*.png
 
+
+# 构建日志
+.docker_build.log
