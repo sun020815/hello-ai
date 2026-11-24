@@ -1857,6 +1857,7 @@ uv run python wechat_menu.py --show       # 1. 先看现在的菜单（别直接
 uv run python wechat_menu.py --dry-run    # 2. 只看要提交的 JSON
 uv run python wechat_menu.py --force      # 3. 确认后真写
 
+uv run python wechat_menu.py --wait --show   # 刚改完 IP 白名单：自动重试到生效
 uv run python analyze_queries.py --src mp                 # 只看公众号来的
 uv run python analyze_queries.py --remote <URL> --code <口令>   # 线上容器会丢文件，从接口拉
 uv run python analyze_queries.py --export                 # 导出评测集没覆盖的缺口
@@ -1864,7 +1865,15 @@ uv run python analyze_queries.py --export                 # 导出评测集没�
 
 `analyze_queries.py` 输出四块：来源分布、高频问题、知识库缺口清单、与现有 135 条口语集的重合度。**最后那块是重点**——它直接告诉你「现在的评测集漏了多少真实问法」，我拿假数据试跑是 83%，真数字要等菜单挂上去跑两周。
 
-**还没做完的一半**：菜单本身没配上。微信公众号的接口要求出口 IP 在白名单里，而这台机器是动态 IP（今天 `115.63.70.186`，明天就不一定），调 `menu/create` 报 40164。脚本支持 `--relay` 走那台固定 IP 的中转机，但那台机器现在没起服务。所以现在只完成了「能记录、能分析、能一键配菜单」这一段，**入口还没真的挂到粉丝眼前**。
+**卡在哪儿：两个坑叠在一起，第一个是 IP，第二个比 IP 更硬。**
+
+第一个：接口要求出口 IP 在公众号后台的 IP 白名单里。这台机器是动态 IP，改完白名单到生效之间有几分钟到十几分钟的延迟，中间只能干等 —— 所以脚本给了 `--wait`，每 15 秒试一次。**这里有个很贵的教训**：一开始查「我的 IP」是在浏览器里查的，浏览器走加速器，显示的是美国 Oracle 节点 `129.146.124.201`，照着填进白名单永远匹配不上。真正该填的是报错里 `invalid ip` 后面那个（当时是郑州联通的 `115.63.70.186`）。关掉加速器后本机查到的和微信看到的一致，40164 才消失。
+
+第二个：token 拿到之后，`menu/create` 报 **48001**。这不是权限没申请，是**这个号是未认证订阅号，压根没有自定义菜单接口权限**（`user/get` 同样是 48001，印证了这一点）。未认证订阅号只能在后台手动配菜单。
+
+所以脚本现在会先探一次账号类型：能写的走 `menu/create`（覆盖前自动备份到 `.wechat_menu_backup.json`）；不能写的**降级读 `get_current_selfmenu_info`**，把后台配的菜单打出来，并把该填的 URL 直接给出来，让人去后台点几下。**API 写不进去 ≠ 配不了菜单** —— 后台手动配的菜单，粉丝看到的效果完全一样，而且完全不受 IP 白名单影响。
+
+补一条硬限制：**一级菜单上限 3 个**，这个号已经占满（健身好物 / 联系方式 / 定制计划），加第四个会被拒绝，只能替换或者挪成子菜单。
 
 ## 上线：一个能被面试官点开的链接
 
@@ -2004,7 +2013,7 @@ vote_experiment.py   改写一致性实验：验证「票数能否判断该不�
 eval.py              检索评测：关键词 / 向量 / 混合 / 改写 / rerank / 口语六路对比
 eval_caliber.py      口径拆解：把 hit@1 拆成 ok / rank / gate / miss 四桶 + 阈值权衡表，读缓存零成本
 analyze_queries.py   真实问法分析：高频问题、知识库缺口清单、与现有口语集的重合度，可 --export 候选题
-wechat_menu.py       把问答页挂到公众号底部菜单（create 会覆盖，默认只 dry-run，须 --force）
+wechat_menu.py       把问答页挂到公众号底部菜单（create 会覆盖，默认只 dry-run，须 --force；未认证号自动降级成后台操作指引）
 test_queries.py      问法日志契约测试：缓存命中也记、ret/fb/ok 三分、写盘失败不影响答题
 diag_caliber.py      错例逐条摊开：gold 话题正文 vs 实际返回正文，人工判断「真答错」还是「标错了」
 eval_cases.json      200 条标注评测集（95 条命中 + 105 条拒答），覆盖 22 个话题；拒答分 A/B/C 三层

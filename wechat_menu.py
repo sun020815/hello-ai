@@ -145,14 +145,53 @@ def build_menu(url: str, name: str):
     return {"button": [{"type": "view", "name": name, "url": url}]}
 
 
-def show_menu(token, relay=""):
+def read_menu(token, relay=""):
+    """读菜单，两种账号两条路。
+
+    认证号能直接调 menu/get；**未认证订阅号没有 menu/* 权限（48001）**，
+    但「后台手动配的菜单」能用 get_current_selfmenu_info 读出来。
+    这个区别必须说清：API 写不进去 ≠ 配不了菜单，后台点几下一样能挂。
+
+    返回 (菜单字典, 来源)，来源是 "api" / "selfmenu" / "err:错误码"。
+    """
     d = call("GET", f"{API}/menu/get?access_token={token}", None, relay)
-    if d.get("errcode"):
-        print(f"读取菜单失败：{d['errcode']} {d.get('errmsg')}")
+    if not d.get("errcode"):
+        return d.get("menu") or {}, "api"
+    if d.get("errcode") != 48001:
+        return {}, f"err:{d.get('errcode')}"
+    e = call("GET", f"{API}/get_current_selfmenu_info?access_token={token}", None, relay)
+    if e.get("errcode"):
+        return {}, f"err:{e.get('errcode')}"
+    return e.get("selfmenu_info") or {}, "selfmenu"
+
+
+def describe(menu):
+    """把人看的菜单打出来。两种来源结构不同，统一成同样的样子。"""
+    btns = menu.get("button") or []
+    if not btns:
+        print("  （没有菜单）")
+        return
+    for b in btns:
+        subs = (b.get("sub_button") or {}).get("list") or []
+        kind = b.get("type") or ("sub" if subs else "?")
+        tail = f"  → {b['url']}" if b.get("url") else ""
+        print(f"  - {b.get('name')}  [{kind}]{tail}")
+        for s in subs:
+            stail = f"  → {s['url']}" if s.get("url") else ""
+            print(f"      · {s.get('name')}  [{s.get('type')}]{stail}")
+
+
+def show_menu(token, relay=""):
+    menu, how = read_menu(token, relay)
+    if how.startswith("err"):
+        print(f"读取菜单失败：{how[4:]} (读不出来不代表配不了，见下面说明)")
         return None
-    print("当前菜单：")
-    print(json.dumps(d.get("menu", {}), ensure_ascii=False, indent=2))
-    return d
+    print(f"当前菜单（来源：{'接口' if how == 'api' else '后台手动配置'}）：")
+    describe(menu)
+    if how == "selfmenu":
+        print("\n  注：这个号是未认证订阅号，没有菜单写入接口权限，"
+              "所以菜单是在后台手动配的 —— 加按钮也得去后台加。")
+    return menu
 
 
 def main():
@@ -202,6 +241,11 @@ def main():
         print("删除结果：", d)
         return
 
+    # 先把现有菜单和账号类型摸清楚，后面每一步的判断都靠它：
+    # 能不能写菜单，取决于这个号有没有 menu/* 权限，而不是取决于网络通不通。
+    current, how = read_menu(token, args.relay)
+    api_writable = how == "api"
+
     if not args.force:
         print("将要提交的菜单：")
         print(json.dumps(menu, ensure_ascii=False, indent=2))
@@ -209,28 +253,42 @@ def main():
         print("先跑 --show 看一眼现在的菜单，确认要覆盖后加 --force。")
         return
 
-    # 覆盖前先备份。create 是整体覆盖，万一把别的菜单冲掉了，
-    # 手里有这个 JSON 就能照着逐字填回去 —— 不然只能凭记忆重搭。
-    cur = call("GET", f"{API}/menu/get?access_token={token}", None, args.relay)
-    if not cur.get("errcode"):
-        BACKUP_FILE.write_text(json.dumps(cur.get("menu", {}), ensure_ascii=False, indent=2),
+    if api_writable:
+        # 覆盖前先备份。create 是整体覆盖，万一把别的菜单冲掉了，
+        # 手里有这个 JSON 就能照着逐字填回去 —— 不然只能凭记忆重搭。
+        BACKUP_FILE.write_text(json.dumps(current, ensure_ascii=False, indent=2),
                                encoding="utf-8")
         print(f"已备份现有菜单 → {BACKUP_FILE}")
-        if (cur.get("menu") or {}).get("button"):
+        if current.get("button"):
             print("现有菜单（下面这个会被整体替换）：")
-            print(json.dumps(cur["menu"], ensure_ascii=False, indent=2))
+            describe(current)
         else:
             print("现有菜单是空的（没有会被冲掉的东西）")
         print()
 
-    d = call("POST", f"{API}/menu/create?access_token={token}", menu, args.relay)
-    print("创建结果：", d)
-    if d.get("errcode") == 0:
-        print("\n成功。微信客户端可能要等几分钟才刷新（重进公众号或杀掉重开）。")
-        print(f"之后粉丝点「{args.name}」就会打开问答页，问题会记进 .qa_log.jsonl。")
-        print("看重什么就问什么：uv run python analyze_queries.py --src mp")
-    else:
-        sys.exit(1)
+        d = call("POST", f"{API}/menu/create?access_token={token}", menu, args.relay)
+        print("创建结果：", d)
+        if d.get("errcode") == 0:
+            print("\n成功。微信客户端可能要等几分钟才刷新（重进公众号或杀掉重开）。")
+            print(f"之后粉丝点「{args.name}」就会打开问答页，问题会记进 .qa_log.jsonl。")
+            print("看重什么就问什么：uv run python analyze_queries.py --src mp")
+        else:
+            sys.exit(1)
+        return
+
+    # 走到这里说明这个号没有菜单写入权限（未认证订阅号，48001）。
+    # 不是死路：后台手动配的菜单，粉丝看到的效果完全一样，而且不依赖 IP 白名单。
+    print("这个号不能用接口写菜单（未认证订阅号，48001）。**后台手动配，效果一样。**\n")
+    print("现有菜单（来自后台，加按钮时要避开的位置）：")
+    describe(current)
+    print()
+    print("操作路径：")
+    print("  mp.weixin.qq.com → 内容与互动 → 自定义菜单")
+    print(f"  → 选一个位置 → 「跳转网页」→ 填下面这个地址：")
+    print(f"\n    {url}\n")
+    print("  注意：一级菜单上限就是 3 个，上面三个占满了。")
+    print(f"  要么把某个不常用的挪成子菜单腾位置，要么把「{args.name}」挂到已有子菜单里。")
+    print("\n配完在手机上杀掉微信重开，点进去问一句，再用 analyze_queries.py --src mp 验证有没有记上。")
 
 
 if __name__ == "__main__":
