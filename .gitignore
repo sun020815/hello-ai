@@ -100,3 +100,10 @@ docs/resume_project.md
 .qa_pull.jsonl
 # analyze_queries.py --export 的候选评测题
 .query_candidates.json
+
+# 本轮新增的本地产物 / 含单价 / 中间备份
+bench_scale.json
+cost_report.json
+ab_thinking.json
+prices.json
+.kb_bak.json

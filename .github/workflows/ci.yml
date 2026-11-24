@@ -1,0 +1,83 @@
+name: ci
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+  workflow_dispatch:        # 手动跑全量评测用
+
+jobs:
+  # 每次 push 必跑，零依赖、不花钱。抓的是「数据与代码不同步」这类静默错误：
+  # 改了 kb.json 忘了重建向量、评测集的 gold 话题被删了、常量被改到不合理区间。
+  # 这些错误不会让服务崩，只会让答案莫名其妙不对 —— 靠人记是靠不住的。
+  static:
+    name: 离线自检
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: 数据一致性 / 评测集 / 常量 / 语法
+        run: python check_static.py
+
+  # 调模型的测试：仓库里配了 LLM_API_KEY 才跑，否则跳过（fork、PR 都不会花钱）
+  integration:
+    name: 端到端测试
+    runs-on: ubuntu-latest
+    needs: static
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 有没有配置密钥
+        id: gate
+        env:
+          KEY: ${{ secrets.LLM_API_KEY }}
+        run: |
+          if [ -z "$KEY" ]; then
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::未配置 LLM_API_KEY，跳过需要调模型的测试"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 装依赖
+        if: steps.gate.outputs.run == 'true'
+        run: python -m pip install --quiet -r requirements.txt
+
+      - name: 五项回归
+        if: steps.gate.outputs.run == 'true'
+        env:
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
+        run: |
+          for t in test_web test_guard test_multiturn test_decompose test_queries; do
+            echo "===== $t"
+            python $t.py || exit 1
+          done
+
+  # 全量 200 集评测：慢（几分钟）、花钱，只在手动触发时跑。
+  # 它必须跑，因为 hit@1 这种指标「改一处就动一点」，不跑就是凭感觉发版。
+  eval:
+    name: 全量评测
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    needs: static
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install --quiet -r requirements.txt
+      - name: 200 集检索评测
+        env:
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
+        run: python eval.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: eval-results
+          path: eval_results.json

@@ -18,6 +18,13 @@ from fastapi.staticfiles import StaticFiles
 from openai import OpenAI, APIConnectionError, APITimeoutError, RateLimitError
 from pydantic import BaseModel
 
+# numpy 是可选的：装了就用矩阵乘算余弦（比逐条 Python 循环快 600~800 倍，
+# 见 bench_scale.py），没装就退回纯 Python，功能不受影响，只是慢。
+try:
+    import numpy as np
+except ImportError:      # pragma: no cover - 只在不装 numpy 的环境走到
+    np = None
+
 load_dotenv()
 
 app = FastAPI()
@@ -26,6 +33,49 @@ LLM_API_KEY = os.getenv("LLM_API_KEY", "")
 LLM_BASE_URL = os.getenv("LLM_BASE_URL", "https://api.siliconflow.cn/v1")
 LLM_MODEL = os.getenv("LLM_MODEL", "Qwen/Qwen3-8B")
 EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-m3")
+
+# 主生成要不要开思维链（走 extra_body.enable_thinking）。
+#   None  = 不传这个参数，完全交给供应商默认（线上现状，行为不变）
+#   False = 显式关掉
+# 默认 None 是为了「加开关不改行为」：改了默认值，所有历史结论都得重跑一遍。
+_GEN_THINKING_ENV = os.getenv("GEN_THINKING", "").strip().lower()
+GEN_THINKING = None if _GEN_THINKING_ENV == "" else (_GEN_THINKING_ENV not in ("0", "false", "off", "no"))
+
+
+
+# ---------- 成本记账 ----------
+# 每次外部调用记一笔 token，/stats 对外暴露，cost_report.py 拿它算单次成本。
+# 只记 token、不记钱：单价会变，不同账号还有折扣，把人民币硬编码进代码是个陷阱
+# （换个模型整张表就错了）。要知道多少钱，拿这里的数乘当时的单价。
+COST = {
+    "embed_tokens": 0, "rerank_tokens": 0,
+    "prompt_tokens": 0, "completion_tokens": 0, "reasoning_tokens": 0,
+    "embed_calls": 0, "rerank_calls": 0, "chat_calls": 0,
+}
+_cost_lock = threading.Lock()
+
+
+def add_cost(**kw):
+    """累加 token / 调用次数。加了锁：uvicorn 多线程下 += 不是原子操作。"""
+    with _cost_lock:
+        for k, v in kw.items():
+            COST[k] = COST.get(k, 0) + (v or 0)
+
+
+def bill_chat(resp):
+    """chat 类响应：生成 + 思维链分开记。
+    reasoning_tokens 单列是因为它常常比正文还多 —— 看不清这块，成本会算少一半。"""
+    u = getattr(resp, "usage", None)
+    if not u:
+        return
+    detail = getattr(u, "completion_tokens_details", None)
+    add_cost(
+        prompt_tokens=getattr(u, "prompt_tokens", 0) or 0,
+        completion_tokens=getattr(u, "completion_tokens", 0) or 0,
+        reasoning_tokens=getattr(detail, "reasoning_tokens", 0) or 0,
+        chat_calls=1,
+    )
+
 # 精排默认用 Qwen3-Reranker-4B：bge 对口语疑问句系统性压分（同一道题 0.04 对 0.80），
 # 换成 4B 后 20 条最难的问法从 8/20 命中升到 14/20，AUC 0.648 → 0.875。
 RERANK_MODEL = os.getenv("RERANK_MODEL", "Qwen/Qwen3-Reranker-4B")
@@ -684,11 +734,64 @@ def embed(texts):
         raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         raise external_error(e, "调用 embedding 模型", stat)
+    u = getattr(resp, "usage", None)
+    add_cost(embed_tokens=getattr(u, "prompt_tokens", 0) or 0, embed_calls=1)
     return [d.embedding for d in resp.data]
 
 
 # 知识库向量只在内存里存一份，第一次用到时才算
 _kb_vectors = None
+
+
+_kb_matrix = None
+
+
+def kb_matrix():
+    """把全库向量整理成「一行一条、已 L2 归一化」的矩阵，只建一次。
+
+    为什么单独建矩阵：余弦 = 归一化后的点积，所以一次矩阵乘就能拿到全库分数。
+    原来的写法是 `for d, v in zip(KB, vectors): cosine(q, v)`，1024 维下每条要
+    跑一遍 Python 循环 —— bench_scale.py 实测 119 条 57ms、1 万条 4.0 秒、
+    10 万条 43.7 秒；换成矩阵乘是 0.1ms / 5.7ms / 66.8ms，快 600~800 倍。
+    这个差值在 119 条时被 LLM 的 3 秒盖住了，看起来「没问题」，但它是唯一
+    一个会随数据量线性爆炸的环节。"""
+    global _kb_matrix
+    if _kb_matrix is not None:
+        return _kb_matrix
+    if np is None:
+        _kb_matrix = get_kb_vectors()
+        return _kb_matrix
+    mat = np.asarray(get_kb_vectors(), dtype=np.float32)
+    if mat.ndim != 2 or mat.shape[0] == 0:
+        _kb_matrix = mat
+        return mat
+    norms = np.linalg.norm(mat, axis=1, keepdims=True)
+    norms[norms == 0] = 1.0        # 零向量不该让整库变 NaN
+    _kb_matrix = mat / norms
+    return _kb_matrix
+
+
+def all_vec_scores(q_vec):
+    """一条查询向量 → 全库余弦分，顺序与 KB 一致。
+    numpy 没装时自动退回逐条 cosine（跟改造前一样慢，但不会挂）。"""
+    if np is None:
+        return [cosine(q_vec, v) for v in get_kb_vectors()]
+    q = np.asarray(q_vec, dtype=np.float32)
+    n = float(np.linalg.norm(q))
+    if n:
+        q = q / n
+    return kb_matrix() @ q
+
+
+def all_vec_scores_multi(q_vecs):
+    """多个查询向量 → 分数矩阵，mat[i][j] = 第 i 条资料对第 j 个查询的余弦。
+    改写检索要「4 个变体逐条比、取最大」，一次矩阵乘比 4 次单查更省。"""
+    if np is None:
+        return [[cosine(v, kb) for v in q_vecs] for kb in get_kb_vectors()]
+    q = np.asarray(q_vecs, dtype=np.float32)
+    norms = np.linalg.norm(q, axis=1, keepdims=True)
+    norms[norms == 0] = 1.0
+    return kb_matrix() @ (q / norms).T
 
 
 def get_kb_vectors():
@@ -786,12 +889,12 @@ def search_kb_vector(q: str, top_k: int = VEC_TOP_K, threshold: float = VEC_THRE
     """向量检索：把问题也变成向量，跟每条资料算相似度，取最像的几条。
     返回 (命中的资料, 完整排名)"""
     q_vec = embed([q])[0]
-    ranking = []
-    for d, kb_vec in zip(KB, get_kb_vectors()):
-        ranking.append({
-            "id": d["id"], "topic": d["topic"], "text": d["text"], "source": d["source"],
-            "score": round(cosine(q_vec, kb_vec), 4),
-        })
+    scores = all_vec_scores(q_vec)
+    ranking = [
+        {"id": d["id"], "topic": d["topic"], "text": d["text"], "source": d["source"],
+         "score": round(float(s), 4)}
+        for d, s in zip(KB, scores)
+    ]
     ranking.sort(key=lambda x: x["score"], reverse=True)
 
     hits = pick_hits(ranking, top_k, threshold)
@@ -843,6 +946,11 @@ def rerank(query: str, docs):
     except Exception as e:
         raise external_error(e, "调用 reranker", stat)
 
+    # reranker 按输入 token 计费，账单在 meta.billed_units 里（不是 usage 字段，
+    # 跟 chat 不一样，所以单独读）。
+    units = (data.get("meta") or {}).get("billed_units") or {}
+    add_cost(rerank_tokens=units.get("input_tokens") or 0, rerank_calls=1)
+
     return [
         {"index": r["index"], "score": round(r["relevance_score"], 4)}
         for r in data["results"]
@@ -858,15 +966,12 @@ def rank_one(q: str, q_vec=None):
     """
     if q_vec is None:
         q_vec = embed([q])[0]
-    recalled = []
-    for d, kb_vec in zip(KB, get_kb_vectors()):
-        recalled.append({
-            "id": d["id"],
-            "topic": d["topic"],
-            "text": d["text"],
-            "source": d["source"],
-            "vec_score": round(cosine(q_vec, kb_vec), 4),
-        })
+    scores = all_vec_scores(q_vec)
+    recalled = [
+        {"id": d["id"], "topic": d["topic"], "text": d["text"], "source": d["source"],
+         "vec_score": round(float(s), 4)}
+        for d, s in zip(KB, scores)
+    ]
     recalled.sort(key=lambda x: x["vec_score"], reverse=True)
     recalled = recalled[:RECALL_K]      # 召回阶段故意放宽，准确率交给下一段
 
@@ -991,8 +1096,8 @@ def hybrid_rank(q: str, q_vec):
     top_bm = max(bm_scores) or 1.0
 
     ranking = []
-    for d, kb_vec, bm in zip(KB, get_kb_vectors(), bm_scores):
-        vec_score = cosine(q_vec, kb_vec)
+    for d, vec_score, bm in zip(KB, all_vec_scores(q_vec), bm_scores):
+        vec_score = float(vec_score)
         fused = HYBRID_W_VEC * vec_score + (1 - HYBRID_W_VEC) * (bm / top_bm)
         ranking.append({
             "id": d["id"], "topic": d["topic"], "text": d["text"], "source": d["source"],
@@ -1095,9 +1200,10 @@ def search_kb_rewrite(q: str, top_k: int = VEC_TOP_K, threshold: float = REWRITE
     一次 embed 调用发 4 条文本，比逐条调用省 3 次往返。"""
     variants = [q] + rewrite_query(q)
     vecs = embed(variants)
+    mat = all_vec_scores_multi(vecs)
     ranking = []
-    for d, kb_vec in zip(KB, get_kb_vectors()):
-        sims = [cosine(v, kb_vec) for v in vecs]
+    for i, d in enumerate(KB):
+        sims = [float(x) for x in mat[i]]
         ranking.append({
             "id": d["id"], "topic": d["topic"], "text": d["text"], "source": d["source"],
             "score": round(max(sims), 4),
@@ -1124,16 +1230,22 @@ def call_llm(messages, temperature: float = 0.0):
     temperature 默认 0：同一道题必须答一样的，否则评测不可复现。
     这不是理论洁癖 —— 兜底判断里「每次吸气要吸到多满」第一次答、第二次拒，
     同一份资料同一个 prompt，结论却翻面。不可复现的系统，任何 A/B 结论都站不住。
+
+    思维链由 GEN_THINKING 控制（None = 不传，用供应商默认；False = 显式关掉）。
+    为什么要这个开关：实测输出里思维链占 75%，而输出单价是输入的 4 倍，
+    等于一半的钱花在「想」上。关不关是质量与成本的取舍，得先量再定 ——
+    见 ab_thinking.py。
     """
     if not LLM_API_KEY or LLM_API_KEY.startswith("sk-替换"):
         raise HTTPException(status_code=500, detail=".env 里的 LLM_API_KEY 还没填")
     STATS["llm_calls"] += 1         # 只在下游真被调用时加，缓存命中不会走到这里
 
+    extra = {} if GEN_THINKING is None else {"extra_body": {"enable_thinking": bool(GEN_THINKING)}}
     stat = {}
     try:
         return call_with_retry(
             lambda: get_client(LLM_TIMEOUT).chat.completions.create(
-                model=LLM_MODEL, messages=messages, temperature=temperature
+                model=LLM_MODEL, messages=messages, temperature=temperature, **extra
             ),
             label="chat",
             stat=stat,
@@ -1203,6 +1315,7 @@ def answer_with_fallback(q: str, ranking, top_n: int = FALLBACK_TOP_N):
     except HTTPException:
         return None             # 兜底本身失败就退回拒答，不能因为它把主链路带崩
 
+    bill_chat(resp)
     text = resp.choices[0].message.content.strip()
     # 只认开头。模型有时会写「资料不足，因为……」或「资料不足。建议……」，
     # 用 in 全文判断会被「资料里没有提到 XX，但你要注意 YY」这种半答半拒蒙骗。
@@ -1802,6 +1915,8 @@ def stats():
         "daily_quota": DAILY_QUOTA,
         "today_used": _day["used"],
         "auth_required": bool(ACCESS_CODE),
+        # token 消耗。只给数，不给钱 —— 单价按你自己的控制台乘（cost_report.py 有式子）。
+        "cost": dict(COST),
         **session_stats(),
     }
 
@@ -2059,6 +2174,7 @@ def chat(req: AskRequest, request: Request):
         {"role": "user", "content": req.question},
     ])
 
+    bill_chat(resp)
     return {
         "answer": resp.choices[0].message.content,
         "model": resp.model,
@@ -2276,9 +2392,9 @@ def rag(req: AskRequest, request: Request, mode: str = "rerank",
             {
                 "role": "system",
                 "content": (
-                    "你是一名健身教练。只能依据【资料】里的内容回答。"
-                    "资料没提到的信息，直接说「资料里没有这部分内容」，禁止补充资料以外的知识。"
-                    "回答简短具体，给数字。"
+                    "你是一名健身教练，跟学员说话，不用书面语。"
+                    "回答只用下面给你的内容，不许补充别的知识；内容里没有的，直接说「这个我还答不上来」。"
+                    "回答简短具体，给数字。答案里不要出现「资料」「根据资料」这类词 —— 学员不关心你的资料来源。"
                 ),
             },
             {
@@ -2307,6 +2423,7 @@ def rag(req: AskRequest, request: Request, mode: str = "rerank",
             "uncertain": uncertain,
         }, key, ctx)
 
+    bill_chat(resp)
     return finish({
         "answer": resp.choices[0].message.content,
         "sources": sources,

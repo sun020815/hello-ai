@@ -1,0 +1,8 @@
+{
+  "_note": "示例单价，单位：每百万 token。请改成你控制台里看到的真实价格再算账 —— 这里写的只是量级，不能当报价用。",
+  "currency": "CNY",
+  "embed_per_m": 0,
+  "rerank_per_m": 0.1,
+  "prompt_per_m": 2,
+  "completion_per_m": 8
+}

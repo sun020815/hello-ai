@@ -8,3 +8,6 @@ openai>=1.30
 python-dotenv>=1.0
 jieba>=0.42
 watchfiles>=0.21
+# 矩阵化算余弦用（bench_scale.py 实测：10 万条从 43.7 秒降到 66.8 毫秒）。
+# main.py 里有 try/except 兜底，没装也能跑，只是慢 600 倍。
+numpy>=1.24
