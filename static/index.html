@@ -732,7 +732,8 @@
     var t0 = performance.now();
 
     // 必须 return：?q= 连续问下去靠的就是这个 promise 串行
-    return fetch('/rag?mode=' + encodeURIComponent(mode) + '&fallback=' + fb, {
+    return fetch('/rag?mode=' + encodeURIComponent(mode) + '&fallback=' + fb
+                 + '&src=' + encodeURIComponent(SRC), {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify({ question: q, session_id: SID })
@@ -813,6 +814,13 @@
     for (var i = 0; i < sel.options.length; i++) {
       if (sel.options[i].value === want) { sel.value = want; return; }
     }
+  })();
+
+  /* 来源标记：公众号菜单链接带 &src=mp。日志里能分清「粉丝真问的」和
+     「我自己点着玩的」—— 前者才是能用来改评测集的东西。 */
+  var SRC = (function () {
+    try { return new URLSearchParams(location.search).get('src') || 'h5'; }
+    catch (e) { return 'h5'; }
   })();
 
   var presets = new URLSearchParams(location.search).getAll('q');

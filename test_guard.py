@@ -93,6 +93,8 @@ app.get_client = lambda timeout: FakeClient()
 # 口令在本地 .env 里可能是配着的（公网部署要的），但测试必须跟本机配置无关 ——
 # 否则「全部通过」只在没配口令的那台机器上成立。口令单独在第四节里显式设置。
 app.ACCESS_CODE = ""
+# 测试流量不许进真实问法日志
+app.QUERY_LOG_ON = False
 client = TestClient(app.app)
 
 

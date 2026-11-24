@@ -18,6 +18,8 @@ def check(name, cond, extra=""):
 app.ACCESS_CODE = ""
 app.RATE_LIMIT_PER_MIN = 100000
 app.DAILY_QUOTA = 100000
+# 测试流量不许进真实问法日志：两周后去看数据，一半是自己跑测试留下的假问法
+app.QUERY_LOG_ON = False
 
 SEEN_RANK = []          # 检索层每次收到的 query，用来证明「真的分了几路」
 

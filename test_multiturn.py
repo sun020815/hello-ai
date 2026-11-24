@@ -19,6 +19,8 @@ def check(name, cond, extra=""):
 app.ACCESS_CODE = ""
 app.RATE_LIMIT_PER_MIN = 100000
 app.DAILY_QUOTA = 100000
+# 测试流量不许进真实问法日志
+app.QUERY_LOG_ON = False
 
 SEEN = []          # 检索层真正收到的 query，用来证明「用的是补全后的那句」
 TOPIC_BY_WORD = [

@@ -89,3 +89,9 @@ eval_cases.json.bak-*
 
 # 简历材料（含个人求职信息，不进公开仓库）
 docs/resume_project.md
+
+# 真实问法日志（含他人提问原文，绝不进仓库）
+.qa_log.jsonl
+.qa_log.jsonl.1
+# analyze_queries.py --export 的候选评测题
+.query_candidates.json

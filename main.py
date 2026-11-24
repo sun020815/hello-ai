@@ -597,6 +597,8 @@ def meta():
         "condense_mode": CONDENSE_MODE,
         "session_ttl_s": SESSION_TTL,
         "session_max_turns": SESSION_TURNS,
+        # 问法日志：开着才记录真实提问。/queries 能看，refused=1 是选题清单
+        "query_log": QUERY_LOG_ON,
         # 复合拆解：默认 off。开着也只对「两个以上分句」的句子生效
         "decomp_mode": DECOMP_MODE,
         "decomp_max_subs": DECOMP_MAX_SUBS,
@@ -1354,6 +1356,102 @@ def mark_session(body: dict, ctx: dict | None) -> dict:
     return body
 
 
+# ---------- 问法日志：让真人来出题 ----------
+# 评测集的 86 条口语题是**对着知识库正文反推**出来的，那部分 hit@1 有 98% ——
+# 用词必然重叠，这个数是自己骗自己。唯一能修的办法是让真人来问，
+# 而不是继续自己写题。所以这里只做一件事：每来一个真实问题就落一行。
+#
+# 三个刻意的选择：
+#   1. **不记 IP、不记 User-Agent**。这份日志会被拿来给人看，能少收就少收；
+#      去重靠 session_id，不需要知道是谁在问。
+#   2. **写盘失败不影响答题**。整个函数包在 try 里，出错只打一行 stderr ——
+#      日志是旁路，不能让它把主链路拖死。
+#   3. **内存里再留一份环形缓冲**。线上容器重启会丢文件，重启之后 /queries
+#      至少还能给出本次运行的数据，不会「打开一看是空的」。
+#
+# 缓存命中也记：同一个问题被反复问，本身就是「这条内容最该做透」的信号，
+# 只记冷启动等于只采到偏冷的样本。
+
+QUERY_LOG_ON = os.getenv("QUERY_LOG_ON", "1").strip() not in ("0", "false", "off")
+QUERY_LOG = Path(os.getenv("QUERY_LOG", ".qa_log.jsonl"))
+QUERY_LOG_MAX_MB = float(os.getenv("QUERY_LOG_MAX_MB", "8"))
+QUERY_LOG_RING = deque(maxlen=500)
+_qlock = threading.Lock()
+
+
+def log_query(body: dict, ctx: dict | None, mode: str = "", src: str = "",
+              elapsed_ms: float = 0.0, cached: bool = False) -> None:
+    """记一条真实问法。字段刻意少：能回答「问了什么、答没答出」就够了。"""
+    if not QUERY_LOG_ON:
+        return
+    try:
+        srcs = body.get("sources") or []
+        fb = bool(body.get("fallback_used"))
+        # 三个字段要分开，别混成一个 bool：
+        #   ret 检索层自己命中（过阈值）—— 知识库里确实有这个答案
+        #   fb  走生成层兜底救回来的 —— 检索没命中，是模型硬撑着答的
+        #   ok  最终有没有给出答案（用户视角）
+        # 「该补哪条内容」看的是 ret，不是 ok：兜底救回来的题，知识库里其实
+        # 没有能过线的资料，恰恰最该补。混在一起就会漏掉这一整批。
+        ret = bool(srcs) and not fb
+        ok = bool(srcs)
+        raw = ((ctx or {}).get("raw") or "").strip()
+        resolved = ((ctx or {}).get("resolved") or "").strip()
+        if not raw:
+            return
+        rec = {
+            "t": time.strftime("%Y-%m-%dT%H:%M:%S"),
+            "q": raw,
+            "mode": mode,
+            "src": src or "api",
+            "ok": ok,
+            "ret": ret,
+            "fb": fb,
+            "topics": [s.get("topic") for s in srcs][:3],
+            "top": round(float(srcs[0].get("score") or 0), 4) if srcs else None,
+            "ms": int(elapsed_ms),
+            "cached": bool(cached),
+            "sid": (ctx or {}).get("sid") or "",
+        }
+        # 补全过的才记 rq：两个字段都在时，「补歪了」是可以看出来的
+        if resolved and resolved != raw:
+            rec["rq"] = resolved
+        with _qlock:
+            QUERY_LOG_RING.append(rec)
+            try:
+                if QUERY_LOG.exists() and QUERY_LOG.stat().st_size > QUERY_LOG_MAX_MB * 1024 * 1024:
+                    QUERY_LOG.replace(QUERY_LOG.with_name(QUERY_LOG.name + ".1"))
+            except OSError:
+                pass
+            with QUERY_LOG.open("a", encoding="utf-8") as f:
+                f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    except Exception as e:      # noqa: BLE001 —— 旁路功能，任何异常都不许往上冒
+        print(f"[qa_log] 写日志失败（不影响答题）：{type(e).__name__}: {e}")
+
+
+def tail_queries(n: int = 100) -> list[dict]:
+    """取最近 n 条。优先读文件（跨重启），文件不在就退回内存缓冲。"""
+    lines: deque[str] = deque(maxlen=n)
+    try:
+        if QUERY_LOG.exists():
+            with QUERY_LOG.open(encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if line:
+                        lines.append(line)
+    except OSError:
+        lines.clear()
+    out = []
+    for line in lines:
+        try:
+            out.append(json.loads(line))
+        except json.JSONDecodeError:
+            continue
+    if not out:
+        return list(QUERY_LOG_RING)[-n:]
+    return out
+
+
 def finish(body: dict, key: str | None, ctx: dict | None = None) -> dict:
     """统一的收尾：决定要不要写缓存、要不要记进会话。
 
@@ -1367,6 +1465,11 @@ def finish(body: dict, key: str | None, ctx: dict | None = None) -> dict:
     # 现象是「第一次问能看到拆了几路，再问一次就没了」，比不返回更迷惑人。
     if key and not out.get("degraded"):
         cache_put(key, out)
+    if ctx:
+        t0 = ctx.get("t0")
+        log_query(out, ctx, ctx.get("mode", ""), ctx.get("src", ""),
+                  (time.perf_counter() - t0) * 1000 if t0 else 0.0,
+                  cached=bool(out.get("cached")))
     return out
 
 
@@ -1643,6 +1746,42 @@ def resolve_question(question: str, sid: str):
         merged = f"{prev} {question.strip()}".strip()
         return merged, len(hist), merged != question.strip()
     return out, len(hist), out.strip() != question.strip()
+
+
+@app.get("/queries")
+def queries(request: Request, limit: int = 100, refused: int = 0, fmt: str = "json"):
+    """看真实用户问了什么。**要口令** —— 这里存的是别人的原话。
+
+    refused=1 只看「检索层没命中」的那批（含被生成层兜底救回来的）——
+    那不是错误日志，是内容选题清单：粉丝在问、但知识库里没有能过线的资料，
+    每一条都对应一篇文章的缺口。用 ret 而不是 ok 来筛，因为兜底救回来的
+    同样属于「没有内容」，只是模型替它圆了一句。
+
+    fmt=jsonl 直接给原始行，方便导出后扔进 analyze_queries.py。
+    """
+    check_code(request.headers.get("x-access-code"))
+    limit = max(1, min(int(limit or 100), 2000))
+    items = tail_queries(limit if not refused else min(limit * 5, 2000))
+    if refused:
+        # 老记录没有 ret 字段，退回看 ok，不然历史数据全被筛掉
+        items = [r for r in items if not r.get("ret", r.get("ok"))][-limit:]
+    else:
+        items = items[-limit:]
+    if fmt == "jsonl":
+        from fastapi.responses import PlainTextResponse
+        body = "\n".join(json.dumps(r, ensure_ascii=False) for r in items)
+        return PlainTextResponse(body + "\n", media_type="application/x-ndjson")
+    srcs = {}
+    for r in items:
+        srcs[r.get("src") or "api"] = srcs.get(r.get("src") or "api", 0) + 1
+    return {
+        "n": len(items),
+        "refused": sum(1 for r in items if not r.get("ret", r.get("ok"))),
+        "fallback": sum(1 for r in items if r.get("fb")),
+        "unique": len({r.get("q") for r in items}),
+        "by_src": srcs,
+        "items": items,
+    }
 
 
 @app.get("/stats")
@@ -1927,7 +2066,8 @@ def chat(req: AskRequest, request: Request):
 
 
 @app.post("/rag")
-def rag(req: AskRequest, request: Request, mode: str = "rerank", fallback: bool | None = None):
+def rag(req: AskRequest, request: Request, mode: str = "rerank",
+        fallback: bool | None = None, src: str = ""):
     """mode=rerank 向量召回 + reranker 精排（默认，200 题整体 88% / 拒答 81%）
     mode=vector 纯向量检索（整体 86% / 拒答 70%）
     mode=hybrid 向量 + BM25 混合检索（排序融合，门控仍看向量分）
@@ -1962,6 +2102,7 @@ def rag(req: AskRequest, request: Request, mode: str = "rerank", fallback: bool 
     # 所以只在这里建一次。传六个位置参数那种写法已经不够用了。
     ctx = {"sid": sid, "raw": req.question, "resolved": query,
            "hist": hist_n, "condensed": condensed, "subs": [],
+           "mode": mode, "src": src, "t0": t0,
            "tim": {"condense_ms": (time.perf_counter() - t0) * 1000, "decomp_ms": 0}}
 
     # 兜底开关在本函数内部被用过两次（决定缓存键、决定走不走兜底），
@@ -1973,7 +2114,10 @@ def rag(req: AskRequest, request: Request, mode: str = "rerank", fallback: bool 
     if cached is not None:
         cached["cached"] = True
         cached["tokens"] = 0
-        return mark_session(cached, ctx)
+        out = mark_session(cached, ctx)
+        # 缓存命中也要记日志：同一个问题被反复问，是「这条内容最该做透」的信号
+        log_query(out, ctx, mode, src, (time.perf_counter() - t0) * 1000, cached=True)
+        return out
 
     wait = rate_check(client_ip(request))
     if wait > 0:
