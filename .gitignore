@@ -107,3 +107,13 @@ cost_report.json
 ab_thinking.json
 prices.json
 .kb_bak.json
+
+# 排计划的本地实跑产物（每次跑都不一样，且含真实请求体）
+.diag_plan.json
+.plan_last.json
+.plan_v2.json
+.req.json
+.resp.json
+.plan_cost.json
+.plan_v2.json
+.server8021.log

@@ -18,8 +18,19 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: 数据一致性 / 评测集 / 常量 / 语法
+      - name: 数据一致性 / 评测集 / 动作库 / 常量 / 语法
         run: python check_static.py
+
+      # 排计划的 agent 逻辑用假模型测，不联网、不花钱，所以放在零依赖的 static 里。
+      # 它验的是「模型编动作/跟伤病冲突/超步数时，代码接不接得住」——
+      # 这类错误用真模型测是碰运气，必须用脚本化的假模型故意犯错。
+      - name: 排计划 agent 逻辑（假模型）
+        run: python test_plan.py
+
+      # 页面渲染：不开浏览器，用 node 跑一遍 render()。
+      # 能抓住「字段改名后页面白屏」「错误分支没写导致整块不显示」这类问题。
+      - name: 演示页渲染
+        run: node check_plan_page.js
 
   # 调模型的测试：仓库里配了 LLM_API_KEY 才跑，否则跳过（fork、PR 都不会花钱）
   integration:
@@ -54,7 +65,7 @@ jobs:
           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
           LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
         run: |
-          for t in test_web test_guard test_multiturn test_decompose test_queries; do
+          for t in test_web test_guard test_multiturn test_decompose test_queries test_plan_api; do
             echo "===== $t"
             python $t.py || exit 1
           done

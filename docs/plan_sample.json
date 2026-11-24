@@ -1,0 +1,418 @@
+{
+ "plan": [
+  {
+   "day": 1,
+   "focus": "下肢（股四、臀、核心）",
+   "note": "用腿举代替深蹲；膝盖角度控制在不产生弹响的范围内，膝盖不要完全伸直锁死。",
+   "exercises": [
+    {
+     "id": "leg-press",
+     "name": "腿举",
+     "part": "腿",
+     "sub": "股四",
+     "equipment": "器械",
+     "sets": "3 组",
+     "reps": "12 到 15 次",
+     "rest": 90,
+     "cue": "腰贴凳面不拱起，膝盖不锁死",
+     "ref": "newbie-03",
+     "contra": []
+    },
+    {
+     "id": "rdl",
+     "name": "罗马尼亚硬拉",
+     "part": "腿",
+     "sub": "腘绳与臀",
+     "equipment": "杠铃",
+     "sets": "3 组",
+     "reps": "10 到 12 次",
+     "rest": 90,
+     "cue": "杠铃贴腿走，膝盖只微屈，靠屈髋把重量送下去",
+     "ref": "dead-01",
+     "contra": [
+      "腰"
+     ]
+    },
+    {
+     "id": "leg-curl",
+     "name": "俯身腿弯举",
+     "part": "腿",
+     "sub": "腘绳",
+     "equipment": "器械",
+     "sets": "5 组",
+     "reps": "内旋 6 次 + 外旋 6 次算一组",
+     "rest": 60,
+     "cue": "内旋位主打向心，外旋位主打离心控制，骨盆不反弓",
+     "ref": "iso-01",
+     "contra": []
+    },
+    {
+     "id": "hip-thrust",
+     "name": "臀桥",
+     "part": "臀",
+     "sub": "臀大肌",
+     "equipment": "自重",
+     "sets": "3 组",
+     "reps": "15 次",
+     "rest": 60,
+     "cue": "仰卧屈膝脚踩地，臀发力顶髋，顶端夹紧停一秒；腰有旧伤用这个替硬拉",
+     "ref": "dead-03",
+     "contra": []
+    },
+    {
+     "id": "plank",
+     "name": "平板支撑",
+     "part": "核心",
+     "sub": "核心",
+     "equipment": "自重",
+     "sets": "3 组",
+     "reps": "40 到 60 秒",
+     "rest": 45,
+     "cue": "等长收缩，臀不塌不翘，肋骨下沉",
+     "ref": "term-01",
+     "contra": []
+    }
+   ]
+  },
+  {
+   "day": 2,
+   "focus": "推日（胸、肩、三头）",
+   "note": "先用哑铃平板卧推，再用绳索夹胸补充；做肩推动作时如果肩部不舒服就减轻重量。",
+   "exercises": [
+    {
+     "id": "db-bench",
+     "name": "哑铃平板卧推",
+     "part": "胸",
+     "sub": "中胸",
+     "equipment": "哑铃",
+     "sets": "5 组",
+     "reps": "8 到 10 次",
+     "rest": 90,
+     "cue": "幅度比杠铃深三到五厘米，顶端往中间挤，弱侧自己推完",
+     "ref": "mid-01",
+     "contra": []
+    },
+    {
+     "id": "cable-fly",
+     "name": "中位绳索夹胸",
+     "part": "胸",
+     "sub": "中胸",
+     "equipment": "绳索",
+     "sets": "4 组",
+     "reps": "15 次",
+     "rest": 60,
+     "cue": "滑轮与肩齐平，肘微曲角度固定，只想两个手肘互相靠拢",
+     "ref": "cable-02",
+     "contra": []
+    },
+    {
+     "id": "smith-press",
+     "name": "史密斯实力推",
+     "part": "肩",
+     "sub": "前束",
+     "equipment": "史密斯",
+     "sets": "4 组",
+     "reps": "8 到 12 次",
+     "rest": 90,
+     "cue": "核心收紧不顶腰，下放到下巴附近推起",
+     "ref": "legs-02",
+     "contra": [
+      "肩"
+     ]
+    },
+    {
+     "id": "db-lateral",
+     "name": "哑铃侧平举",
+     "part": "肩",
+     "sub": "中束",
+     "equipment": "哑铃",
+     "sets": "3 组",
+     "reps": "15 次",
+     "rest": 60,
+     "cue": "小重量可以力竭，肩袖压力小；动作变形就减重量",
+     "ref": "legs-02",
+     "contra": []
+    },
+    {
+     "id": "lying-triceps-ext",
+     "name": "仰卧臂屈伸",
+     "part": "手臂",
+     "sub": "三头",
+     "equipment": "杠铃",
+     "sets": "4 组",
+     "reps": "12 到 15 次",
+     "rest": 70,
+     "cue": "大臂固定不动，只做肘伸，肘尖朝上不外张",
+     "ref": "push-02",
+     "contra": []
+    }
+   ]
+  },
+  {
+   "day": 3,
+   "focus": "拉日（背、二头、核心）",
+   "note": "以高位下拉和器械划船为主，用哥本哈根支撑强化髋内收，帮助稳定膝盖。",
+   "exercises": [
+    {
+     "id": "neutral-pulldown",
+     "name": "对握高位下拉",
+     "part": "背",
+     "sub": "背阔",
+     "equipment": "器械",
+     "sets": "3 组",
+     "reps": "10 到 12 次",
+     "rest": 75,
+     "cue": "向下发力不是向后，肩胛不要往前翻",
+     "ref": "back-04",
+     "contra": []
+    },
+    {
+     "id": "single-machine-row",
+     "name": "单手器械划船",
+     "part": "背",
+     "sub": "背阔",
+     "equipment": "器械",
+     "sets": "3 组",
+     "reps": "10 到 12 次",
+     "rest": 75,
+     "cue": "躯干固定不后仰，肘贴身体拉到腰侧",
+     "ref": "pull-02",
+     "contra": [
+      "腰"
+     ]
+    },
+    {
+     "id": "reverse-fly",
+     "name": "蝴蝶机反向飞鸟",
+     "part": "背",
+     "sub": "后束",
+     "equipment": "器械",
+     "sets": "3 组",
+     "reps": "15 次",
+     "rest": 60,
+     "cue": "后束单独练，肘微曲，肩胛不夹",
+     "ref": "pull-02",
+     "contra": []
+    },
+    {
+     "id": "cable-curl",
+     "name": "钢线弯举",
+     "part": "手臂",
+     "sub": "二头",
+     "equipment": "绳索",
+     "sets": "3 组",
+     "reps": "12 到 15 次",
+     "rest": 60,
+     "cue": "大臂夹紧不晃，离心三秒放下",
+     "ref": "pull-02",
+     "contra": []
+    },
+    {
+     "id": "copenhagen",
+     "name": "哥本哈根支撑",
+     "part": "核心",
+     "sub": "髋内收",
+     "equipment": "自重",
+     "sets": "2 组",
+     "reps": "每侧 20 秒",
+     "rest": 45,
+     "cue": "侧躺上腿放凳面、下腿夹紧凳子，身体成一条线；练髋内收和侧腹",
+     "ref": "legs-05",
+     "contra": []
+    }
+   ]
+  }
+ ],
+ "summary": "三天分化、腿先练：第1天用腿举代替深蹲做下肢主课（膝盖不适、不下蹲深），第2天推、第3天拉，背部和核心各练一次，避免同一部位连续两天训练。",
+ "audit": {
+  "ok": true,
+  "errors": [],
+  "warnings": [],
+  "unknown": [],
+  "by_part": {
+   "腿": 3,
+   "臀": 1,
+   "核心": 2,
+   "胸": 2,
+   "肩": 2,
+   "手臂": 2,
+   "背": 3
+  },
+  "missing": [],
+  "est_minutes": {
+   "1": 49,
+   "2": 56,
+   "3": 43
+  }
+ },
+ "trace": [
+  {
+   "step": 1,
+   "tool": "search_exercises",
+   "args": {
+    "part": "腿",
+    "exclude_injuries": [
+     "膝"
+    ],
+    "level_max": 2
+   },
+   "ok": true,
+   "ms": 0.05,
+   "brief": "腿举、罗马尼亚硬拉、俯身腿弯举"
+  },
+  {
+   "step": 1,
+   "tool": "search_exercises",
+   "args": {
+    "part": "臀",
+    "exclude_injuries": [
+     "膝"
+    ],
+    "level_max": 2
+   },
+   "ok": true,
+   "ms": 0.02,
+   "brief": "腿举、罗马尼亚硬拉、臀桥"
+  },
+  {
+   "step": 1,
+   "tool": "search_exercises",
+   "args": {
+    "part": "胸",
+    "level_max": 2
+   },
+   "ok": true,
+   "ms": 0.02,
+   "brief": "哑铃平板卧推、中位绳索夹胸、低位绳索夹胸、窄距哑铃推胸"
+  },
+  {
+   "step": 1,
+   "tool": "search_exercises",
+   "args": {
+    "part": "背",
+    "level_max": 2
+   },
+   "ok": true,
+   "ms": 0.02,
+   "brief": "单手器械划船、对握高位下拉、单手钢线下拉、窄距坐姿开肘划船、蝴蝶机反向飞鸟"
+  },
+  {
+   "step": 1,
+   "tool": "search_exercises",
+   "args": {
+    "part": "肩",
+    "level_max": 2
+   },
+   "ok": true,
+   "ms": 0.02,
+   "brief": "史密斯实力推、Y 字侧平举、仰卧绳索面拉、哑铃侧平举、哑铃对握前平举 等 6 个"
+  },
+  {
+   "step": 1,
+   "tool": "search_exercises",
+   "args": {
+    "part": "手臂",
+    "level_max": 2
+   },
+   "ok": true,
+   "ms": 0.01,
+   "brief": "仰卧臂屈伸、俯身弯举、钢线弯举、颈后臂屈伸"
+  },
+  {
+   "step": 1,
+   "tool": "search_exercises",
+   "args": {
+    "part": "核心",
+    "level_max": 2
+   },
+   "ok": true,
+   "ms": 0.01,
+   "brief": "平板支撑、哥本哈根支撑"
+  },
+  {
+   "step": 2,
+   "tool": "get_exercise",
+   "args": {
+    "name": "腿举"
+   },
+   "ok": true,
+   "ms": 0.02,
+   "brief": "腿举：3 组 12 到 15 次"
+  },
+  {
+   "step": 2,
+   "tool": "get_exercise",
+   "args": {
+    "name": "臀桥"
+   },
+   "ok": true,
+   "ms": 0.01,
+   "brief": "臀桥：3 组 15 次"
+  },
+  {
+   "step": 3,
+   "tool": "check_plan",
+   "args": {
+    "days": [
+     {
+      "day": 1,
+      "focus": "下肢（股四+臀+核心）",
+      "exercises": [
+       "腿举",
+       "罗马尼亚硬拉",
+       "俯身腿弯举",
+       "臀桥",
+       "平板支撑"
+      ]
+     },
+     {
+      "day": 2,
+      "focus": "推日（胸肩三头）",
+      "exercises": [
+       "哑铃平板卧推",
+       "中位绳索夹胸",
+       "史密斯实力推",
+       "哑铃侧平举",
+       "仰卧臂屈伸"
+      ]
+     },
+     {
+      "day": 3,
+      "focus": "拉日（背二头+核心）",
+      "exercises": [
+       "对握高位下拉",
+       "单手器械划船",
+       "蝴蝶机反向飞鸟",
+       "钢线弯举",
+       "哥本哈根支撑"
+      ]
+     }
+    ]
+   },
+   "ok": true,
+   "ms": 0.13,
+   "brief": "自检通过，部位覆盖：腿3、臀1、核心2、胸2、肩2、手臂2、背3"
+  }
+ ],
+ "steps": 4,
+ "tokens": 21379,
+ "needs_review": false,
+ "dropped": [],
+ "stopped": "",
+ "elapsed_ms": 40923,
+ "profile": {
+  "goal": "增肌",
+  "days": 3,
+  "equipment": "健身房",
+  "session_min": 60,
+  "level": "新手",
+  "injuries": [
+   "膝盖"
+  ],
+  "note": "想先把腿练起来，但膝盖蹲深了会响"
+ },
+ "cached": false,
+ "timings": {
+  "total_ms": 40923
+ }
+}

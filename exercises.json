@@ -1,0 +1,801 @@
+{
+ "version": 2,
+ "count": 33,
+ "parts": {
+  "胸": 7,
+  "背": 5,
+  "肩": 7,
+  "腿": 7,
+  "臀": 1,
+  "手臂": 4,
+  "核心": 2
+ },
+ "items": [
+  {
+   "id": "dip",
+   "name": "双杠臂屈伸",
+   "aliases": [
+    "双杠",
+    "臂屈伸"
+   ],
+   "part": "胸",
+   "sub": "下胸",
+   "secondary": [
+    "三头"
+   ],
+   "pattern": "水平推",
+   "equipment": "自重",
+   "level": 3,
+   "load": "复合",
+   "sets": "4 组",
+   "reps": "12 次或做到力竭",
+   "rest": 80,
+   "cue": "躯干前倾 30 到 40 度压在下胸，下到肩肘持平就停",
+   "contra": [
+    "肩"
+   ],
+   "substitutes": [
+    "绳索夹胸"
+   ],
+   "ref": "push-02"
+  },
+  {
+   "id": "db-incline",
+   "name": "哑铃上斜卧推",
+   "aliases": [
+    "上斜卧推",
+    "上斜哑铃卧推"
+   ],
+   "part": "胸",
+   "sub": "上胸",
+   "secondary": [
+    "前束",
+    "三头"
+   ],
+   "pattern": "水平推",
+   "equipment": "哑铃",
+   "level": 3,
+   "load": "复合",
+   "sets": "4 组",
+   "reps": "12 次",
+   "rest": 80,
+   "cue": "凳角 25 到 30 度，下放到哑铃与胸下沿平齐，顶端两铃不碰",
+   "contra": [],
+   "substitutes": [],
+   "ref": "push-02"
+  },
+  {
+   "id": "bb-bench",
+   "name": "杠铃平板卧推",
+   "aliases": [
+    "平板卧推",
+    "卧推",
+    "杠铃卧推"
+   ],
+   "part": "胸",
+   "sub": "中胸",
+   "secondary": [
+    "三头",
+    "前束"
+   ],
+   "pattern": "水平推",
+   "equipment": "杠铃",
+   "level": 3,
+   "load": "复合",
+   "sets": "4 组",
+   "reps": "15 / 12 / 10 / 8 递减加重",
+   "rest": 90,
+   "cue": "肩胛后缩下沉，脚踩实，杠触胸下沿；推起时肩不要送出去",
+   "contra": [
+    "肩"
+   ],
+   "substitutes": [
+    "哑铃卧推"
+   ],
+   "ref": "push-02"
+  },
+  {
+   "id": "db-bench",
+   "name": "哑铃平板卧推",
+   "aliases": [
+    "哑铃卧推",
+    "平板哑铃卧推"
+   ],
+   "part": "胸",
+   "sub": "中胸",
+   "secondary": [
+    "三头",
+    "前束"
+   ],
+   "pattern": "水平推",
+   "equipment": "哑铃",
+   "level": 2,
+   "load": "复合",
+   "sets": "5 组",
+   "reps": "8 到 10 次",
+   "rest": 90,
+   "cue": "幅度比杠铃深三到五厘米，顶端往中间挤，弱侧自己推完",
+   "contra": [],
+   "substitutes": [],
+   "ref": "mid-01"
+  },
+  {
+   "id": "db-close-press",
+   "name": "窄距哑铃推胸",
+   "aliases": [
+    "窄距推胸"
+   ],
+   "part": "胸",
+   "sub": "中缝",
+   "secondary": [
+    "三头"
+   ],
+   "pattern": "水平推",
+   "equipment": "哑铃",
+   "level": 2,
+   "load": "孤立",
+   "sets": "3 组",
+   "reps": "12 次",
+   "rest": 75,
+   "cue": "两铃全程并紧不分开，掌心相对，每次推起都往中间挤",
+   "contra": [],
+   "substitutes": [],
+   "ref": "lower-04"
+  },
+  {
+   "id": "cable-fly",
+   "name": "中位绳索夹胸",
+   "aliases": [
+    "绳索夹胸",
+    "夹胸"
+   ],
+   "part": "胸",
+   "sub": "中胸",
+   "secondary": [],
+   "pattern": "肩水平外展",
+   "equipment": "绳索",
+   "level": 1,
+   "load": "孤立",
+   "sets": "4 组",
+   "reps": "15 次",
+   "rest": 60,
+   "cue": "滑轮与肩齐平，肘微曲角度固定，只想两个手肘互相靠拢",
+   "contra": [],
+   "substitutes": [],
+   "ref": "cable-02"
+  },
+  {
+   "id": "low-cable-fly",
+   "name": "低位绳索夹胸",
+   "aliases": [
+    "低位夹胸"
+   ],
+   "part": "胸",
+   "sub": "上胸",
+   "secondary": [],
+   "pattern": "肩水平外展",
+   "equipment": "绳索",
+   "level": 1,
+   "load": "孤立",
+   "sets": "4 组",
+   "reps": "15 次",
+   "rest": 60,
+   "cue": "滑轮调最低，由下往上抱，手腕在锁骨高度交叉",
+   "contra": [],
+   "substitutes": [],
+   "ref": "upper-04"
+  },
+  {
+   "id": "single-cable-pulldown",
+   "name": "单手钢线下拉",
+   "aliases": [
+    "单手下拉",
+    "钢线下拉"
+   ],
+   "part": "背",
+   "sub": "背阔",
+   "secondary": [
+    "二头"
+   ],
+   "pattern": "垂直拉",
+   "equipment": "绳索",
+   "level": 2,
+   "load": "复合",
+   "sets": "4 组",
+   "reps": "10 到 12 次",
+   "rest": 90,
+   "cue": "手肘先动，想象用肘去够裤兜，顶峰收缩停一秒",
+   "contra": [
+    "肩"
+   ],
+   "substitutes": [],
+   "ref": "pull-04"
+  },
+  {
+   "id": "close-elbow-row",
+   "name": "窄距坐姿开肘划船",
+   "aliases": [
+    "开肘划船",
+    "坐姿划船"
+   ],
+   "part": "背",
+   "sub": "中下斜方",
+   "secondary": [
+    "后束"
+   ],
+   "pattern": "水平拉",
+   "equipment": "绳索",
+   "level": 2,
+   "load": "复合",
+   "sets": "3 组",
+   "reps": "12 次",
+   "rest": 75,
+   "cue": "手肘向外打开，靠躯干后仰甩重量就变成练腰",
+   "contra": [],
+   "substitutes": [],
+   "ref": "pull-05"
+  },
+  {
+   "id": "single-machine-row",
+   "name": "单手器械划船",
+   "aliases": [
+    "器械划船",
+    "单手划船"
+   ],
+   "part": "背",
+   "sub": "背阔",
+   "secondary": [
+    "二头"
+   ],
+   "pattern": "水平拉",
+   "equipment": "器械",
+   "level": 1,
+   "load": "复合",
+   "sets": "3 组",
+   "reps": "10 到 12 次",
+   "rest": 75,
+   "cue": "躯干固定不后仰，肘贴身体拉到腰侧",
+   "contra": [
+    "腰"
+   ],
+   "substitutes": [],
+   "ref": "pull-02"
+  },
+  {
+   "id": "neutral-pulldown",
+   "name": "对握高位下拉",
+   "aliases": [
+    "高位下拉"
+   ],
+   "part": "背",
+   "sub": "背阔",
+   "secondary": [
+    "二头"
+   ],
+   "pattern": "垂直拉",
+   "equipment": "器械",
+   "level": 1,
+   "load": "复合",
+   "sets": "3 组",
+   "reps": "10 到 12 次",
+   "rest": 75,
+   "cue": "向下发力不是向后，肩胛不要往前翻",
+   "contra": [],
+   "substitutes": [],
+   "ref": "back-04"
+  },
+  {
+   "id": "reverse-fly",
+   "name": "蝴蝶机反向飞鸟",
+   "aliases": [
+    "反向飞鸟",
+    "反向蝴蝶机"
+   ],
+   "part": "背",
+   "sub": "后束",
+   "secondary": [
+    "上背"
+   ],
+   "pattern": "肩水平外展",
+   "equipment": "器械",
+   "level": 1,
+   "load": "孤立",
+   "sets": "3 组",
+   "reps": "15 次",
+   "rest": 60,
+   "cue": "后束单独练，肘微曲，肩胛不夹",
+   "contra": [],
+   "substitutes": [],
+   "ref": "pull-02"
+  },
+  {
+   "id": "bb-ohp",
+   "name": "站姿杠铃实力推",
+   "aliases": [
+    "杠铃推举",
+    "站姿推举"
+   ],
+   "part": "肩",
+   "sub": "前束",
+   "secondary": [
+    "三头"
+   ],
+   "pattern": "垂直推",
+   "equipment": "杠铃",
+   "level": 3,
+   "load": "复合",
+   "sets": "4 到 5 组",
+   "reps": "6 到 10 次",
+   "rest": 120,
+   "cue": "唯一上大重量的主项，每组留两次余量 RPE 8，严禁力竭",
+   "contra": [
+    "肩",
+    "腰"
+   ],
+   "substitutes": [],
+   "ref": "shoulder-04"
+  },
+  {
+   "id": "smith-press",
+   "name": "史密斯实力推",
+   "aliases": [
+    "史密斯推举",
+    "实力推"
+   ],
+   "part": "肩",
+   "sub": "前束",
+   "secondary": [
+    "三头"
+   ],
+   "pattern": "垂直推",
+   "equipment": "史密斯",
+   "level": 2,
+   "load": "复合",
+   "sets": "4 组",
+   "reps": "8 到 12 次",
+   "rest": 90,
+   "cue": "核心收紧不顶腰，下放到下巴附近推起",
+   "contra": [
+    "肩"
+   ],
+   "substitutes": [],
+   "ref": "legs-02"
+  },
+  {
+   "id": "y-raise",
+   "name": "Y 字侧平举",
+   "aliases": [
+    "Y 字举",
+    "Y 抬"
+   ],
+   "part": "肩",
+   "sub": "中束",
+   "secondary": [],
+   "pattern": "肩外展",
+   "equipment": "哑铃",
+   "level": 1,
+   "load": "孤立",
+   "sets": "3 组",
+   "reps": "15 次",
+   "rest": 60,
+   "cue": "俯身或上斜凳做，拇指朝上，往斜前方抬成 Y 字",
+   "contra": [],
+   "substitutes": [],
+   "ref": "push-02"
+  },
+  {
+   "id": "face-pull",
+   "name": "仰卧绳索面拉",
+   "aliases": [
+    "面拉"
+   ],
+   "part": "肩",
+   "sub": "后束",
+   "secondary": [
+    "上背"
+   ],
+   "pattern": "肩水平外展",
+   "equipment": "绳索",
+   "level": 1,
+   "load": "孤立",
+   "sets": "4 组",
+   "reps": "12 到 15 次",
+   "rest": 60,
+   "cue": "拉到脸前，肘高于腕，想着把肩胛往后下方收",
+   "contra": [],
+   "substitutes": [],
+   "ref": "shoulder-04"
+  },
+  {
+   "id": "db-lateral",
+   "name": "哑铃侧平举",
+   "aliases": [
+    "侧平举"
+   ],
+   "part": "肩",
+   "sub": "中束",
+   "secondary": [],
+   "pattern": "肩外展",
+   "equipment": "哑铃",
+   "level": 1,
+   "load": "孤立",
+   "sets": "3 组",
+   "reps": "15 次",
+   "rest": 60,
+   "cue": "小重量可以力竭，肩袖压力小；动作变形就减重量",
+   "contra": [],
+   "substitutes": [],
+   "ref": "legs-02"
+  },
+  {
+   "id": "db-front-raise",
+   "name": "哑铃对握前平举",
+   "aliases": [
+    "前平举"
+   ],
+   "part": "肩",
+   "sub": "前束",
+   "secondary": [],
+   "pattern": "肩外展",
+   "equipment": "哑铃",
+   "level": 1,
+   "load": "孤立",
+   "sets": "3 组",
+   "reps": "12 到 15 次",
+   "rest": 60,
+   "cue": "对握掌心相对像端水，正手容易肩峰撞击",
+   "contra": [],
+   "substitutes": [],
+   "ref": "shoulder-05"
+  },
+  {
+   "id": "rev-pec-deck",
+   "name": "坐姿器械反飞鸟",
+   "aliases": [
+    "器械反飞鸟"
+   ],
+   "part": "肩",
+   "sub": "后束",
+   "secondary": [],
+   "pattern": "肩水平外展",
+   "equipment": "器械",
+   "level": 1,
+   "load": "孤立",
+   "sets": "4 组",
+   "reps": "15 次",
+   "rest": 60,
+   "cue": "后束放在第一个做，精力最充沛时给最高质量刺激",
+   "contra": [],
+   "substitutes": [],
+   "ref": "shoulder-04"
+  },
+  {
+   "id": "single-leg-rdl",
+   "name": "单腿硬拉",
+   "aliases": [
+    "单腿罗马尼亚硬拉"
+   ],
+   "part": "腿",
+   "sub": "腘绳与臀",
+   "secondary": [
+    "臀",
+    "核心"
+   ],
+   "pattern": "单腿",
+   "equipment": "哑铃",
+   "level": 3,
+   "load": "复合",
+   "sets": "每侧 4 组",
+   "reps": "10 到 12 次",
+   "rest": 90,
+   "cue": "髋往后推不是弯腰，支撑腿微屈，骨盆不翻",
+   "contra": [
+    "腰"
+   ],
+   "substitutes": [],
+   "ref": "legs-02"
+  },
+  {
+   "id": "front-squat",
+   "name": "颈前深蹲",
+   "aliases": [
+    "前蹲"
+   ],
+   "part": "腿",
+   "sub": "股四",
+   "secondary": [
+    "臀",
+    "核心"
+   ],
+   "pattern": "蹲",
+   "equipment": "杠铃",
+   "level": 3,
+   "load": "复合",
+   "sets": "3 组",
+   "reps": "8 到 10 次",
+   "rest": 120,
+   "cue": "肘高抬、躯干直立，膝痛就换腿举",
+   "contra": [
+    "膝"
+   ],
+   "substitutes": [
+    "腿举"
+   ],
+   "ref": "legs-02"
+  },
+  {
+   "id": "bulgarian",
+   "name": "保加利亚分腿蹲",
+   "aliases": [
+    "保加利亚蹲",
+    "保加利亚分腿蹲"
+   ],
+   "part": "腿",
+   "sub": "股四与臀",
+   "secondary": [
+    "臀"
+   ],
+   "pattern": "单腿",
+   "equipment": "哑铃",
+   "level": 2,
+   "load": "复合",
+   "sets": "每侧 3 组",
+   "reps": "10 到 12 次",
+   "rest": 90,
+   "cue": "重心在前腿，后腿只负责平衡不发力；直立版偏大腿根，俯身版偏臀",
+   "contra": [
+    "膝"
+   ],
+   "substitutes": [],
+   "ref": "single-03"
+  },
+  {
+   "id": "leg-curl",
+   "name": "俯身腿弯举",
+   "aliases": [
+    "腿弯举"
+   ],
+   "part": "腿",
+   "sub": "腘绳",
+   "secondary": [],
+   "pattern": "膝屈",
+   "equipment": "器械",
+   "level": 2,
+   "load": "孤立",
+   "sets": "5 组",
+   "reps": "内旋 6 次 + 外旋 6 次算一组",
+   "rest": 60,
+   "cue": "内旋位主打向心，外旋位主打离心控制，骨盆不反弓",
+   "contra": [],
+   "substitutes": [],
+   "ref": "iso-01"
+  },
+  {
+   "id": "rdl",
+   "name": "罗马尼亚硬拉",
+   "aliases": [
+    "直腿硬拉"
+   ],
+   "part": "腿",
+   "sub": "腘绳与臀",
+   "secondary": [
+    "臀",
+    "下背"
+   ],
+   "pattern": "髋铰链",
+   "equipment": "杠铃",
+   "level": 2,
+   "load": "复合",
+   "sets": "3 组",
+   "reps": "10 到 12 次",
+   "rest": 90,
+   "cue": "杠铃贴腿走，膝盖只微屈，靠屈髋把重量送下去",
+   "contra": [
+    "腰"
+   ],
+   "substitutes": [
+    "臀桥"
+   ],
+   "ref": "dead-01"
+  },
+  {
+   "id": "leg-extension",
+   "name": "坐姿腿屈伸",
+   "aliases": [
+    "腿屈伸"
+   ],
+   "part": "腿",
+   "sub": "股四",
+   "secondary": [],
+   "pattern": "伸膝",
+   "equipment": "器械",
+   "level": 1,
+   "load": "孤立",
+   "sets": "3 组",
+   "reps": "20 次",
+   "rest": 60,
+   "cue": "臀部压紧凳面不翘起，每次向心都锁到最紧；孤立动作靠代谢压力",
+   "contra": [
+    "膝"
+   ],
+   "substitutes": [],
+   "ref": "iso-04"
+  },
+  {
+   "id": "leg-press",
+   "name": "腿举",
+   "aliases": [
+    "倒蹬"
+   ],
+   "part": "腿",
+   "sub": "股四",
+   "secondary": [
+    "臀"
+   ],
+   "pattern": "蹲",
+   "equipment": "器械",
+   "level": 1,
+   "load": "复合",
+   "sets": "3 组",
+   "reps": "12 到 15 次",
+   "rest": 90,
+   "cue": "腰贴凳面不拱起，膝盖不锁死",
+   "contra": [],
+   "substitutes": [],
+   "ref": "newbie-03"
+  },
+  {
+   "id": "hip-thrust",
+   "name": "臀桥",
+   "aliases": [
+    "臀推",
+    "桥式"
+   ],
+   "part": "臀",
+   "sub": "臀大肌",
+   "secondary": [
+    "腘绳"
+   ],
+   "pattern": "髋铰链",
+   "equipment": "自重",
+   "level": 1,
+   "load": "孤立",
+   "sets": "3 组",
+   "reps": "15 次",
+   "rest": 60,
+   "cue": "仰卧屈膝脚踩地，臀发力顶髋，顶端夹紧停一秒；腰有旧伤用这个替硬拉",
+   "contra": [],
+   "substitutes": [],
+   "ref": "dead-03"
+  },
+  {
+   "id": "lying-triceps-ext",
+   "name": "仰卧臂屈伸",
+   "aliases": [
+    "仰卧臂屈伸",
+    "碎颅式"
+   ],
+   "part": "手臂",
+   "sub": "三头",
+   "secondary": [
+    "三头长头"
+   ],
+   "pattern": "肘伸",
+   "equipment": "杠铃",
+   "level": 1,
+   "load": "孤立",
+   "sets": "4 组",
+   "reps": "12 到 15 次",
+   "rest": 70,
+   "cue": "大臂固定不动，只做肘伸，肘尖朝上不外张",
+   "contra": [],
+   "substitutes": [],
+   "ref": "push-02"
+  },
+  {
+   "id": "bent-over-curl",
+   "name": "俯身弯举",
+   "aliases": [
+    "俯身二头弯举"
+   ],
+   "part": "手臂",
+   "sub": "二头",
+   "secondary": [],
+   "pattern": "肘屈",
+   "equipment": "哑铃",
+   "level": 1,
+   "load": "孤立",
+   "sets": "3 组",
+   "reps": "12 到 15 次",
+   "rest": 60,
+   "cue": "躯干前倾固定，靠二头把重量卷起来，不甩腰",
+   "contra": [],
+   "substitutes": [],
+   "ref": "shoulder-04"
+  },
+  {
+   "id": "cable-curl",
+   "name": "钢线弯举",
+   "aliases": [
+    "绳索弯举"
+   ],
+   "part": "手臂",
+   "sub": "二头",
+   "secondary": [],
+   "pattern": "肘屈",
+   "equipment": "绳索",
+   "level": 1,
+   "load": "孤立",
+   "sets": "3 组",
+   "reps": "12 到 15 次",
+   "rest": 60,
+   "cue": "大臂夹紧不晃，离心三秒放下",
+   "contra": [],
+   "substitutes": [],
+   "ref": "pull-02"
+  },
+  {
+   "id": "overhead-triceps-ext",
+   "name": "颈后臂屈伸",
+   "aliases": [
+    "过顶臂屈伸"
+   ],
+   "part": "手臂",
+   "sub": "三头长头",
+   "secondary": [],
+   "pattern": "肘伸",
+   "equipment": "哑铃",
+   "level": 1,
+   "load": "孤立",
+   "sets": "3 组",
+   "reps": "12 到 15 次",
+   "rest": 60,
+   "cue": "肘尖朝天不外张，下放到颈后拉到最长",
+   "contra": [],
+   "substitutes": [],
+   "ref": "shoulder-04"
+  },
+  {
+   "id": "copenhagen",
+   "name": "哥本哈根支撑",
+   "aliases": [
+    "哥本哈根"
+   ],
+   "part": "核心",
+   "sub": "髋内收",
+   "secondary": [],
+   "pattern": "内收",
+   "equipment": "自重",
+   "level": 2,
+   "load": "孤立",
+   "sets": "2 组",
+   "reps": "每侧 20 秒",
+   "rest": 45,
+   "cue": "侧躺上腿放凳面、下腿夹紧凳子，身体成一条线；练髋内收和侧腹",
+   "contra": [],
+   "substitutes": [],
+   "ref": "legs-05"
+  },
+  {
+   "id": "plank",
+   "name": "平板支撑",
+   "aliases": [
+    "平板"
+   ],
+   "part": "核心",
+   "sub": "核心",
+   "secondary": [],
+   "pattern": "核心",
+   "equipment": "自重",
+   "level": 1,
+   "load": "孤立",
+   "sets": "3 组",
+   "reps": "40 到 60 秒",
+   "rest": 45,
+   "cue": "等长收缩，臀不塌不翘，肋骨下沉",
+   "contra": [],
+   "substitutes": [],
+   "ref": "term-01"
+  }
+ ]
+}

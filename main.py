@@ -16,7 +16,9 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from openai import OpenAI, APIConnectionError, APITimeoutError, RateLimitError
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+import plan_agent
 
 # numpy 是可选的：装了就用矩阵乘算余弦（比逐条 Python 循环快 600~800 倍，
 # 见 bench_scale.py），没装就退回纯 Python，功能不受影响，只是慢。
@@ -654,6 +656,11 @@ def meta():
         "decomp_mode": DECOMP_MODE,
         "decomp_max_subs": DECOMP_MAX_SUBS,
         "multi_top_k": MULTI_TOP_K,
+        # 排计划的动作库规模。页面上显示「33 个动作」，跟实际数据对得上，
+        # 不靠文案里写死一个数 —— 加动作之后忘了改文案是最常见的过期信息。
+        "exercises": len(PLAN_LIB.items) if PLAN_LIB else 0,
+        "plan_max_days": plan_agent.MAX_DAYS,
+        "plan_max_steps": plan_agent.MAX_STEPS,
     }
 
 
@@ -687,6 +694,14 @@ def ask(req: AskRequest):
 # 知识库从 kb.json 读，不再写死在代码里。
 # 每条是一个 chunk：id 唯一、topic 是所属话题（评测按话题判命中）、text 是正文、source 是出处。
 # 为什么拆出去：40 条正文塞进 .py 会让代码没法看，而且改内容不该动代码。
+# 排计划用的动作库。跟 kb.json 分开：一份是散文（问答用），一份是结构化实体（排计划用），
+# 两边靠 exercises.json 里的 ref 字段对齐，check_static.py 每次都会验这个对齐。
+try:
+    PLAN_LIB = plan_agent.Library.load()
+except Exception as _e:      # noqa: BLE001 —— 动作库坏了不该让整个问答服务起不来
+    PLAN_LIB = None
+    print(f"[plan] 动作库加载失败，/plan 会返回 503：{_e}")
+
 KB_PATH = Path(__file__).parent / "kb.json"
 KB = json.loads(KB_PATH.read_text(encoding="utf-8"))
 
@@ -1224,7 +1239,7 @@ def kb(q: str):
     return {"matched": hits[0]["topic"], "answer": hits[0]["text"]}
 
 
-def call_llm(messages, temperature: float = 0.0):
+def call_llm(messages, temperature: float = 0.0, tools=None):
     """把「调用模型」这件事收成一个函数，多处共用。
 
     temperature 默认 0：同一道题必须答一样的，否则评测不可复现。
@@ -1235,12 +1250,17 @@ def call_llm(messages, temperature: float = 0.0):
     为什么要这个开关：实测输出里思维链占 75%，而输出单价是输入的 4 倍，
     等于一半的钱花在「想」上。关不关是质量与成本的取舍，得先量再定 ——
     见 ab_thinking.py。
+
+    tools 只在 /plan 用（多步工具调用）。传了就不加 tool_choice 以外的任何东西：
+    「自动决定要不要调工具」这件事必须留给模型，写死 required 就等于替它做了决定。
     """
     if not LLM_API_KEY or LLM_API_KEY.startswith("sk-替换"):
         raise HTTPException(status_code=500, detail=".env 里的 LLM_API_KEY 还没填")
     STATS["llm_calls"] += 1         # 只在下游真被调用时加，缓存命中不会走到这里
 
     extra = {} if GEN_THINKING is None else {"extra_body": {"enable_thinking": bool(GEN_THINKING)}}
+    if tools:
+        extra["tools"] = tools
     stat = {}
     try:
         return call_with_retry(
@@ -1349,6 +1369,7 @@ _day = {"date": "", "used": 0}
 STATS = {"requests": 0, "cache_hits": 0, "rate_limited": 0, "llm_calls": 0,
          "condense_calls": 0, "condense_failed": 0,
          "decomp_calls": 0, "decomp_failed": 0, "decomp_paths": 0,
+         "plans": 0, "plan_tool_calls": 0, "plan_review": 0,
          "started": time.time()}
 
 
@@ -2436,3 +2457,98 @@ def rag(req: AskRequest, request: Request, mode: str = "rerank",
         "fallback_used": False,
         "uncertain": uncertain,
     }, key, ctx)
+
+
+# ---------- 第九段：多步工具调用（排周计划）----------
+# /rag 解决的是「一个问题、一段回答」，它的形状决定了它答不了「给我排一周计划」：
+# 检索出来的是一段段散文，模型拿着散文拼计划，拼出来的东西既没法校验，
+# 也没法解释「为什么周三排这个动作」。
+#
+# 这里换一种做法：给模型三个工具（查动作库 / 查单个动作 / 交草稿自检），
+# 让它先查、再排、再自查。三条硬约束写在代码里，不写在提示词里：
+#
+#   1. 动作名必须在 exercises.json 里存在（34 个动作，每个都指回一条已发布正文）。
+#      模型编出来的名字会被剔除并记进 dropped，不会静默混进计划。
+#   2. 组次/间歇/要点全部由服务端从库里填 —— 模型只交动作名，不交数字。
+#      所以「模型瞎写 4 组 6 次侧平举」这件事在结构上就不可能发生。
+#   3. 伤病冲突、天数不符、同部位连练，代码层独立校验一遍。模型可以自己调
+#      check_plan 自查，但**它查不查、说没问题，都不影响服务端再查一次**。
+#
+# 为什么不用流式：排计划是一次性交付物（要打印、要给学员），不是聊天，流式在这里
+# 只增加「拼到一半没法校验」的麻烦。
+
+class PlanRequest(BaseModel):
+    goal: str = Field("增肌", max_length=40)
+    days: int = Field(3, ge=2, le=5)
+    equipment: str = Field("健身房", max_length=20)
+    session_min: int = Field(60, ge=20, le=180)
+    level: str = Field("新手", max_length=10)
+    injuries: list[str] = Field(default_factory=list, max_length=4)
+    note: str = Field("", max_length=200)
+
+
+@app.post("/plan")
+def plan(req: PlanRequest, request: Request, src: str = ""):
+    """排一周训练计划。多步：查动作库 → 组计划 → 自检 → 出 JSON。
+
+    返回里的 trace 是这条链的账本：每一步调了什么工具、参数是什么、
+    查到几条、花了多少毫秒。面试和排查都看它 —— 「AI 排的计划」如果不可追溯，
+    那它就只是一段看起来合理的文字。
+
+    needs_review=true 表示有硬问题（动作被剔除 / 伤病冲突 / 天数不符 / 没排出来），
+    这时候计划**不进缓存**：一次没排好的结果被缓存下来，就等于把它固化成了标准答案。
+    """
+    check_code(request.headers.get("x-access-code"))
+    STATS["requests"] += 1
+    prof = req.model_dump()
+    t0 = time.perf_counter()
+
+    # 缓存键用整个档案：目标、天数、器械、水平、伤病任何一个不同，计划就该不同。
+    key = cache_key("plan", False, json.dumps(prof, sort_keys=True, ensure_ascii=False))
+    hit = cache_get(key)
+    if hit is not None:
+        hit["cached"] = True
+        hit["tokens"] = 0               # 缓存命中没打上游，就别报钱
+        return hit
+
+    wait = rate_check(client_ip(request))
+    if wait > 0:
+        raise HTTPException(status_code=429, detail=f"排得太快了，{int(wait) + 1} 秒后再试",
+                            headers={"Retry-After": str(int(wait) + 1)})
+    if not daily_check():
+        raise HTTPException(status_code=429, detail="今天的演示额度用完了，明天再来")
+
+    if PLAN_LIB is None:
+        raise HTTPException(status_code=503, detail="动作库没加载成功，排不了计划")
+
+    def _llm(messages, tools=None):
+        """把 call_llm 包一层：每次调用都记账，链路上任何一步的 token 都不漏。
+
+        不在这里做重试和熔断 —— call_llm 里已经有了，这里再包一层会变成
+        「重试的重试」，一次抖动变成九次上游调用。
+        """
+        r = call_llm(messages, tools=tools)
+        bill_chat(r)
+        return r
+
+    try:
+        out = plan_agent.plan_week(prof, _llm, lib=PLAN_LIB)
+    except HTTPException as e:
+        if e.status_code not in (502, 503):
+            raise            # 没填 key 这类配置错误必须暴露，不能伪装成「排不出来」
+        raise HTTPException(status_code=503, detail="排计划的模型服务暂时不稳定，等一下再试")
+
+    STATS["plans"] += 1
+    STATS["plan_tool_calls"] += len(out["trace"])
+    if out["needs_review"]:
+        STATS["plan_review"] += 1
+
+    out["profile"] = prof
+    out["cached"] = False
+    out["timings"] = {"total_ms": int((time.perf_counter() - t0) * 1000)}
+    if not out["needs_review"]:
+        cache_put(key, out)
+
+    # 不写进问法日志：那份日志是「内容缺口清单」，一条训练计划不是缺口。
+    # 混进去会让缺口统计失真，也会把「接住率」拉高 —— 排计划成功不等于内容覆盖变好。
+    return out

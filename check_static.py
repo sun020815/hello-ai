@@ -101,6 +101,47 @@ if isinstance(vec, dict) and isinstance(kb, list):
         if len(dims) > 1:
             err(f"向量维度不一致：{dims}")
 
+# ---------- 2b. 动作库（/plan 的数据源）----------
+# 动作库最怕的不是写错字，是**与知识库脱节**：动作还在，讲它的那段正文
+# 被改名或删了，计划里就会出现一个「答不上细节」的动作。ref 校验就是查这个。
+ex = load("exercises.json", default={})
+if isinstance(ex, dict) and ex.get("items"):
+    items = ex["items"]
+    if ex.get("count") != len(items):
+        err(f"exercises.json 的 count={ex.get('count')} 与 items 实际 {len(items)} 条不符")
+    kb_ids = {d.get("id") for d in kb} if isinstance(kb, list) else set()
+    seen_id, seen_name = set(), {}
+    for e in items:
+        tag = f"动作「{e.get('name', '?')}」"
+        if e.get("id") in seen_id:
+            err(f"{tag} id 重复：{e.get('id')}")
+        seen_id.add(e.get("id"))
+        for n in [e.get("name"), *e.get("aliases", [])]:
+            if n in seen_name and seen_name[n] != e.get("id"):
+                err(f"{tag} 的名称/别名「{n}」与 {seen_name[n]} 撞了")
+            seen_name[n] = e.get("id")
+        if e.get("ref") not in kb_ids:
+            err(f"{tag} 的 ref「{e.get('ref')}」在 kb.json 里不存在 —— 计划里会出现查不到细节的动作")
+        if not e.get("part"):
+            err(f"{tag} 缺 part")
+        if e.get("level") not in (1, 2, 3):
+            err(f"{tag} level 只能是 1/2/3")
+        for f in ("sets", "reps", "cue"):
+            if not e.get(f):
+                err(f"{tag} 缺 {f}")
+        if not isinstance(e.get("rest"), int) or not (10 <= e["rest"] <= 300):
+            err(f"{tag} rest={e.get('rest')} 不在 10~300 秒")
+    for e in items:
+        for s in e.get("substitutes", []):
+            if s not in seen_name:
+                err(f"动作「{e.get('name')}」的替代动作「{s}」不在动作库里")
+    parts = {}
+    for e in items:
+        parts[e.get("part")] = parts.get(e.get("part"), 0) + 1
+    for p in ("胸", "背", "肩", "腿", "手臂", "核心"):
+        if parts.get(p, 0) < 2:
+            warn(f"动作库「{p}」只有 {parts.get(p, 0)} 个，排这个部位的计划会很单薄")
+
 # ---------- 3. 评测集 ----------
 
 for fname in ("eval_cases.json", "eval_cases_colloquial.json", "eval_cases_compound.json"):
