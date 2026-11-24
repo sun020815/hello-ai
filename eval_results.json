@@ -2,12 +2,12 @@
   "keyword": {
     "summary": {
       "n": 200,
-      "hit1": 0.30927835051546393,
-      "hit2": 0.30927835051546393,
-      "refuse": 0.7475728155339806,
-      "acc": 0.535,
-      "hit_n": 97,
-      "ref_n": 103
+      "hit1": 0.32038834951456313,
+      "hit2": 0.32038834951456313,
+      "refuse": 0.7938144329896907,
+      "acc": 0.55,
+      "hit_n": 103,
+      "ref_n": 97
     },
     "rows": [
       {
@@ -1002,35 +1002,35 @@
       },
       {
         "q": "减脂期每天吃多少卡",
-        "expect": null,
-        "kind": "refuse",
+        "expect": "减脂饮食",
+        "kind": "hit",
         "got": "减脂",
         "hit1": false,
         "hit2": false,
         "score": null,
-        "note": "新库只讲增肌热量盈余，没有减脂缺口（层B）",
+        "note": "0.9983 · 补 lose-diet-01 后改判（原：库内零减脂缺口）",
         "tier": ""
       },
       {
         "q": "空腹有氧更减脂吗",
-        "expect": null,
-        "kind": "refuse",
+        "expect": "有氧时机",
+        "kind": "hit",
         "got": "减脂",
         "hit1": false,
         "hit2": false,
         "score": null,
-        "note": "新库没有有氧与减脂（层B）",
+        "note": "0.9998 · 2026-11-24 补 cardio-when-01 后改判（原：库内零有氧与减脂）",
         "tier": ""
       },
       {
         "q": "减脂会不会掉肌肉",
-        "expect": null,
-        "kind": "refuse",
+        "expect": "减脂",
+        "kind": "hit",
         "got": "减脂",
-        "hit1": false,
-        "hit2": false,
+        "hit1": true,
+        "hit2": true,
         "score": null,
-        "note": "新库没有减脂期营养（层B）",
+        "note": "0.9969 · 补 lose-02 后改判（原：库内没有减脂期营养）",
         "tier": ""
       },
       {
@@ -1134,13 +1134,13 @@
       },
       {
         "q": "减脂期蛋白质要吃更多吗",
-        "expect": null,
-        "kind": "refuse",
+        "expect": "减脂蛋白",
+        "kind": "hit",
         "got": "减脂",
         "hit1": false,
         "hit2": false,
         "score": null,
-        "note": "diet-02 只给增肌期 1.6-2.2g，未涉减脂（层B，探针分 0.5425）",
+        "note": "0.9983 · 补 diet-food-01（含 1.8~2.2g/kg 口径）后改判",
         "tier": ""
       },
       {
@@ -1629,13 +1629,13 @@
       },
       {
         "q": "减脂期怎么保住力量",
-        "expect": null,
-        "kind": "refuse",
+        "expect": "减脂",
+        "kind": "hit",
         "got": "减脂",
-        "hit1": false,
-        "hit2": false,
+        "hit1": true,
+        "hit2": true,
         "score": null,
-        "note": "库内零减脂期训练安排（层B，探针分 0.1960）",
+        "note": "0.9996 · 补 lose-02 后改判（原：库内零减脂期训练安排）",
         "tier": ""
       },
       {
@@ -1695,13 +1695,13 @@
       },
       {
         "q": "减脂期要不要做力量训练",
-        "expect": null,
-        "kind": "refuse",
+        "expect": "减脂",
+        "kind": "hit",
         "got": "减脂",
-        "hit1": false,
-        "hit2": false,
+        "hit1": true,
+        "hit2": true,
         "score": null,
-        "note": "diet 两条只讲增肌期热量与蛋白（层B，探针分 0.1095）",
+        "note": "0.9991 · 补 lose-02 后改判",
         "tier": ""
       },
       {
@@ -2215,12 +2215,12 @@
   "vector": {
     "summary": {
       "n": 200,
-      "hit1": 0.845360824742268,
-      "hit2": 0.8969072164948454,
-      "refuse": 0.42718446601941745,
-      "acc": 0.63,
-      "hit_n": 97,
-      "ref_n": 103
+      "hit1": 0.8543689320388349,
+      "hit2": 0.9029126213592233,
+      "refuse": 0.44329896907216493,
+      "acc": 0.655,
+      "hit_n": 103,
+      "ref_n": 97
     },
     "rows": [
       {
@@ -2230,7 +2230,7 @@
         "got": "推日",
         "hit1": true,
         "hit2": true,
-        "score": 0.7187,
+        "score": 0.719,
         "note": "",
         "tier": ""
       },
@@ -2241,7 +2241,7 @@
         "got": "推日",
         "hit1": true,
         "hit2": true,
-        "score": 0.7936,
+        "score": 0.7934,
         "note": "",
         "tier": ""
       },
@@ -2252,7 +2252,7 @@
         "got": "推日",
         "hit1": true,
         "hit2": true,
-        "score": 0.7484,
+        "score": 0.7491,
         "note": "",
         "tier": ""
       },
@@ -2263,7 +2263,7 @@
         "got": "推日",
         "hit1": true,
         "hit2": true,
-        "score": 0.7088,
+        "score": 0.7089,
         "note": "",
         "tier": ""
       },
@@ -2274,7 +2274,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7439,
+        "score": 0.7441,
         "note": "",
         "tier": ""
       },
@@ -2285,7 +2285,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7371,
+        "score": 0.7379,
         "note": "",
         "tier": ""
       },
@@ -2296,7 +2296,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7127,
+        "score": 0.7129,
         "note": "",
         "tier": ""
       },
@@ -2307,7 +2307,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7142,
+        "score": 0.714,
         "note": "",
         "tier": ""
       },
@@ -2318,7 +2318,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.6754,
+        "score": 0.6756,
         "note": "",
         "tier": ""
       },
@@ -2329,7 +2329,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7312,
+        "score": 0.7311,
         "note": "",
         "tier": ""
       },
@@ -2340,7 +2340,7 @@
         "got": null,
         "hit1": false,
         "hit2": false,
-        "score": 0.5641,
+        "score": 0.5637,
         "note": "",
         "tier": ""
       },
@@ -2351,7 +2351,7 @@
         "got": "上胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7263,
+        "score": 0.7264,
         "note": "",
         "tier": ""
       },
@@ -2362,7 +2362,7 @@
         "got": "上胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7996,
+        "score": 0.7993,
         "note": "",
         "tier": ""
       },
@@ -2384,7 +2384,7 @@
         "got": "上胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7502,
+        "score": 0.7497,
         "note": "",
         "tier": ""
       },
@@ -2395,7 +2395,7 @@
         "got": "中胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7446,
+        "score": 0.7445,
         "note": "",
         "tier": ""
       },
@@ -2406,7 +2406,7 @@
         "got": "中胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7461,
+        "score": 0.7457,
         "note": "",
         "tier": ""
       },
@@ -2439,7 +2439,7 @@
         "got": "上胸",
         "hit1": false,
         "hit2": true,
-        "score": 0.734,
+        "score": 0.7338,
         "note": "",
         "tier": ""
       },
@@ -2450,7 +2450,7 @@
         "got": "下胸与中缝",
         "hit1": true,
         "hit2": true,
-        "score": 0.7874,
+        "score": 0.7877,
         "note": "",
         "tier": ""
       },
@@ -2461,7 +2461,7 @@
         "got": "下胸与中缝",
         "hit1": true,
         "hit2": true,
-        "score": 0.7048,
+        "score": 0.7053,
         "note": "",
         "tier": ""
       },
@@ -2472,7 +2472,7 @@
         "got": "下胸与中缝",
         "hit1": true,
         "hit2": true,
-        "score": 0.6949,
+        "score": 0.6946,
         "note": "",
         "tier": ""
       },
@@ -2483,7 +2483,7 @@
         "got": "下胸与中缝",
         "hit1": true,
         "hit2": true,
-        "score": 0.6144,
+        "score": 0.6147,
         "note": "",
         "tier": ""
       },
@@ -2494,7 +2494,7 @@
         "got": "绳索夹胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7165,
+        "score": 0.7173,
         "note": "",
         "tier": ""
       },
@@ -2505,7 +2505,7 @@
         "got": "绳索夹胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7172,
+        "score": 0.7173,
         "note": "",
         "tier": ""
       },
@@ -2516,7 +2516,7 @@
         "got": "绳索夹胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.6873,
+        "score": 0.6874,
         "note": "",
         "tier": ""
       },
@@ -2527,7 +2527,7 @@
         "got": "拉日",
         "hit1": true,
         "hit2": true,
-        "score": 0.7284,
+        "score": 0.7282,
         "note": "",
         "tier": ""
       },
@@ -2538,7 +2538,7 @@
         "got": "拉日",
         "hit1": true,
         "hit2": true,
-        "score": 0.6824,
+        "score": 0.6828,
         "note": "",
         "tier": ""
       },
@@ -2549,7 +2549,7 @@
         "got": "拉日",
         "hit1": true,
         "hit2": true,
-        "score": 0.695,
+        "score": 0.6942,
         "note": "",
         "tier": ""
       },
@@ -2560,7 +2560,7 @@
         "got": "拉日",
         "hit1": true,
         "hit2": true,
-        "score": 0.7238,
+        "score": 0.7235,
         "note": "",
         "tier": ""
       },
@@ -2571,7 +2571,7 @@
         "got": "背训技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7563,
+        "score": 0.7568,
         "note": "",
         "tier": ""
       },
@@ -2582,7 +2582,7 @@
         "got": "背训技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.6965,
+        "score": 0.6963,
         "note": "",
         "tier": ""
       },
@@ -2593,7 +2593,7 @@
         "got": "高位下拉",
         "hit1": false,
         "hit2": true,
-        "score": 0.7436,
+        "score": 0.7435,
         "note": "",
         "tier": ""
       },
@@ -2604,7 +2604,7 @@
         "got": "背训技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7576,
+        "score": 0.7583,
         "note": "",
         "tier": ""
       },
@@ -2615,7 +2615,7 @@
         "got": "背训技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7328,
+        "score": 0.7324,
         "note": "",
         "tier": ""
       },
@@ -2626,7 +2626,7 @@
         "got": "高位下拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.7076,
+        "score": 0.707,
         "note": "",
         "tier": ""
       },
@@ -2637,7 +2637,7 @@
         "got": "高位下拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.7651,
+        "score": 0.7649,
         "note": "",
         "tier": ""
       },
@@ -2648,7 +2648,7 @@
         "got": "高位下拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.7689,
+        "score": 0.7692,
         "note": "",
         "tier": ""
       },
@@ -2659,7 +2659,7 @@
         "got": "肩部训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.7507,
+        "score": 0.7503,
         "note": "",
         "tier": ""
       },
@@ -2681,7 +2681,7 @@
         "got": "肩部训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.7482,
+        "score": 0.7476,
         "note": "",
         "tier": ""
       },
@@ -2692,7 +2692,7 @@
         "got": "肩部训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.7004,
+        "score": 0.701,
         "note": "",
         "tier": ""
       },
@@ -2703,7 +2703,7 @@
         "got": "热身与激活",
         "hit1": false,
         "hit2": true,
-        "score": 0.7129,
+        "score": 0.7131,
         "note": "",
         "tier": ""
       },
@@ -2714,7 +2714,7 @@
         "got": "侧平举",
         "hit1": true,
         "hit2": true,
-        "score": 0.7713,
+        "score": 0.7709,
         "note": "",
         "tier": ""
       },
@@ -2725,7 +2725,7 @@
         "got": "侧平举",
         "hit1": true,
         "hit2": true,
-        "score": 0.6964,
+        "score": 0.6961,
         "note": "",
         "tier": ""
       },
@@ -2736,7 +2736,7 @@
         "got": "侧平举",
         "hit1": true,
         "hit2": true,
-        "score": 0.6576,
+        "score": 0.6577,
         "note": "",
         "tier": ""
       },
@@ -2747,7 +2747,7 @@
         "got": "后束",
         "hit1": true,
         "hit2": true,
-        "score": 0.7005,
+        "score": 0.7006,
         "note": "",
         "tier": ""
       },
@@ -2758,7 +2758,7 @@
         "got": null,
         "hit1": false,
         "hit2": false,
-        "score": 0.5611,
+        "score": 0.5621,
         "note": "",
         "tier": ""
       },
@@ -2769,7 +2769,7 @@
         "got": "后束",
         "hit1": true,
         "hit2": true,
-        "score": 0.6824,
+        "score": 0.683,
         "note": "",
         "tier": ""
       },
@@ -2780,7 +2780,7 @@
         "got": "腿日",
         "hit1": true,
         "hit2": true,
-        "score": 0.8515,
+        "score": 0.852,
         "note": "",
         "tier": ""
       },
@@ -2791,7 +2791,7 @@
         "got": "腿日",
         "hit1": true,
         "hit2": true,
-        "score": 0.7698,
+        "score": 0.77,
         "note": "",
         "tier": ""
       },
@@ -2802,7 +2802,7 @@
         "got": "腿日",
         "hit1": true,
         "hit2": true,
-        "score": 0.7202,
+        "score": 0.7219,
         "note": "",
         "tier": ""
       },
@@ -2813,7 +2813,7 @@
         "got": null,
         "hit1": false,
         "hit2": false,
-        "score": 0.5143,
+        "score": 0.515,
         "note": "",
         "tier": ""
       },
@@ -2824,7 +2824,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.6837,
+        "score": 0.6848,
         "note": "",
         "tier": ""
       },
@@ -2835,7 +2835,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.8139,
+        "score": 0.8133,
         "note": "",
         "tier": ""
       },
@@ -2846,7 +2846,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.7522,
+        "score": 0.7524,
         "note": "",
         "tier": ""
       },
@@ -2857,7 +2857,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.7112,
+        "score": 0.711,
         "note": "",
         "tier": ""
       },
@@ -2868,7 +2868,7 @@
         "got": "硬拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.6871,
+        "score": 0.6888,
         "note": "",
         "tier": ""
       },
@@ -2879,7 +2879,7 @@
         "got": "单腿训练",
         "hit1": false,
         "hit2": true,
-        "score": 0.6769,
+        "score": 0.6762,
         "note": "",
         "tier": ""
       },
@@ -2890,7 +2890,7 @@
         "got": "硬拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.6941,
+        "score": 0.6943,
         "note": "",
         "tier": ""
       },
@@ -2901,7 +2901,7 @@
         "got": null,
         "hit1": false,
         "hit2": false,
-        "score": 0.5703,
+        "score": 0.5705,
         "note": "",
         "tier": ""
       },
@@ -2912,7 +2912,7 @@
         "got": "单腿训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.6325,
+        "score": 0.6327,
         "note": "",
         "tier": ""
       },
@@ -2923,7 +2923,7 @@
         "got": "单腿训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.7172,
+        "score": 0.7173,
         "note": "",
         "tier": ""
       },
@@ -2934,7 +2934,7 @@
         "got": "单腿训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.725,
+        "score": 0.7256,
         "note": "",
         "tier": ""
       },
@@ -2956,7 +2956,7 @@
         "got": "腿部孤立",
         "hit1": true,
         "hit2": true,
-        "score": 0.7366,
+        "score": 0.7368,
         "note": "",
         "tier": ""
       },
@@ -2978,7 +2978,7 @@
         "got": null,
         "hit1": false,
         "hit2": false,
-        "score": 0.5498,
+        "score": 0.5496,
         "note": "",
         "tier": ""
       },
@@ -2989,7 +2989,7 @@
         "got": null,
         "hit1": false,
         "hit2": false,
-        "score": 0.5509,
+        "score": 0.5518,
         "note": "",
         "tier": ""
       },
@@ -3000,7 +3000,7 @@
         "got": "训练参数",
         "hit1": true,
         "hit2": true,
-        "score": 0.6792,
+        "score": 0.6791,
         "note": "",
         "tier": ""
       },
@@ -3011,7 +3011,7 @@
         "got": "训练参数",
         "hit1": true,
         "hit2": true,
-        "score": 0.6923,
+        "score": 0.6921,
         "note": "",
         "tier": ""
       },
@@ -3033,7 +3033,7 @@
         "got": "训练参数",
         "hit1": true,
         "hit2": true,
-        "score": 0.6493,
+        "score": 0.6491,
         "note": "",
         "tier": ""
       },
@@ -3044,7 +3044,7 @@
         "got": "分化与频率",
         "hit1": true,
         "hit2": true,
-        "score": 0.7528,
+        "score": 0.7532,
         "note": "",
         "tier": ""
       },
@@ -3055,7 +3055,7 @@
         "got": "分化与频率",
         "hit1": true,
         "hit2": true,
-        "score": 0.6279,
+        "score": 0.6281,
         "note": "",
         "tier": ""
       },
@@ -3066,7 +3066,7 @@
         "got": "分化与频率",
         "hit1": true,
         "hit2": true,
-        "score": 0.7358,
+        "score": 0.7357,
         "note": "",
         "tier": ""
       },
@@ -3077,7 +3077,7 @@
         "got": "分化与频率",
         "hit1": true,
         "hit2": true,
-        "score": 0.6939,
+        "score": 0.6937,
         "note": "",
         "tier": ""
       },
@@ -3088,7 +3088,7 @@
         "got": "新手上路",
         "hit1": true,
         "hit2": true,
-        "score": 0.7382,
+        "score": 0.7377,
         "note": "",
         "tier": ""
       },
@@ -3099,7 +3099,7 @@
         "got": "新手上路",
         "hit1": true,
         "hit2": true,
-        "score": 0.7284,
+        "score": 0.7295,
         "note": "",
         "tier": ""
       },
@@ -3121,7 +3121,7 @@
         "got": "新手上路",
         "hit1": true,
         "hit2": true,
-        "score": 0.7128,
+        "score": 0.7132,
         "note": "",
         "tier": ""
       },
@@ -3132,7 +3132,7 @@
         "got": "饮食配合",
         "hit1": true,
         "hit2": true,
-        "score": 0.7675,
+        "score": 0.7678,
         "note": "",
         "tier": ""
       },
@@ -3143,7 +3143,7 @@
         "got": "饮食配合",
         "hit1": true,
         "hit2": true,
-        "score": 0.7701,
+        "score": 0.7707,
         "note": "",
         "tier": ""
       },
@@ -3154,7 +3154,7 @@
         "got": "饮食配合",
         "hit1": true,
         "hit2": true,
-        "score": 0.8086,
+        "score": 0.8092,
         "note": "",
         "tier": ""
       },
@@ -3165,7 +3165,7 @@
         "got": "热身与激活",
         "hit1": true,
         "hit2": true,
-        "score": 0.7348,
+        "score": 0.7352,
         "note": "",
         "tier": ""
       },
@@ -3176,7 +3176,7 @@
         "got": "热身与激活",
         "hit1": true,
         "hit2": true,
-        "score": 0.6607,
+        "score": 0.6605,
         "note": "",
         "tier": ""
       },
@@ -3187,7 +3187,7 @@
         "got": "热身与激活",
         "hit1": true,
         "hit2": true,
-        "score": 0.7461,
+        "score": 0.7462,
         "note": "",
         "tier": ""
       },
@@ -3209,41 +3209,41 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5564,
+        "score": 0.5569,
         "note": "新库没有补剂内容（层B）",
         "tier": ""
       },
       {
         "q": "减脂期每天吃多少卡",
-        "expect": null,
-        "kind": "refuse",
+        "expect": "减脂饮食",
+        "kind": "hit",
         "got": "减脂饮食",
-        "hit1": false,
-        "hit2": false,
-        "score": 0.7572,
-        "note": "新库只讲增肌热量盈余，没有减脂缺口（层B）",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7545,
+        "note": "0.9983 · 补 lose-diet-01 后改判（原：库内零减脂缺口）",
         "tier": ""
       },
       {
         "q": "空腹有氧更减脂吗",
-        "expect": null,
-        "kind": "refuse",
-        "got": "有氧",
-        "hit1": false,
-        "hit2": false,
-        "score": 0.6899,
-        "note": "新库没有有氧与减脂（层B）",
+        "expect": "有氧时机",
+        "kind": "hit",
+        "got": "有氧时机",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7955,
+        "note": "0.9998 · 2026-11-24 补 cardio-when-01 后改判（原：库内零有氧与减脂）",
         "tier": ""
       },
       {
         "q": "减脂会不会掉肌肉",
-        "expect": null,
-        "kind": "refuse",
+        "expect": "减脂",
+        "kind": "hit",
         "got": "减脂",
-        "hit1": false,
-        "hit2": false,
-        "score": 0.6944,
-        "note": "新库没有减脂期营养（层B）",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.6941,
+        "note": "0.9969 · 补 lose-02 后改判（原：库内没有减脂期营养）",
         "tier": ""
       },
       {
@@ -3253,7 +3253,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5636,
+        "score": 0.5637,
         "note": "新库不涉及品牌（层B）",
         "tier": ""
       },
@@ -3264,7 +3264,7 @@
         "got": "饮食配合",
         "hit1": false,
         "hit2": false,
-        "score": 0.6399,
+        "score": 0.6395,
         "note": "新库没有生酮（层B）",
         "tier": ""
       },
@@ -3275,7 +3275,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.575,
+        "score": 0.5757,
         "note": "无康复医学内容，只有换动作建议（层B）",
         "tier": ""
       },
@@ -3286,7 +3286,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.3831,
+        "score": 0.3835,
         "note": "完全无关（层A）",
         "tier": ""
       },
@@ -3297,7 +3297,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5098,
+        "score": 0.5096,
         "note": "完全无关（层A）",
         "tier": ""
       },
@@ -3308,7 +3308,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5623,
+        "score": 0.5622,
         "note": "shoulder-05 只说「正手前平举容易产生肩峰撞击」→ 讲的是预防不是治疗。问「怎么治」，库内零康复内容（层B，探针分 0.8466）",
         "tier": ""
       },
@@ -3319,7 +3319,7 @@
         "got": "硬拉",
         "hit1": false,
         "hit2": false,
-        "score": 0.6744,
+        "score": 0.6741,
         "note": "dead-03 只给「腰痛换臀桥」的症状级换动作建议。腰突是诊断，能不能练属医学禁忌症判断，资料够不着（层B，探针分 0.8397）",
         "tier": ""
       },
@@ -3330,7 +3330,7 @@
         "got": "热身与激活",
         "hit1": false,
         "hit2": false,
-        "score": 0.6926,
+        "score": 0.6932,
         "note": "warm-01 提的是「卧推肩痛」不是腕痛；bench-02「腕中立不折腕」是预防。字面重叠（卧推 + 痛），问题不同（层C，探针分 0.7899）",
         "tier": ""
       },
@@ -3341,19 +3341,19 @@
         "got": "推日",
         "hit1": false,
         "hit2": false,
-        "score": 0.6021,
+        "score": 0.6022,
         "note": "全库无腹肌动作，仅 legs-05 提到侧腹（层C，探针分 0.6468）",
         "tier": ""
       },
       {
         "q": "减脂期蛋白质要吃更多吗",
-        "expect": null,
-        "kind": "refuse",
+        "expect": "减脂蛋白",
+        "kind": "hit",
         "got": "减脂蛋白",
-        "hit1": false,
-        "hit2": false,
-        "score": 0.7196,
-        "note": "diet-02 只给增肌期 1.6-2.2g，未涉减脂（层B，探针分 0.5425）",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7338,
+        "note": "0.9983 · 补 diet-food-01（含 1.8~2.2g/kg 口径）后改判",
         "tier": ""
       },
       {
@@ -3363,7 +3363,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.555,
+        "score": 0.5557,
         "note": "只出现史密斯实力推 / 史密斯负重，无卧推对比（层C，探针分 0.5378）",
         "tier": ""
       },
@@ -3374,7 +3374,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5982,
+        "score": 0.5981,
         "note": "dead-01/02 讲髋铰链，零握法内容（层C，探针分 0.3807）",
         "tier": ""
       },
@@ -3385,7 +3385,7 @@
         "got": "深蹲",
         "hit1": false,
         "hit2": false,
-        "score": 0.6603,
+        "score": 0.66,
         "note": "库内零装备内容（层C，探针分 0.2006）",
         "tier": ""
       },
@@ -3396,7 +3396,7 @@
         "got": "背训技术",
         "hit1": false,
         "hit2": false,
-        "score": 0.6523,
+        "score": 0.6524,
         "note": "lat / back 只把引体当名词提过，无进阶教学（层C，探针分 0.1989）",
         "tier": ""
       },
@@ -3407,7 +3407,7 @@
         "got": "训练参数",
         "hit1": false,
         "hit2": false,
-        "score": 0.6137,
+        "score": 0.6138,
         "note": "param-06 只讲时长，未讲休息期做什么（层C，探针分 0.1627）",
         "tier": ""
       },
@@ -3418,7 +3418,7 @@
         "got": "减脂",
         "hit1": false,
         "hit2": false,
-        "score": 0.6635,
+        "score": 0.6637,
         "note": "无减脂进度内容（层B，探针分 0.1483）",
         "tier": ""
       },
@@ -3426,10 +3426,10 @@
         "q": "生理期能不能练腿",
         "expect": null,
         "kind": "refuse",
-        "got": null,
-        "hit1": true,
-        "hit2": true,
-        "score": 0.5997,
+        "got": "单腿训练",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6002,
         "note": "无女性 / 周期内容（层B，探针分 0.1397）",
         "tier": ""
       },
@@ -3440,7 +3440,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4667,
+        "score": 0.4677,
         "note": "只有罗马尼亚 / 单腿 / 山羊挺身，无相扑（层C，探针分 0.1395）",
         "tier": ""
       },
@@ -3473,7 +3473,7 @@
         "got": "卧推技术",
         "hit1": false,
         "hit2": false,
-        "score": 0.6608,
+        "score": 0.661,
         "note": "库内零护具 / 装备内容（层C，探针分 0.0666）",
         "tier": ""
       },
@@ -3484,7 +3484,7 @@
         "got": "训练参数",
         "hit1": false,
         "hit2": false,
-        "score": 0.66,
+        "score": 0.6602,
         "note": "warm-* 全是训练前热身，无训练后放松（层C，探针分 0.0495）",
         "tier": ""
       },
@@ -3495,7 +3495,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.559,
+        "score": 0.5588,
         "note": "无补剂内容（层B，探针分 0.0344）",
         "tier": ""
       },
@@ -3506,7 +3506,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4508,
+        "score": 0.4512,
         "note": "完全无关（层A，探针分 0.0259）",
         "tier": ""
       },
@@ -3517,7 +3517,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4682,
+        "score": 0.468,
         "note": "无补剂 / 咖啡因内容（层B，探针分 0.0028）",
         "tier": ""
       },
@@ -3528,7 +3528,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4725,
+        "score": 0.4723,
         "note": "完全无关（层A，探针分 0.0002）",
         "tier": ""
       },
@@ -3539,7 +3539,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.444,
+        "score": 0.4435,
         "note": "无补剂内容（层B，探针分 0.0002）",
         "tier": ""
       },
@@ -3550,7 +3550,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.357,
+        "score": 0.3572,
         "note": "完全无关（层A，探针分 0.0001）",
         "tier": ""
       },
@@ -3561,7 +3561,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.3897,
+        "score": 0.3997,
         "note": "完全无关（层A，探针分 0.0000）",
         "tier": ""
       },
@@ -3572,7 +3572,7 @@
         "got": "硬拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.6343,
+        "score": 0.6341,
         "note": "探针改判：dead-01 原文「它不是把杠铃从地上拉起来，而是靠屈髋把重量送下去再收回来」，直接答了",
         "tier": ""
       },
@@ -3594,7 +3594,7 @@
         "got": "分化与频率",
         "hit1": false,
         "hit2": false,
-        "score": 0.7261,
+        "score": 0.726,
         "note": "split-02/03 给三天与四天排法，无五天方案（层C，探针分 0.7165）",
         "tier": ""
       },
@@ -3605,7 +3605,7 @@
         "got": "后束",
         "hit1": false,
         "hit2": false,
-        "score": 0.6687,
+        "score": 0.6689,
         "note": "rear-03 讲后束薄弱与组数，未讲练不大之后的调整（层C，探针分 0.7149）",
         "tier": ""
       },
@@ -3616,7 +3616,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5748,
+        "score": 0.5753,
         "note": "库内零肘部损伤内容（层B，探针分 0.6808）",
         "tier": ""
       },
@@ -3627,7 +3627,7 @@
         "got": "饮食配合",
         "hit1": false,
         "hit2": false,
-        "score": 0.6227,
+        "score": 0.623,
         "note": "diet-03 只提蛋白粉是「方便」，无增肌粉（层B，探针分 0.6538）",
         "tier": ""
       },
@@ -3638,7 +3638,7 @@
         "got": "上胸",
         "hit1": false,
         "hit2": false,
-        "score": 0.6426,
+        "score": 0.6424,
         "note": "upper-01 讲凳角过高前束接管，未讲锁骨处疼痛（层C，探针分 0.6433）",
         "tier": ""
       },
@@ -3649,7 +3649,7 @@
         "got": "硬拉",
         "hit1": false,
         "hit2": false,
-        "score": 0.6554,
+        "score": 0.6557,
         "note": "dead-04 讲山羊挺身不要过度伸展，未回答硬拉后腰酸是否正常（层C，探针分 0.6247）",
         "tier": ""
       },
@@ -3660,7 +3660,7 @@
         "got": "深蹲",
         "hit1": false,
         "hit2": false,
-        "score": 0.6813,
+        "score": 0.6818,
         "note": "squat-01 讲杠铃放锁骨，未讲手腕不适与握法（层C，探针分 0.6052）",
         "tier": ""
       },
@@ -3671,7 +3671,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5339,
+        "score": 0.5337,
         "note": "bench-07 讲挺胸与塌腰的区别，未涉比赛规则 / 起桥合法性（层C，探针分 0.5991）",
         "tier": ""
       },
@@ -3693,7 +3693,7 @@
         "got": "饮食配合",
         "hit1": false,
         "hit2": false,
-        "score": 0.6187,
+        "score": 0.6192,
         "note": "新库无肌酸，亦无补剂搭配（层B，探针分 0.5650）",
         "tier": ""
       },
@@ -3704,7 +3704,7 @@
         "got": "分化与频率",
         "hit1": false,
         "hit2": false,
-        "score": 0.7088,
+        "score": 0.7089,
         "note": "split 四条只讲推拉腿与频率，未讲同日多部位（层C，探针分 0.5522）",
         "tier": ""
       },
@@ -3715,7 +3715,7 @@
         "got": "卧推技术",
         "hit1": false,
         "hit2": false,
-        "score": 0.6372,
+        "score": 0.6371,
         "note": "库内零保护 / 力竭处理内容（层C，探针分 0.5091）",
         "tier": ""
       },
@@ -3726,7 +3726,7 @@
         "got": "分化与频率",
         "hit1": false,
         "hit2": false,
-        "score": 0.6685,
+        "score": 0.6681,
         "note": "库内零拉伤处理与恢复周期（层B，探针分 0.5047）",
         "tier": ""
       },
@@ -3748,7 +3748,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5696,
+        "score": 0.5692,
         "note": "库内史密斯只出现在实力推与负重辅助（层C，探针分 0.4515）",
         "tier": ""
       },
@@ -3759,7 +3759,7 @@
         "got": "新手上路",
         "hit1": false,
         "hit2": false,
-        "score": 0.6718,
+        "score": 0.6717,
         "note": "newbie-01 讲起始重量定法，无绝对重量标准（层C，探针分 0.4350）",
         "tier": ""
       },
@@ -3770,7 +3770,7 @@
         "got": "侧平举",
         "hit1": false,
         "hit2": false,
-        "score": 0.6328,
+        "score": 0.6329,
         "note": "lateral-02 说「不能耸肩作弊」，未讲已经斜方酸怎么纠正（层C，探针分 0.4340）",
         "tier": ""
       },
@@ -3781,7 +3781,7 @@
         "got": "深蹲",
         "hit1": false,
         "hit2": false,
-        "score": 0.7249,
+        "score": 0.7247,
         "note": "squat-04 讲膝盖位置与内扣，未讲弹响（层C，探针分 0.4331）",
         "tier": ""
       },
@@ -3792,7 +3792,7 @@
         "got": "训练参数",
         "hit1": false,
         "hit2": false,
-        "score": 0.6028,
+        "score": 0.6033,
         "note": "库内零游泳内容（层B，探针分 0.3851）",
         "tier": ""
       },
@@ -3803,7 +3803,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5849,
+        "score": 0.5844,
         "note": "库内零产后内容（层B，探针分 0.3174）",
         "tier": ""
       },
@@ -3814,7 +3814,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4784,
+        "score": 0.4785,
         "note": "完全无关（层A，探针分 0.3167）",
         "tier": ""
       },
@@ -3825,7 +3825,7 @@
         "got": "深蹲",
         "hit1": false,
         "hit2": false,
-        "score": 0.6587,
+        "score": 0.6584,
         "note": "squat-01 只给「膝盖痛换腿举」，无具体诊断（层B，探针分 0.3022）",
         "tier": ""
       },
@@ -3836,19 +3836,19 @@
         "got": "新手上路",
         "hit1": false,
         "hit2": false,
-        "score": 0.6759,
+        "score": 0.6756,
         "note": "库内零握力训练，dead 四条都在讲髋与背（层C，探针分 0.2636）",
         "tier": ""
       },
       {
         "q": "减脂期怎么保住力量",
-        "expect": null,
-        "kind": "refuse",
+        "expect": "减脂",
+        "kind": "hit",
         "got": "减脂",
-        "hit1": false,
-        "hit2": false,
-        "score": 0.7471,
-        "note": "库内零减脂期训练安排（层B，探针分 0.1960）",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7463,
+        "note": "0.9996 · 补 lose-02 后改判（原：库内零减脂期训练安排）",
         "tier": ""
       },
       {
@@ -3858,7 +3858,7 @@
         "got": "高位下拉",
         "hit1": false,
         "hit2": false,
-        "score": 0.6192,
+        "score": 0.6188,
         "note": "shoulder-02 讲斜方代偿练脖子，lat 四条未结合下拉纠正（层C，探针分 0.1932）",
         "tier": ""
       },
@@ -3869,7 +3869,7 @@
         "got": "减脂三餐",
         "hit1": false,
         "hit2": false,
-        "score": 0.6479,
+        "score": 0.6473,
         "note": "库内零进食时机与食物选择（层B，探针分 0.1782）",
         "tier": ""
       },
@@ -3880,7 +3880,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5385,
+        "score": 0.5387,
         "note": "库内零备赛内容（层B，探针分 0.1114）",
         "tier": ""
       },
@@ -3902,19 +3902,19 @@
         "got": "减脂三餐",
         "hit1": false,
         "hit2": false,
-        "score": 0.6819,
+        "score": 0.6826,
         "note": "改判（2026-11-23，生成层兜底实测暴露）：diet-02「把一天蛋白质总量拆成三到四餐」直接回答了餐数。原标 refuse 的理由是「未比较餐数」，但用户没让比较，问的就是几餐",
         "tier": ""
       },
       {
         "q": "减脂期要不要做力量训练",
-        "expect": null,
-        "kind": "refuse",
+        "expect": "减脂",
+        "kind": "hit",
         "got": "减脂",
-        "hit1": false,
-        "hit2": false,
-        "score": 0.7355,
-        "note": "diet 两条只讲增肌期热量与蛋白（层B，探针分 0.1095）",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7349,
+        "note": "0.9991 · 补 lose-02 后改判",
         "tier": ""
       },
       {
@@ -3924,7 +3924,7 @@
         "got": "有氧",
         "hit1": false,
         "hit2": false,
-        "score": 0.6517,
+        "score": 0.652,
         "note": "库内零有氧 / 跑步内容（层B，探针分 0.1084）",
         "tier": ""
       },
@@ -3935,7 +3935,7 @@
         "got": "饮食配合",
         "hit1": false,
         "hit2": false,
-        "score": 0.6413,
+        "score": 0.6418,
         "note": "diet-03 说粉只是方便，未涉时间窗口（层C，探针分 0.1072）",
         "tier": ""
       },
@@ -3946,7 +3946,7 @@
         "got": "训练参数",
         "hit1": false,
         "hit2": false,
-        "score": 0.6008,
+        "score": 0.6012,
         "note": "库内零其他运动内容（层B，探针分 0.0870）",
         "tier": ""
       },
@@ -3957,7 +3957,7 @@
         "got": "训练参数",
         "hit1": false,
         "hit2": false,
-        "score": 0.6063,
+        "score": 0.6064,
         "note": "库内零性别差异内容（层B，探针分 0.0712）",
         "tier": ""
       },
@@ -3968,7 +3968,7 @@
         "got": "饮食配合",
         "hit1": false,
         "hit2": false,
-        "score": 0.6029,
+        "score": 0.6038,
         "note": "diet-02 讲 1.6-2.2g 上限无额外好处，未涉肾脏安全（层C，探针分 0.0690）",
         "tier": ""
       },
@@ -3979,7 +3979,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5677,
+        "score": 0.5675,
         "note": "库内零年龄相关内容（层B，探针分 0.0566）",
         "tier": ""
       },
@@ -3990,7 +3990,7 @@
         "got": "减脂饮食",
         "hit1": false,
         "hit2": false,
-        "score": 0.6725,
+        "score": 0.6694,
         "note": "diet 只给蛋白克数，无碳水（层B，探针分 0.0562）",
         "tier": ""
       },
@@ -4001,7 +4001,7 @@
         "got": "减脂碳水",
         "hit1": false,
         "hit2": false,
-        "score": 0.6409,
+        "score": 0.6405,
         "note": "库内零营养窗口内容（层B，探针分 0.0557）",
         "tier": ""
       },
@@ -4012,7 +4012,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5887,
+        "score": 0.5883,
         "note": "dead-01 说膝盖只微屈，未讲顶端锁膝（层C，探针分 0.0487）",
         "tier": ""
       },
@@ -4023,7 +4023,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5429,
+        "score": 0.5431,
         "note": "库内零补剂内容（层B，探针分 0.0462）",
         "tier": ""
       },
@@ -4045,7 +4045,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4057,
+        "score": 0.4056,
         "note": "完全无关（层A，探针分 0.0394）",
         "tier": ""
       },
@@ -4056,7 +4056,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5855,
+        "score": 0.5849,
         "note": "库内零进食时间内容（层B，探针分 0.0379）",
         "tier": ""
       },
@@ -4078,7 +4078,7 @@
         "got": "肩部训练",
         "hit1": false,
         "hit2": false,
-        "score": 0.6105,
+        "score": 0.6104,
         "note": "库内零腕部损伤内容（层B，探针分 0.0361）",
         "tier": ""
       },
@@ -4089,7 +4089,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4352,
+        "score": 0.4353,
         "note": "库内零补剂内容（层B，探针分 0.0342）",
         "tier": ""
       },
@@ -4100,7 +4100,7 @@
         "got": "有氧",
         "hit1": false,
         "hit2": false,
-        "score": 0.6475,
+        "score": 0.6479,
         "note": "库内零有氧内容（层B，探针分 0.0314）",
         "tier": ""
       },
@@ -4122,7 +4122,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.3978,
+        "score": 0.3974,
         "note": "shoulder-04 提到「超级组」但未解释定义与用法（层C，探针分 0.0177）",
         "tier": ""
       },
@@ -4133,7 +4133,7 @@
         "got": "减脂",
         "hit1": false,
         "hit2": false,
-        "score": 0.6729,
+        "score": 0.6735,
         "note": "库内零减脂内容（层B，探针分 0.0176）",
         "tier": ""
       },
@@ -4144,7 +4144,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5895,
+        "score": 0.5897,
         "note": "库内零睡眠内容（param-05 只提睡不好是减载信号）（层B，探针分 0.0155）",
         "tier": ""
       },
@@ -4166,7 +4166,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4443,
+        "score": 0.4437,
         "note": "库内零药理内容（层B，探针分 0.0099）",
         "tier": ""
       },
@@ -4177,7 +4177,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4965,
+        "score": 0.4964,
         "note": "完全无关（层A，探针分 0.0079）",
         "tier": ""
       },
@@ -4188,7 +4188,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4755,
+        "score": 0.4758,
         "note": "库内零补剂内容（层B，探针分 0.0076）",
         "tier": ""
       },
@@ -4199,7 +4199,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5599,
+        "score": 0.5595,
         "note": "库内零腰带内容（层B，探针分 0.0059）",
         "tier": ""
       },
@@ -4210,7 +4210,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.3801,
+        "score": 0.3799,
         "note": "完全无关（层A，探针分 0.0043）",
         "tier": ""
       },
@@ -4221,7 +4221,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5663,
+        "score": 0.5666,
         "note": "库内零装备内容（层B，探针分 0.0043）",
         "tier": ""
       },
@@ -4243,7 +4243,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5151,
+        "score": 0.5152,
         "note": "完全无关（层A，探针分 0.0011）",
         "tier": ""
       },
@@ -4254,7 +4254,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4511,
+        "score": 0.4509,
         "note": "完全无关（层A，探针分 0.0007）",
         "tier": ""
       },
@@ -4265,7 +4265,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4007,
+        "score": 0.401,
         "note": "完全无关（层A，探针分 0.0003）",
         "tier": ""
       },
@@ -4276,7 +4276,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.336,
+        "score": 0.3359,
         "note": "完全无关（层A，探针分 0.0001）",
         "tier": ""
       },
@@ -4287,7 +4287,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.3909,
+        "score": 0.391,
         "note": "完全无关（层A，探针分 0.0000）",
         "tier": ""
       },
@@ -4298,7 +4298,7 @@
         "got": "上胸",
         "hit1": false,
         "hit2": false,
-        "score": 0.6775,
+        "score": 0.6777,
         "note": "upper-02/03 讲选哑铃的理由和推的轨迹，零起铃 / 收铃手法。0.96 分是因为通篇在讲上斜哑铃，主题重度重叠（层C，探针分 0.9632）",
         "tier": ""
       },
@@ -4309,7 +4309,7 @@
         "got": "深蹲",
         "hit1": false,
         "hit2": false,
-        "score": 0.6575,
+        "score": 0.6577,
         "note": "squat-01 只有「膝盖有痛感直接换腿举」这一句替代关系，没有比较两者取舍。问哪个好，答的是什么时候换（层C，探针分 0.9548）",
         "tier": ""
       },
@@ -4320,7 +4320,7 @@
         "got": "肩部训练",
         "hit1": false,
         "hit2": false,
-        "score": 0.6945,
+        "score": 0.6948,
         "note": "shoulder-06 说肩袖压力小，warm-01 说弹力肩外展能改善卧推肩痛 —— 两条都是预防，无损伤后的康复训练（层B，探针分 0.9182）",
         "tier": ""
       },
@@ -4331,7 +4331,7 @@
         "got": "肩部训练",
         "hit1": false,
         "hit2": false,
-        "score": 0.7191,
+        "score": 0.7195,
         "note": "shoulder 六条讲肩部日内部顺序与组次；split-01 的频率是全身肌群口径（一周一到两次），未单独给肩的频率（层C，探针分 0.9179）",
         "tier": ""
       },
@@ -4342,7 +4342,7 @@
         "got": "热身与激活",
         "hit1": false,
         "hit2": false,
-        "score": 0.6758,
+        "score": 0.6761,
         "note": "命中 rear-03（后束是圆肩和肩痛的根源），讲的是机理；shoulder-06 只讲 RPE。推举动作中的疼痛缓解，库里没有（层C，探针分 0.8698）",
         "tier": ""
       },
@@ -4375,7 +4375,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7626,
+        "score": 0.763,
         "note": "探针改判：bench-03 给了触胸点与停顿，param-07 补了必要性「半程只有全程六成效果」——问的是要不要，答的是要",
         "tier": ""
       },
@@ -4386,7 +4386,7 @@
         "got": "卧推技术",
         "hit1": false,
         "hit2": true,
-        "score": 0.71,
+        "score": 0.7102,
         "note": "探针改判：push-04 原文「说不出来说明涨的其实是三头和前束，动作早就跑偏了，该退回去减重量重新找感觉」，直接答了不正常以及怎么办",
         "tier": ""
       },
@@ -4397,7 +4397,7 @@
         "got": "背训技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.6815,
+        "score": 0.6819,
         "note": "探针改判：back-05「一旦靠躯干后仰甩重量，练完是腰酸而不是背胀；一组做完先感觉到腰，说明重量超了或躯干在动」——给了病因和处方",
         "tier": ""
       },
@@ -4408,7 +4408,7 @@
         "got": "分化与频率",
         "hit1": true,
         "hit2": true,
-        "score": 0.6121,
+        "score": 0.6132,
         "note": "探针改判：split-01 讲三分化的坏处是「对频率要求高的人不够」，等于回答了「什么时候该往上加分化」",
         "tier": ""
       },
@@ -4419,7 +4419,7 @@
         "got": "深蹲",
         "hit1": false,
         "hit2": false,
-        "score": 0.7301,
+        "score": 0.7303,
         "note": "探针改判：newbie-05「连续两周无法在主项增加重量就是平台期，可以调整动作顺序或换一两个辅助动作」，直接答了",
         "tier": ""
       }
@@ -4428,12 +4428,12 @@
   "hybrid": {
     "summary": {
       "n": 200,
-      "hit1": 0.845360824742268,
-      "hit2": 0.8969072164948454,
-      "refuse": 0.42718446601941745,
-      "acc": 0.63,
-      "hit_n": 97,
-      "ref_n": 103
+      "hit1": 0.8446601941747572,
+      "hit2": 0.9029126213592233,
+      "refuse": 0.44329896907216493,
+      "acc": 0.65,
+      "hit_n": 103,
+      "ref_n": 97
     },
     "rows": [
       {
@@ -4454,7 +4454,7 @@
         "got": "推日",
         "hit1": true,
         "hit2": true,
-        "score": 0.7936,
+        "score": 0.7934,
         "note": "",
         "tier": ""
       },
@@ -4465,7 +4465,7 @@
         "got": "推日",
         "hit1": true,
         "hit2": true,
-        "score": 0.7484,
+        "score": 0.7491,
         "note": "",
         "tier": ""
       },
@@ -4476,7 +4476,7 @@
         "got": "推日",
         "hit1": true,
         "hit2": true,
-        "score": 0.7088,
+        "score": 0.7089,
         "note": "",
         "tier": ""
       },
@@ -4487,7 +4487,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7439,
+        "score": 0.7441,
         "note": "",
         "tier": ""
       },
@@ -4498,7 +4498,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7121,
+        "score": 0.7126,
         "note": "",
         "tier": ""
       },
@@ -4509,7 +4509,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7127,
+        "score": 0.7129,
         "note": "",
         "tier": ""
       },
@@ -4520,7 +4520,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7142,
+        "score": 0.714,
         "note": "",
         "tier": ""
       },
@@ -4531,7 +4531,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.6749,
+        "score": 0.6754,
         "note": "",
         "tier": ""
       },
@@ -4542,7 +4542,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7312,
+        "score": 0.7311,
         "note": "",
         "tier": ""
       },
@@ -4553,7 +4553,7 @@
         "got": null,
         "hit1": false,
         "hit2": false,
-        "score": 0.5641,
+        "score": 0.5637,
         "note": "",
         "tier": ""
       },
@@ -4564,7 +4564,7 @@
         "got": "上胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7263,
+        "score": 0.7264,
         "note": "",
         "tier": ""
       },
@@ -4575,7 +4575,7 @@
         "got": "上胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7996,
+        "score": 0.7993,
         "note": "",
         "tier": ""
       },
@@ -4586,7 +4586,7 @@
         "got": "上胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.6731,
+        "score": 0.6725,
         "note": "",
         "tier": ""
       },
@@ -4597,7 +4597,7 @@
         "got": "上胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7502,
+        "score": 0.7497,
         "note": "",
         "tier": ""
       },
@@ -4608,7 +4608,7 @@
         "got": "中胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7446,
+        "score": 0.7445,
         "note": "",
         "tier": ""
       },
@@ -4619,7 +4619,7 @@
         "got": "中胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7461,
+        "score": 0.7457,
         "note": "",
         "tier": ""
       },
@@ -4630,7 +4630,7 @@
         "got": "上胸",
         "hit1": false,
         "hit2": false,
-        "score": 0.5644,
+        "score": 0.5646,
         "note": "",
         "tier": ""
       },
@@ -4652,7 +4652,7 @@
         "got": "上胸",
         "hit1": false,
         "hit2": true,
-        "score": 0.734,
+        "score": 0.7338,
         "note": "",
         "tier": ""
       },
@@ -4663,7 +4663,7 @@
         "got": "下胸与中缝",
         "hit1": true,
         "hit2": true,
-        "score": 0.7874,
+        "score": 0.7877,
         "note": "",
         "tier": ""
       },
@@ -4674,7 +4674,7 @@
         "got": "下胸与中缝",
         "hit1": true,
         "hit2": true,
-        "score": 0.7048,
+        "score": 0.7053,
         "note": "",
         "tier": ""
       },
@@ -4685,7 +4685,7 @@
         "got": "下胸与中缝",
         "hit1": true,
         "hit2": true,
-        "score": 0.6949,
+        "score": 0.6946,
         "note": "",
         "tier": ""
       },
@@ -4696,7 +4696,7 @@
         "got": "下胸与中缝",
         "hit1": true,
         "hit2": true,
-        "score": 0.6144,
+        "score": 0.6147,
         "note": "",
         "tier": ""
       },
@@ -4707,7 +4707,7 @@
         "got": "绳索夹胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7165,
+        "score": 0.7173,
         "note": "",
         "tier": ""
       },
@@ -4718,7 +4718,7 @@
         "got": "绳索夹胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7172,
+        "score": 0.7173,
         "note": "",
         "tier": ""
       },
@@ -4729,7 +4729,7 @@
         "got": "绳索夹胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.6873,
+        "score": 0.6874,
         "note": "",
         "tier": ""
       },
@@ -4740,7 +4740,7 @@
         "got": "拉日",
         "hit1": true,
         "hit2": true,
-        "score": 0.7284,
+        "score": 0.7282,
         "note": "",
         "tier": ""
       },
@@ -4751,7 +4751,7 @@
         "got": "拉日",
         "hit1": true,
         "hit2": true,
-        "score": 0.6824,
+        "score": 0.6828,
         "note": "",
         "tier": ""
       },
@@ -4762,7 +4762,7 @@
         "got": "拉日",
         "hit1": true,
         "hit2": true,
-        "score": 0.695,
+        "score": 0.6942,
         "note": "",
         "tier": ""
       },
@@ -4773,7 +4773,7 @@
         "got": "拉日",
         "hit1": true,
         "hit2": true,
-        "score": 0.7238,
+        "score": 0.7235,
         "note": "",
         "tier": ""
       },
@@ -4784,7 +4784,7 @@
         "got": "背训技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7563,
+        "score": 0.7568,
         "note": "",
         "tier": ""
       },
@@ -4795,7 +4795,7 @@
         "got": "背训技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.6934,
+        "score": 0.6937,
         "note": "",
         "tier": ""
       },
@@ -4806,7 +4806,7 @@
         "got": "高位下拉",
         "hit1": false,
         "hit2": true,
-        "score": 0.7436,
+        "score": 0.7435,
         "note": "",
         "tier": ""
       },
@@ -4817,7 +4817,7 @@
         "got": "背训技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7576,
+        "score": 0.7583,
         "note": "",
         "tier": ""
       },
@@ -4828,7 +4828,7 @@
         "got": "背训技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7328,
+        "score": 0.7324,
         "note": "",
         "tier": ""
       },
@@ -4839,7 +4839,7 @@
         "got": "高位下拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.7076,
+        "score": 0.707,
         "note": "",
         "tier": ""
       },
@@ -4850,7 +4850,7 @@
         "got": "高位下拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.7651,
+        "score": 0.7649,
         "note": "",
         "tier": ""
       },
@@ -4861,7 +4861,7 @@
         "got": "高位下拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.7689,
+        "score": 0.7692,
         "note": "",
         "tier": ""
       },
@@ -4872,7 +4872,7 @@
         "got": "肩部训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.7495,
+        "score": 0.7498,
         "note": "",
         "tier": ""
       },
@@ -4894,7 +4894,7 @@
         "got": "肩部训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.7482,
+        "score": 0.7476,
         "note": "",
         "tier": ""
       },
@@ -4905,7 +4905,7 @@
         "got": "肩部训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.7004,
+        "score": 0.701,
         "note": "",
         "tier": ""
       },
@@ -4916,7 +4916,7 @@
         "got": "热身与激活",
         "hit1": false,
         "hit2": true,
-        "score": 0.7129,
+        "score": 0.7131,
         "note": "",
         "tier": ""
       },
@@ -4927,7 +4927,7 @@
         "got": "侧平举",
         "hit1": true,
         "hit2": true,
-        "score": 0.7713,
+        "score": 0.7709,
         "note": "",
         "tier": ""
       },
@@ -4938,7 +4938,7 @@
         "got": "侧平举",
         "hit1": true,
         "hit2": true,
-        "score": 0.6613,
+        "score": 0.6609,
         "note": "",
         "tier": ""
       },
@@ -4949,7 +4949,7 @@
         "got": "侧平举",
         "hit1": true,
         "hit2": true,
-        "score": 0.6392,
+        "score": 0.6395,
         "note": "",
         "tier": ""
       },
@@ -4960,7 +4960,7 @@
         "got": "后束",
         "hit1": true,
         "hit2": true,
-        "score": 0.6639,
+        "score": 0.6644,
         "note": "",
         "tier": ""
       },
@@ -4971,7 +4971,7 @@
         "got": null,
         "hit1": false,
         "hit2": false,
-        "score": 0.5611,
+        "score": 0.5621,
         "note": "",
         "tier": ""
       },
@@ -4982,7 +4982,7 @@
         "got": "后束",
         "hit1": true,
         "hit2": true,
-        "score": 0.6824,
+        "score": 0.683,
         "note": "",
         "tier": ""
       },
@@ -4993,7 +4993,7 @@
         "got": "腿日",
         "hit1": true,
         "hit2": true,
-        "score": 0.8515,
+        "score": 0.852,
         "note": "",
         "tier": ""
       },
@@ -5004,7 +5004,7 @@
         "got": "腿日",
         "hit1": true,
         "hit2": true,
-        "score": 0.7698,
+        "score": 0.77,
         "note": "",
         "tier": ""
       },
@@ -5015,7 +5015,7 @@
         "got": "腿日",
         "hit1": true,
         "hit2": true,
-        "score": 0.7202,
+        "score": 0.7219,
         "note": "",
         "tier": ""
       },
@@ -5026,7 +5026,7 @@
         "got": null,
         "hit1": false,
         "hit2": false,
-        "score": 0.5143,
+        "score": 0.515,
         "note": "",
         "tier": ""
       },
@@ -5037,7 +5037,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.6837,
+        "score": 0.6848,
         "note": "",
         "tier": ""
       },
@@ -5048,7 +5048,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.8139,
+        "score": 0.8133,
         "note": "",
         "tier": ""
       },
@@ -5059,7 +5059,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.7522,
+        "score": 0.7524,
         "note": "",
         "tier": ""
       },
@@ -5070,7 +5070,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.7112,
+        "score": 0.711,
         "note": "",
         "tier": ""
       },
@@ -5081,7 +5081,7 @@
         "got": "硬拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.6871,
+        "score": 0.6888,
         "note": "",
         "tier": ""
       },
@@ -5092,7 +5092,7 @@
         "got": "单腿训练",
         "hit1": false,
         "hit2": true,
-        "score": 0.6769,
+        "score": 0.6762,
         "note": "",
         "tier": ""
       },
@@ -5103,7 +5103,7 @@
         "got": "硬拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.6941,
+        "score": 0.6943,
         "note": "",
         "tier": ""
       },
@@ -5114,7 +5114,7 @@
         "got": null,
         "hit1": false,
         "hit2": false,
-        "score": 0.5703,
+        "score": 0.5705,
         "note": "",
         "tier": ""
       },
@@ -5125,7 +5125,7 @@
         "got": "单腿训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.6325,
+        "score": 0.6327,
         "note": "",
         "tier": ""
       },
@@ -5136,7 +5136,7 @@
         "got": "单腿训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.7172,
+        "score": 0.7173,
         "note": "",
         "tier": ""
       },
@@ -5147,7 +5147,7 @@
         "got": "单腿训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.725,
+        "score": 0.7256,
         "note": "",
         "tier": ""
       },
@@ -5169,7 +5169,7 @@
         "got": "腿部孤立",
         "hit1": true,
         "hit2": true,
-        "score": 0.7366,
+        "score": 0.7368,
         "note": "",
         "tier": ""
       },
@@ -5191,7 +5191,7 @@
         "got": null,
         "hit1": false,
         "hit2": false,
-        "score": 0.5498,
+        "score": 0.5496,
         "note": "",
         "tier": ""
       },
@@ -5202,7 +5202,7 @@
         "got": null,
         "hit1": false,
         "hit2": false,
-        "score": 0.5509,
+        "score": 0.5518,
         "note": "",
         "tier": ""
       },
@@ -5213,7 +5213,7 @@
         "got": "训练参数",
         "hit1": true,
         "hit2": true,
-        "score": 0.6792,
+        "score": 0.6791,
         "note": "",
         "tier": ""
       },
@@ -5224,7 +5224,7 @@
         "got": "训练参数",
         "hit1": true,
         "hit2": true,
-        "score": 0.6923,
+        "score": 0.6921,
         "note": "",
         "tier": ""
       },
@@ -5246,7 +5246,7 @@
         "got": "训练参数",
         "hit1": true,
         "hit2": true,
-        "score": 0.6493,
+        "score": 0.6491,
         "note": "",
         "tier": ""
       },
@@ -5257,7 +5257,7 @@
         "got": "分化与频率",
         "hit1": true,
         "hit2": true,
-        "score": 0.7528,
+        "score": 0.7532,
         "note": "",
         "tier": ""
       },
@@ -5268,7 +5268,7 @@
         "got": "分化与频率",
         "hit1": true,
         "hit2": true,
-        "score": 0.6279,
+        "score": 0.6281,
         "note": "",
         "tier": ""
       },
@@ -5279,7 +5279,7 @@
         "got": "分化与频率",
         "hit1": true,
         "hit2": true,
-        "score": 0.7358,
+        "score": 0.7357,
         "note": "",
         "tier": ""
       },
@@ -5290,7 +5290,7 @@
         "got": "分化与频率",
         "hit1": true,
         "hit2": true,
-        "score": 0.6939,
+        "score": 0.6937,
         "note": "",
         "tier": ""
       },
@@ -5301,7 +5301,7 @@
         "got": "新手上路",
         "hit1": true,
         "hit2": true,
-        "score": 0.7382,
+        "score": 0.7377,
         "note": "",
         "tier": ""
       },
@@ -5312,7 +5312,7 @@
         "got": "新手上路",
         "hit1": true,
         "hit2": true,
-        "score": 0.7284,
+        "score": 0.7295,
         "note": "",
         "tier": ""
       },
@@ -5334,7 +5334,7 @@
         "got": "新手上路",
         "hit1": true,
         "hit2": true,
-        "score": 0.7128,
+        "score": 0.7132,
         "note": "",
         "tier": ""
       },
@@ -5345,7 +5345,7 @@
         "got": "饮食配合",
         "hit1": true,
         "hit2": true,
-        "score": 0.7675,
+        "score": 0.7678,
         "note": "",
         "tier": ""
       },
@@ -5356,7 +5356,7 @@
         "got": "饮食配合",
         "hit1": true,
         "hit2": true,
-        "score": 0.7701,
+        "score": 0.7707,
         "note": "",
         "tier": ""
       },
@@ -5367,7 +5367,7 @@
         "got": "饮食配合",
         "hit1": true,
         "hit2": true,
-        "score": 0.8086,
+        "score": 0.8092,
         "note": "",
         "tier": ""
       },
@@ -5378,7 +5378,7 @@
         "got": "热身与激活",
         "hit1": true,
         "hit2": true,
-        "score": 0.7348,
+        "score": 0.7352,
         "note": "",
         "tier": ""
       },
@@ -5389,7 +5389,7 @@
         "got": "热身与激活",
         "hit1": true,
         "hit2": true,
-        "score": 0.6607,
+        "score": 0.6605,
         "note": "",
         "tier": ""
       },
@@ -5400,7 +5400,7 @@
         "got": "热身与激活",
         "hit1": true,
         "hit2": true,
-        "score": 0.7461,
+        "score": 0.7462,
         "note": "",
         "tier": ""
       },
@@ -5422,41 +5422,41 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5564,
+        "score": 0.5569,
         "note": "新库没有补剂内容（层B）",
         "tier": ""
       },
       {
         "q": "减脂期每天吃多少卡",
-        "expect": null,
-        "kind": "refuse",
+        "expect": "减脂饮食",
+        "kind": "hit",
         "got": "减脂饮食",
-        "hit1": false,
-        "hit2": false,
-        "score": 0.7572,
-        "note": "新库只讲增肌热量盈余，没有减脂缺口（层B）",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7545,
+        "note": "0.9983 · 补 lose-diet-01 后改判（原：库内零减脂缺口）",
         "tier": ""
       },
       {
         "q": "空腹有氧更减脂吗",
-        "expect": null,
-        "kind": "refuse",
-        "got": "有氧",
-        "hit1": false,
-        "hit2": false,
-        "score": 0.6899,
-        "note": "新库没有有氧与减脂（层B）",
+        "expect": "有氧时机",
+        "kind": "hit",
+        "got": "有氧时机",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7955,
+        "note": "0.9998 · 2026-11-24 补 cardio-when-01 后改判（原：库内零有氧与减脂）",
         "tier": ""
       },
       {
         "q": "减脂会不会掉肌肉",
-        "expect": null,
-        "kind": "refuse",
+        "expect": "减脂",
+        "kind": "hit",
         "got": "减脂",
-        "hit1": false,
-        "hit2": false,
-        "score": 0.6944,
-        "note": "新库没有减脂期营养（层B）",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.6941,
+        "note": "0.9969 · 补 lose-02 后改判（原：库内没有减脂期营养）",
         "tier": ""
       },
       {
@@ -5466,7 +5466,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5636,
+        "score": 0.5637,
         "note": "新库不涉及品牌（层B）",
         "tier": ""
       },
@@ -5477,7 +5477,7 @@
         "got": "饮食配合",
         "hit1": false,
         "hit2": false,
-        "score": 0.6399,
+        "score": 0.6395,
         "note": "新库没有生酮（层B）",
         "tier": ""
       },
@@ -5488,7 +5488,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.575,
+        "score": 0.5757,
         "note": "无康复医学内容，只有换动作建议（层B）",
         "tier": ""
       },
@@ -5499,7 +5499,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.3831,
+        "score": 0.3835,
         "note": "完全无关（层A）",
         "tier": ""
       },
@@ -5510,7 +5510,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4795,
+        "score": 0.4788,
         "note": "完全无关（层A）",
         "tier": ""
       },
@@ -5521,7 +5521,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5623,
+        "score": 0.5622,
         "note": "shoulder-05 只说「正手前平举容易产生肩峰撞击」→ 讲的是预防不是治疗。问「怎么治」，库内零康复内容（层B，探针分 0.8466）",
         "tier": ""
       },
@@ -5532,7 +5532,7 @@
         "got": "硬拉",
         "hit1": false,
         "hit2": false,
-        "score": 0.654,
+        "score": 0.6527,
         "note": "dead-03 只给「腰痛换臀桥」的症状级换动作建议。腰突是诊断，能不能练属医学禁忌症判断，资料够不着（层B，探针分 0.8397）",
         "tier": ""
       },
@@ -5543,7 +5543,7 @@
         "got": "卧推技术",
         "hit1": false,
         "hit2": false,
-        "score": 0.6771,
+        "score": 0.6781,
         "note": "warm-01 提的是「卧推肩痛」不是腕痛；bench-02「腕中立不折腕」是预防。字面重叠（卧推 + 痛），问题不同（层C，探针分 0.7899）",
         "tier": ""
       },
@@ -5554,19 +5554,19 @@
         "got": "背训技术",
         "hit1": false,
         "hit2": false,
-        "score": 0.5863,
+        "score": 0.5865,
         "note": "全库无腹肌动作，仅 legs-05 提到侧腹（层C，探针分 0.6468）",
         "tier": ""
       },
       {
         "q": "减脂期蛋白质要吃更多吗",
-        "expect": null,
-        "kind": "refuse",
+        "expect": "减脂蛋白",
+        "kind": "hit",
         "got": "饮食配合",
         "hit1": false,
-        "hit2": false,
-        "score": 0.7059,
-        "note": "diet-02 只给增肌期 1.6-2.2g，未涉减脂（层B，探针分 0.5425）",
+        "hit2": true,
+        "score": 0.7065,
+        "note": "0.9983 · 补 diet-food-01（含 1.8~2.2g/kg 口径）后改判",
         "tier": ""
       },
       {
@@ -5576,7 +5576,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5306,
+        "score": 0.53,
         "note": "只出现史密斯实力推 / 史密斯负重，无卧推对比（层C，探针分 0.5378）",
         "tier": ""
       },
@@ -5587,7 +5587,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5927,
+        "score": 0.5924,
         "note": "dead-01/02 讲髋铰链，零握法内容（层C，探针分 0.3807）",
         "tier": ""
       },
@@ -5598,7 +5598,7 @@
         "got": "深蹲",
         "hit1": false,
         "hit2": false,
-        "score": 0.6603,
+        "score": 0.66,
         "note": "库内零装备内容（层C，探针分 0.2006）",
         "tier": ""
       },
@@ -5620,7 +5620,7 @@
         "got": "训练参数",
         "hit1": false,
         "hit2": false,
-        "score": 0.6137,
+        "score": 0.6138,
         "note": "param-06 只讲时长，未讲休息期做什么（层C，探针分 0.1627）",
         "tier": ""
       },
@@ -5631,7 +5631,7 @@
         "got": "减脂饮食",
         "hit1": false,
         "hit2": false,
-        "score": 0.6502,
+        "score": 0.6533,
         "note": "无减脂进度内容（层B，探针分 0.1483）",
         "tier": ""
       },
@@ -5639,10 +5639,10 @@
         "q": "生理期能不能练腿",
         "expect": null,
         "kind": "refuse",
-        "got": null,
-        "hit1": true,
-        "hit2": true,
-        "score": 0.5997,
+        "got": "单腿训练",
+        "hit1": false,
+        "hit2": false,
+        "score": 0.6002,
         "note": "无女性 / 周期内容（层B，探针分 0.1397）",
         "tier": ""
       },
@@ -5653,7 +5653,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4435,
+        "score": 0.4434,
         "note": "只有罗马尼亚 / 单腿 / 山羊挺身，无相扑（层C，探针分 0.1395）",
         "tier": ""
       },
@@ -5661,10 +5661,10 @@
         "q": "增肌期能不能做有氧",
         "expect": null,
         "kind": "refuse",
-        "got": "有氧",
+        "got": "有氧时机",
         "hit1": false,
         "hit2": false,
-        "score": 0.6861,
+        "score": 0.6709,
         "note": "库内零有氧内容（层C，探针分 0.1339）",
         "tier": ""
       },
@@ -5686,7 +5686,7 @@
         "got": "卧推技术",
         "hit1": false,
         "hit2": false,
-        "score": 0.6608,
+        "score": 0.661,
         "note": "库内零护具 / 装备内容（层C，探针分 0.0666）",
         "tier": ""
       },
@@ -5697,7 +5697,7 @@
         "got": "硬拉",
         "hit1": false,
         "hit2": false,
-        "score": 0.6328,
+        "score": 0.633,
         "note": "warm-* 全是训练前热身，无训练后放松（层C，探针分 0.0495）",
         "tier": ""
       },
@@ -5708,7 +5708,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5235,
+        "score": 0.523,
         "note": "无补剂内容（层B，探针分 0.0344）",
         "tier": ""
       },
@@ -5719,7 +5719,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.3987,
+        "score": 0.3991,
         "note": "完全无关（层A，探针分 0.0259）",
         "tier": ""
       },
@@ -5730,7 +5730,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4637,
+        "score": 0.4635,
         "note": "无补剂 / 咖啡因内容（层B，探针分 0.0028）",
         "tier": ""
       },
@@ -5741,7 +5741,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4725,
+        "score": 0.4723,
         "note": "完全无关（层A，探针分 0.0002）",
         "tier": ""
       },
@@ -5752,7 +5752,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.444,
+        "score": 0.4435,
         "note": "无补剂内容（层B，探针分 0.0002）",
         "tier": ""
       },
@@ -5763,7 +5763,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.357,
+        "score": 0.3572,
         "note": "完全无关（层A，探针分 0.0001）",
         "tier": ""
       },
@@ -5774,7 +5774,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.354,
+        "score": 0.3537,
         "note": "完全无关（层A，探针分 0.0000）",
         "tier": ""
       },
@@ -5785,7 +5785,7 @@
         "got": "硬拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.6343,
+        "score": 0.6341,
         "note": "探针改判：dead-01 原文「它不是把杠铃从地上拉起来，而是靠屈髋把重量送下去再收回来」，直接答了",
         "tier": ""
       },
@@ -5807,7 +5807,7 @@
         "got": "分化与频率",
         "hit1": false,
         "hit2": false,
-        "score": 0.7261,
+        "score": 0.726,
         "note": "split-02/03 给三天与四天排法，无五天方案（层C，探针分 0.7165）",
         "tier": ""
       },
@@ -5818,7 +5818,7 @@
         "got": "后束",
         "hit1": false,
         "hit2": false,
-        "score": 0.6687,
+        "score": 0.6689,
         "note": "rear-03 讲后束薄弱与组数，未讲练不大之后的调整（层C，探针分 0.7149）",
         "tier": ""
       },
@@ -5829,7 +5829,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5748,
+        "score": 0.5753,
         "note": "库内零肘部损伤内容（层B，探针分 0.6808）",
         "tier": ""
       },
@@ -5851,7 +5851,7 @@
         "got": "上胸",
         "hit1": false,
         "hit2": false,
-        "score": 0.6426,
+        "score": 0.6424,
         "note": "upper-01 讲凳角过高前束接管，未讲锁骨处疼痛（层C，探针分 0.6433）",
         "tier": ""
       },
@@ -5862,7 +5862,7 @@
         "got": "硬拉",
         "hit1": false,
         "hit2": false,
-        "score": 0.6554,
+        "score": 0.6557,
         "note": "dead-04 讲山羊挺身不要过度伸展，未回答硬拉后腰酸是否正常（层C，探针分 0.6247）",
         "tier": ""
       },
@@ -5873,7 +5873,7 @@
         "got": "深蹲",
         "hit1": false,
         "hit2": false,
-        "score": 0.6813,
+        "score": 0.6818,
         "note": "squat-01 讲杠铃放锁骨，未讲手腕不适与握法（层C，探针分 0.6052）",
         "tier": ""
       },
@@ -5884,7 +5884,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5339,
+        "score": 0.4921,
         "note": "bench-07 讲挺胸与塌腰的区别，未涉比赛规则 / 起桥合法性（层C，探针分 0.5991）",
         "tier": ""
       },
@@ -5906,7 +5906,7 @@
         "got": "饮食配合",
         "hit1": false,
         "hit2": false,
-        "score": 0.6139,
+        "score": 0.6141,
         "note": "新库无肌酸，亦无补剂搭配（层B，探针分 0.5650）",
         "tier": ""
       },
@@ -5917,7 +5917,7 @@
         "got": "分化与频率",
         "hit1": false,
         "hit2": false,
-        "score": 0.6781,
+        "score": 0.6782,
         "note": "split 四条只讲推拉腿与频率，未讲同日多部位（层C，探针分 0.5522）",
         "tier": ""
       },
@@ -5928,7 +5928,7 @@
         "got": "卧推技术",
         "hit1": false,
         "hit2": false,
-        "score": 0.6372,
+        "score": 0.6371,
         "note": "库内零保护 / 力竭处理内容（层C，探针分 0.5091）",
         "tier": ""
       },
@@ -5939,7 +5939,7 @@
         "got": "新手上路",
         "hit1": false,
         "hit2": false,
-        "score": 0.6237,
+        "score": 0.624,
         "note": "库内零拉伤处理与恢复周期（层B，探针分 0.5047）",
         "tier": ""
       },
@@ -5961,7 +5961,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5696,
+        "score": 0.5692,
         "note": "库内史密斯只出现在实力推与负重辅助（层C，探针分 0.4515）",
         "tier": ""
       },
@@ -5972,7 +5972,7 @@
         "got": "新手上路",
         "hit1": false,
         "hit2": false,
-        "score": 0.6718,
+        "score": 0.6717,
         "note": "newbie-01 讲起始重量定法，无绝对重量标准（层C，探针分 0.4350）",
         "tier": ""
       },
@@ -5983,7 +5983,7 @@
         "got": "侧平举",
         "hit1": false,
         "hit2": false,
-        "score": 0.6125,
+        "score": 0.6123,
         "note": "lateral-02 说「不能耸肩作弊」，未讲已经斜方酸怎么纠正（层C，探针分 0.4340）",
         "tier": ""
       },
@@ -5994,7 +5994,7 @@
         "got": "深蹲",
         "hit1": false,
         "hit2": false,
-        "score": 0.7249,
+        "score": 0.7247,
         "note": "squat-04 讲膝盖位置与内扣，未讲弹响（层C，探针分 0.4331）",
         "tier": ""
       },
@@ -6005,7 +6005,7 @@
         "got": "训练参数",
         "hit1": false,
         "hit2": false,
-        "score": 0.6028,
+        "score": 0.6033,
         "note": "库内零游泳内容（层B，探针分 0.3851）",
         "tier": ""
       },
@@ -6016,7 +6016,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.567,
+        "score": 0.5676,
         "note": "库内零产后内容（层B，探针分 0.3174）",
         "tier": ""
       },
@@ -6027,7 +6027,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4371,
+        "score": 0.4376,
         "note": "完全无关（层A，探针分 0.3167）",
         "tier": ""
       },
@@ -6038,7 +6038,7 @@
         "got": "深蹲",
         "hit1": false,
         "hit2": false,
-        "score": 0.6587,
+        "score": 0.6584,
         "note": "squat-01 只给「膝盖痛换腿举」，无具体诊断（层B，探针分 0.3022）",
         "tier": ""
       },
@@ -6049,19 +6049,19 @@
         "got": "硬拉",
         "hit1": false,
         "hit2": false,
-        "score": 0.6533,
+        "score": 0.6532,
         "note": "库内零握力训练，dead 四条都在讲髋与背（层C，探针分 0.2636）",
         "tier": ""
       },
       {
         "q": "减脂期怎么保住力量",
-        "expect": null,
-        "kind": "refuse",
+        "expect": "减脂",
+        "kind": "hit",
         "got": "减脂",
-        "hit1": false,
-        "hit2": false,
-        "score": 0.7471,
-        "note": "库内零减脂期训练安排（层B，探针分 0.1960）",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7463,
+        "note": "0.9996 · 补 lose-02 后改判（原：库内零减脂期训练安排）",
         "tier": ""
       },
       {
@@ -6071,7 +6071,7 @@
         "got": "高位下拉",
         "hit1": false,
         "hit2": false,
-        "score": 0.6192,
+        "score": 0.6188,
         "note": "shoulder-02 讲斜方代偿练脖子，lat 四条未结合下拉纠正（层C，探针分 0.1932）",
         "tier": ""
       },
@@ -6093,7 +6093,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4906,
+        "score": 0.4905,
         "note": "库内零备赛内容（层B，探针分 0.1114）",
         "tier": ""
       },
@@ -6115,19 +6115,19 @@
         "got": "减脂三餐",
         "hit1": false,
         "hit2": false,
-        "score": 0.6819,
+        "score": 0.6826,
         "note": "改判（2026-11-23，生成层兜底实测暴露）：diet-02「把一天蛋白质总量拆成三到四餐」直接回答了餐数。原标 refuse 的理由是「未比较餐数」，但用户没让比较，问的就是几餐",
         "tier": ""
       },
       {
         "q": "减脂期要不要做力量训练",
-        "expect": null,
-        "kind": "refuse",
+        "expect": "减脂",
+        "kind": "hit",
         "got": "减脂",
-        "hit1": false,
-        "hit2": false,
-        "score": 0.7355,
-        "note": "diet 两条只讲增肌期热量与蛋白（层B，探针分 0.1095）",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7349,
+        "note": "0.9991 · 补 lose-02 后改判",
         "tier": ""
       },
       {
@@ -6137,7 +6137,7 @@
         "got": "有氧",
         "hit1": false,
         "hit2": false,
-        "score": 0.6517,
+        "score": 0.652,
         "note": "库内零有氧 / 跑步内容（层B，探针分 0.1084）",
         "tier": ""
       },
@@ -6148,7 +6148,7 @@
         "got": "饮食配合",
         "hit1": false,
         "hit2": false,
-        "score": 0.6413,
+        "score": 0.6418,
         "note": "diet-03 说粉只是方便，未涉时间窗口（层C，探针分 0.1072）",
         "tier": ""
       },
@@ -6159,7 +6159,7 @@
         "got": "训练参数",
         "hit1": false,
         "hit2": false,
-        "score": 0.6008,
+        "score": 0.6012,
         "note": "库内零其他运动内容（层B，探针分 0.0870）",
         "tier": ""
       },
@@ -6170,7 +6170,7 @@
         "got": "训练参数",
         "hit1": false,
         "hit2": false,
-        "score": 0.6063,
+        "score": 0.6064,
         "note": "库内零性别差异内容（层B，探针分 0.0712）",
         "tier": ""
       },
@@ -6181,7 +6181,7 @@
         "got": "饮食配合",
         "hit1": false,
         "hit2": false,
-        "score": 0.5861,
+        "score": 0.586,
         "note": "diet-02 讲 1.6-2.2g 上限无额外好处，未涉肾脏安全（层C，探针分 0.0690）",
         "tier": ""
       },
@@ -6192,7 +6192,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5677,
+        "score": 0.5675,
         "note": "库内零年龄相关内容（层B，探针分 0.0566）",
         "tier": ""
       },
@@ -6203,7 +6203,7 @@
         "got": "减脂饮食",
         "hit1": false,
         "hit2": false,
-        "score": 0.6725,
+        "score": 0.6694,
         "note": "diet 只给蛋白克数，无碳水（层B，探针分 0.0562）",
         "tier": ""
       },
@@ -6214,7 +6214,7 @@
         "got": "减脂碳水",
         "hit1": false,
         "hit2": false,
-        "score": 0.6409,
+        "score": 0.6405,
         "note": "库内零营养窗口内容（层B，探针分 0.0557）",
         "tier": ""
       },
@@ -6247,7 +6247,7 @@
         "got": null,
         "hit1": false,
         "hit2": false,
-        "score": 0.4553,
+        "score": 0.4545,
         "note": "改判（2026-11-23，生成层兜底实测暴露）：pull-03「弹力带面拉 2 组 15 次，激活肩后束和上背」直接回答了练哪里。原标 refuse 的理由是「只作为动作名、无要领」，但用户问的是练哪里，不是要领",
         "tier": ""
       },
@@ -6258,7 +6258,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.3545,
+        "score": 0.3552,
         "note": "完全无关（层A，探针分 0.0394）",
         "tier": ""
       },
@@ -6269,7 +6269,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5672,
+        "score": 0.5764,
         "note": "库内零进食时间内容（层B，探针分 0.0379）",
         "tier": ""
       },
@@ -6280,7 +6280,7 @@
         "got": "减脂碳水",
         "hit1": false,
         "hit2": false,
-        "score": 0.5317,
+        "score": 0.5319,
         "note": "库内零碳水循环 / 减脂期营养（层B，探针分 0.0369）",
         "tier": ""
       },
@@ -6291,7 +6291,7 @@
         "got": "肩部训练",
         "hit1": false,
         "hit2": false,
-        "score": 0.6105,
+        "score": 0.6104,
         "note": "库内零腕部损伤内容（层B，探针分 0.0361）",
         "tier": ""
       },
@@ -6302,7 +6302,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4352,
+        "score": 0.4353,
         "note": "库内零补剂内容（层B，探针分 0.0342）",
         "tier": ""
       },
@@ -6313,7 +6313,7 @@
         "got": "有氧",
         "hit1": false,
         "hit2": false,
-        "score": 0.6475,
+        "score": 0.6479,
         "note": "库内零有氧内容（层B，探针分 0.0314）",
         "tier": ""
       },
@@ -6324,7 +6324,7 @@
         "got": "深蹲",
         "hit1": false,
         "hit2": false,
-        "score": 0.5873,
+        "score": 0.5872,
         "note": "库内零关节弹响内容（层B，探针分 0.0300）",
         "tier": ""
       },
@@ -6335,7 +6335,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.3978,
+        "score": 0.3974,
         "note": "shoulder-04 提到「超级组」但未解释定义与用法（层C，探针分 0.0177）",
         "tier": ""
       },
@@ -6346,7 +6346,7 @@
         "got": "减脂",
         "hit1": false,
         "hit2": false,
-        "score": 0.6729,
+        "score": 0.6735,
         "note": "库内零减脂内容（层B，探针分 0.0176）",
         "tier": ""
       },
@@ -6357,7 +6357,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5895,
+        "score": 0.5897,
         "note": "库内零睡眠内容（param-05 只提睡不好是减载信号）（层B，探针分 0.0155）",
         "tier": ""
       },
@@ -6379,7 +6379,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4443,
+        "score": 0.4292,
         "note": "库内零药理内容（层B，探针分 0.0099）",
         "tier": ""
       },
@@ -6390,7 +6390,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4916,
+        "score": 0.491,
         "note": "完全无关（层A，探针分 0.0079）",
         "tier": ""
       },
@@ -6401,7 +6401,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4284,
+        "score": 0.4287,
         "note": "库内零补剂内容（层B，探针分 0.0076）",
         "tier": ""
       },
@@ -6412,7 +6412,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5367,
+        "score": 0.5368,
         "note": "库内零腰带内容（层B，探针分 0.0059）",
         "tier": ""
       },
@@ -6423,7 +6423,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.3679,
+        "score": 0.368,
         "note": "完全无关（层A，探针分 0.0043）",
         "tier": ""
       },
@@ -6434,7 +6434,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5663,
+        "score": 0.5666,
         "note": "库内零装备内容（层B，探针分 0.0043）",
         "tier": ""
       },
@@ -6445,7 +6445,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.3393,
+        "score": 0.339,
         "note": "完全无关（层A，探针分 0.0025）",
         "tier": ""
       },
@@ -6456,7 +6456,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4551,
+        "score": 0.4549,
         "note": "完全无关（层A，探针分 0.0011）",
         "tier": ""
       },
@@ -6467,7 +6467,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4511,
+        "score": 0.4509,
         "note": "完全无关（层A，探针分 0.0007）",
         "tier": ""
       },
@@ -6478,7 +6478,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.3696,
+        "score": 0.3701,
         "note": "完全无关（层A，探针分 0.0003）",
         "tier": ""
       },
@@ -6489,7 +6489,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.3155,
+        "score": 0.3152,
         "note": "完全无关（层A，探针分 0.0001）",
         "tier": ""
       },
@@ -6500,7 +6500,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.375,
+        "score": 0.3745,
         "note": "完全无关（层A，探针分 0.0000）",
         "tier": ""
       },
@@ -6511,7 +6511,7 @@
         "got": "上胸",
         "hit1": false,
         "hit2": false,
-        "score": 0.6775,
+        "score": 0.6777,
         "note": "upper-02/03 讲选哑铃的理由和推的轨迹，零起铃 / 收铃手法。0.96 分是因为通篇在讲上斜哑铃，主题重度重叠（层C，探针分 0.9632）",
         "tier": ""
       },
@@ -6533,7 +6533,7 @@
         "got": "肩部训练",
         "hit1": false,
         "hit2": false,
-        "score": 0.6945,
+        "score": 0.6948,
         "note": "shoulder-06 说肩袖压力小，warm-01 说弹力肩外展能改善卧推肩痛 —— 两条都是预防，无损伤后的康复训练（层B，探针分 0.9182）",
         "tier": ""
       },
@@ -6544,7 +6544,7 @@
         "got": "分化与频率",
         "hit1": false,
         "hit2": false,
-        "score": 0.6863,
+        "score": 0.6865,
         "note": "shoulder 六条讲肩部日内部顺序与组次；split-01 的频率是全身肌群口径（一周一到两次），未单独给肩的频率（层C，探针分 0.9179）",
         "tier": ""
       },
@@ -6555,7 +6555,7 @@
         "got": "热身与激活",
         "hit1": false,
         "hit2": false,
-        "score": 0.6362,
+        "score": 0.6355,
         "note": "命中 rear-03（后束是圆肩和肩痛的根源），讲的是机理；shoulder-06 只讲 RPE。推举动作中的疼痛缓解，库里没有（层C，探针分 0.8698）",
         "tier": ""
       },
@@ -6588,7 +6588,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7626,
+        "score": 0.763,
         "note": "探针改判：bench-03 给了触胸点与停顿，param-07 补了必要性「半程只有全程六成效果」——问的是要不要，答的是要",
         "tier": ""
       },
@@ -6599,7 +6599,7 @@
         "got": "卧推技术",
         "hit1": false,
         "hit2": true,
-        "score": 0.71,
+        "score": 0.7102,
         "note": "探针改判：push-04 原文「说不出来说明涨的其实是三头和前束，动作早就跑偏了，该退回去减重量重新找感觉」，直接答了不正常以及怎么办",
         "tier": ""
       },
@@ -6610,7 +6610,7 @@
         "got": "背训技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.6815,
+        "score": 0.6819,
         "note": "探针改判：back-05「一旦靠躯干后仰甩重量，练完是腰酸而不是背胀；一组做完先感觉到腰，说明重量超了或躯干在动」——给了病因和处方",
         "tier": ""
       },
@@ -6621,7 +6621,7 @@
         "got": "分化与频率",
         "hit1": true,
         "hit2": true,
-        "score": 0.6121,
+        "score": 0.6132,
         "note": "探针改判：split-01 讲三分化的坏处是「对频率要求高的人不够」，等于回答了「什么时候该往上加分化」",
         "tier": ""
       },
@@ -6632,7 +6632,7 @@
         "got": "深蹲",
         "hit1": false,
         "hit2": false,
-        "score": 0.7152,
+        "score": 0.7154,
         "note": "探针改判：newbie-05「连续两周无法在主项增加重量就是平台期，可以调整动作顺序或换一两个辅助动作」，直接答了",
         "tier": ""
       }
@@ -6641,12 +6641,12 @@
   "rewrite": {
     "summary": {
       "n": 200,
-      "hit1": 0.8556701030927835,
-      "hit2": 0.9175257731958762,
-      "refuse": 0.4368932038834951,
-      "acc": 0.64,
-      "hit_n": 97,
-      "ref_n": 103
+      "hit1": 0.8640776699029126,
+      "hit2": 0.9223300970873787,
+      "refuse": 0.4639175257731959,
+      "acc": 0.67,
+      "hit_n": 103,
+      "ref_n": 97
     },
     "rows": [
       {
@@ -6656,7 +6656,7 @@
         "got": "推日",
         "hit1": true,
         "hit2": true,
-        "score": 0.719,
+        "score": 0.7192,
         "note": "",
         "tier": ""
       },
@@ -6667,7 +6667,7 @@
         "got": "推日",
         "hit1": true,
         "hit2": true,
-        "score": 0.795,
+        "score": 0.7948,
         "note": "",
         "tier": ""
       },
@@ -6678,7 +6678,7 @@
         "got": "推日",
         "hit1": true,
         "hit2": true,
-        "score": 0.7491,
+        "score": 0.7497,
         "note": "",
         "tier": ""
       },
@@ -6689,7 +6689,7 @@
         "got": "推日",
         "hit1": true,
         "hit2": true,
-        "score": 0.7084,
+        "score": 0.7085,
         "note": "",
         "tier": ""
       },
@@ -6700,7 +6700,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7625,
+        "score": 0.7631,
         "note": "",
         "tier": ""
       },
@@ -6711,7 +6711,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7366,
+        "score": 0.7374,
         "note": "",
         "tier": ""
       },
@@ -6722,7 +6722,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7474,
+        "score": 0.7482,
         "note": "",
         "tier": ""
       },
@@ -6733,7 +6733,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.714,
+        "score": 0.7137,
         "note": "",
         "tier": ""
       },
@@ -6744,7 +6744,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.677,
+        "score": 0.6762,
         "note": "",
         "tier": ""
       },
@@ -6755,7 +6755,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7314,
+        "score": 0.7313,
         "note": "",
         "tier": ""
       },
@@ -6766,7 +6766,7 @@
         "got": null,
         "hit1": false,
         "hit2": false,
-        "score": 0.6008,
+        "score": 0.6005,
         "note": "",
         "tier": ""
       },
@@ -6777,7 +6777,7 @@
         "got": "上胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7607,
+        "score": 0.76,
         "note": "",
         "tier": ""
       },
@@ -6788,7 +6788,7 @@
         "got": "上胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7997,
+        "score": 0.7994,
         "note": "",
         "tier": ""
       },
@@ -6832,7 +6832,7 @@
         "got": "中胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7541,
+        "score": 0.7538,
         "note": "",
         "tier": ""
       },
@@ -6843,7 +6843,7 @@
         "got": "上胸",
         "hit1": false,
         "hit2": false,
-        "score": 0.6613,
+        "score": 0.6614,
         "note": "",
         "tier": ""
       },
@@ -6865,7 +6865,7 @@
         "got": "上胸",
         "hit1": false,
         "hit2": true,
-        "score": 0.7694,
+        "score": 0.7686,
         "note": "",
         "tier": ""
       },
@@ -6876,7 +6876,7 @@
         "got": "下胸与中缝",
         "hit1": true,
         "hit2": true,
-        "score": 0.7875,
+        "score": 0.7878,
         "note": "",
         "tier": ""
       },
@@ -6887,7 +6887,7 @@
         "got": "下胸与中缝",
         "hit1": true,
         "hit2": true,
-        "score": 0.7046,
+        "score": 0.705,
         "note": "",
         "tier": ""
       },
@@ -6898,7 +6898,7 @@
         "got": "下胸与中缝",
         "hit1": true,
         "hit2": true,
-        "score": 0.6955,
+        "score": 0.6952,
         "note": "",
         "tier": ""
       },
@@ -6920,7 +6920,7 @@
         "got": "绳索夹胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.7158,
+        "score": 0.7166,
         "note": "",
         "tier": ""
       },
@@ -6942,7 +6942,7 @@
         "got": "绳索夹胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.6872,
+        "score": 0.6873,
         "note": "",
         "tier": ""
       },
@@ -6953,7 +6953,7 @@
         "got": "拉日",
         "hit1": true,
         "hit2": true,
-        "score": 0.7289,
+        "score": 0.7286,
         "note": "",
         "tier": ""
       },
@@ -6975,7 +6975,7 @@
         "got": "拉日",
         "hit1": true,
         "hit2": true,
-        "score": 0.7009,
+        "score": 0.7007,
         "note": "",
         "tier": ""
       },
@@ -6986,7 +6986,7 @@
         "got": "拉日",
         "hit1": true,
         "hit2": true,
-        "score": 0.7223,
+        "score": 0.7219,
         "note": "",
         "tier": ""
       },
@@ -6997,7 +6997,7 @@
         "got": "背训技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7565,
+        "score": 0.757,
         "note": "",
         "tier": ""
       },
@@ -7008,7 +7008,7 @@
         "got": "高位下拉",
         "hit1": false,
         "hit2": true,
-        "score": 0.7244,
+        "score": 0.7246,
         "note": "",
         "tier": ""
       },
@@ -7030,7 +7030,7 @@
         "got": "背训技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7576,
+        "score": 0.7583,
         "note": "",
         "tier": ""
       },
@@ -7041,7 +7041,7 @@
         "got": "背训技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7328,
+        "score": 0.7324,
         "note": "",
         "tier": ""
       },
@@ -7052,7 +7052,7 @@
         "got": "高位下拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.7286,
+        "score": 0.7285,
         "note": "",
         "tier": ""
       },
@@ -7063,7 +7063,7 @@
         "got": "高位下拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.7651,
+        "score": 0.7649,
         "note": "",
         "tier": ""
       },
@@ -7074,7 +7074,7 @@
         "got": "高位下拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.7689,
+        "score": 0.7692,
         "note": "",
         "tier": ""
       },
@@ -7085,7 +7085,7 @@
         "got": "肩部训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.7502,
+        "score": 0.7499,
         "note": "",
         "tier": ""
       },
@@ -7107,7 +7107,7 @@
         "got": "肩部训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.7594,
+        "score": 0.7584,
         "note": "",
         "tier": ""
       },
@@ -7118,7 +7118,7 @@
         "got": "肩部训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.7001,
+        "score": 0.7007,
         "note": "",
         "tier": ""
       },
@@ -7129,7 +7129,7 @@
         "got": "热身与激活",
         "hit1": false,
         "hit2": true,
-        "score": 0.7132,
+        "score": 0.7135,
         "note": "",
         "tier": ""
       },
@@ -7140,7 +7140,7 @@
         "got": "侧平举",
         "hit1": true,
         "hit2": true,
-        "score": 0.7717,
+        "score": 0.7713,
         "note": "",
         "tier": ""
       },
@@ -7151,7 +7151,7 @@
         "got": "侧平举",
         "hit1": true,
         "hit2": true,
-        "score": 0.6971,
+        "score": 0.6967,
         "note": "",
         "tier": ""
       },
@@ -7162,7 +7162,7 @@
         "got": "侧平举",
         "hit1": true,
         "hit2": true,
-        "score": 0.6585,
+        "score": 0.6584,
         "note": "",
         "tier": ""
       },
@@ -7184,7 +7184,7 @@
         "got": "后束",
         "hit1": true,
         "hit2": true,
-        "score": 0.6748,
+        "score": 0.6753,
         "note": "",
         "tier": ""
       },
@@ -7195,7 +7195,7 @@
         "got": "后束",
         "hit1": true,
         "hit2": true,
-        "score": 0.6824,
+        "score": 0.683,
         "note": "",
         "tier": ""
       },
@@ -7206,7 +7206,7 @@
         "got": "腿日",
         "hit1": true,
         "hit2": true,
-        "score": 0.852,
+        "score": 0.8525,
         "note": "",
         "tier": ""
       },
@@ -7217,7 +7217,7 @@
         "got": "腿日",
         "hit1": true,
         "hit2": true,
-        "score": 0.7704,
+        "score": 0.7707,
         "note": "",
         "tier": ""
       },
@@ -7228,7 +7228,7 @@
         "got": "腿日",
         "hit1": true,
         "hit2": true,
-        "score": 0.7204,
+        "score": 0.7221,
         "note": "",
         "tier": ""
       },
@@ -7239,7 +7239,7 @@
         "got": null,
         "hit1": false,
         "hit2": false,
-        "score": 0.5949,
+        "score": 0.5954,
         "note": "",
         "tier": ""
       },
@@ -7250,7 +7250,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.7298,
+        "score": 0.731,
         "note": "",
         "tier": ""
       },
@@ -7261,7 +7261,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.8153,
+        "score": 0.8151,
         "note": "",
         "tier": ""
       },
@@ -7272,7 +7272,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.7528,
+        "score": 0.7531,
         "note": "",
         "tier": ""
       },
@@ -7283,7 +7283,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.7111,
+        "score": 0.711,
         "note": "",
         "tier": ""
       },
@@ -7294,7 +7294,7 @@
         "got": "硬拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.6857,
+        "score": 0.6873,
         "note": "",
         "tier": ""
       },
@@ -7305,7 +7305,7 @@
         "got": "硬拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.7216,
+        "score": 0.7213,
         "note": "",
         "tier": ""
       },
@@ -7316,7 +7316,7 @@
         "got": "硬拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.6943,
+        "score": 0.6945,
         "note": "",
         "tier": ""
       },
@@ -7338,7 +7338,7 @@
         "got": "单腿训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.6442,
+        "score": 0.6444,
         "note": "",
         "tier": ""
       },
@@ -7349,7 +7349,7 @@
         "got": "单腿训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.7284,
+        "score": 0.7281,
         "note": "",
         "tier": ""
       },
@@ -7360,7 +7360,7 @@
         "got": "单腿训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.7311,
+        "score": 0.7306,
         "note": "",
         "tier": ""
       },
@@ -7382,7 +7382,7 @@
         "got": "腿部孤立",
         "hit1": true,
         "hit2": true,
-        "score": 0.737,
+        "score": 0.7371,
         "note": "",
         "tier": ""
       },
@@ -7393,7 +7393,7 @@
         "got": "腿部孤立",
         "hit1": true,
         "hit2": true,
-        "score": 0.7278,
+        "score": 0.728,
         "note": "",
         "tier": ""
       },
@@ -7404,7 +7404,7 @@
         "got": "训练参数",
         "hit1": true,
         "hit2": true,
-        "score": 0.6735,
+        "score": 0.6732,
         "note": "",
         "tier": ""
       },
@@ -7415,7 +7415,7 @@
         "got": "训练参数",
         "hit1": true,
         "hit2": true,
-        "score": 0.6554,
+        "score": 0.6558,
         "note": "",
         "tier": ""
       },
@@ -7448,7 +7448,7 @@
         "got": "背训技术",
         "hit1": false,
         "hit2": true,
-        "score": 0.7391,
+        "score": 0.7386,
         "note": "",
         "tier": ""
       },
@@ -7459,7 +7459,7 @@
         "got": "训练参数",
         "hit1": true,
         "hit2": true,
-        "score": 0.7016,
+        "score": 0.7017,
         "note": "",
         "tier": ""
       },
@@ -7470,7 +7470,7 @@
         "got": "分化与频率",
         "hit1": true,
         "hit2": true,
-        "score": 0.752,
+        "score": 0.7525,
         "note": "",
         "tier": ""
       },
@@ -7481,7 +7481,7 @@
         "got": "分化与频率",
         "hit1": true,
         "hit2": true,
-        "score": 0.7442,
+        "score": 0.7443,
         "note": "",
         "tier": ""
       },
@@ -7492,7 +7492,7 @@
         "got": "分化与频率",
         "hit1": true,
         "hit2": true,
-        "score": 0.7359,
+        "score": 0.7357,
         "note": "",
         "tier": ""
       },
@@ -7514,7 +7514,7 @@
         "got": "新手上路",
         "hit1": true,
         "hit2": true,
-        "score": 0.7756,
+        "score": 0.7757,
         "note": "",
         "tier": ""
       },
@@ -7525,7 +7525,7 @@
         "got": "新手上路",
         "hit1": true,
         "hit2": true,
-        "score": 0.7283,
+        "score": 0.7294,
         "note": "",
         "tier": ""
       },
@@ -7536,7 +7536,7 @@
         "got": "新手上路",
         "hit1": true,
         "hit2": true,
-        "score": 0.6892,
+        "score": 0.6893,
         "note": "",
         "tier": ""
       },
@@ -7547,7 +7547,7 @@
         "got": "新手上路",
         "hit1": true,
         "hit2": true,
-        "score": 0.7133,
+        "score": 0.7137,
         "note": "",
         "tier": ""
       },
@@ -7558,7 +7558,7 @@
         "got": "饮食配合",
         "hit1": true,
         "hit2": true,
-        "score": 0.7673,
+        "score": 0.7676,
         "note": "",
         "tier": ""
       },
@@ -7569,7 +7569,7 @@
         "got": "饮食配合",
         "hit1": true,
         "hit2": true,
-        "score": 0.7991,
+        "score": 0.7996,
         "note": "",
         "tier": ""
       },
@@ -7580,7 +7580,7 @@
         "got": "饮食配合",
         "hit1": true,
         "hit2": true,
-        "score": 0.8086,
+        "score": 0.8093,
         "note": "",
         "tier": ""
       },
@@ -7591,7 +7591,7 @@
         "got": "热身与激活",
         "hit1": true,
         "hit2": true,
-        "score": 0.735,
+        "score": 0.7354,
         "note": "",
         "tier": ""
       },
@@ -7602,7 +7602,7 @@
         "got": "热身与激活",
         "hit1": true,
         "hit2": true,
-        "score": 0.6607,
+        "score": 0.6606,
         "note": "",
         "tier": ""
       },
@@ -7624,7 +7624,7 @@
         "got": "饮食配合",
         "hit1": false,
         "hit2": false,
-        "score": 0.6419,
+        "score": 0.6423,
         "note": "新库没有补剂内容（层B）",
         "tier": ""
       },
@@ -7635,41 +7635,41 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5559,
+        "score": 0.5564,
         "note": "新库没有补剂内容（层B）",
         "tier": ""
       },
       {
         "q": "减脂期每天吃多少卡",
-        "expect": null,
-        "kind": "refuse",
+        "expect": "减脂饮食",
+        "kind": "hit",
         "got": "减脂饮食",
-        "hit1": false,
-        "hit2": false,
-        "score": 0.7567,
-        "note": "新库只讲增肌热量盈余，没有减脂缺口（层B）",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.754,
+        "note": "0.9983 · 补 lose-diet-01 后改判（原：库内零减脂缺口）",
         "tier": ""
       },
       {
         "q": "空腹有氧更减脂吗",
-        "expect": null,
-        "kind": "refuse",
-        "got": "有氧",
-        "hit1": false,
-        "hit2": false,
-        "score": 0.6892,
-        "note": "新库没有有氧与减脂（层B）",
+        "expect": "有氧时机",
+        "kind": "hit",
+        "got": "有氧时机",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.795,
+        "note": "0.9998 · 2026-11-24 补 cardio-when-01 后改判（原：库内零有氧与减脂）",
         "tier": ""
       },
       {
         "q": "减脂会不会掉肌肉",
-        "expect": null,
-        "kind": "refuse",
+        "expect": "减脂",
+        "kind": "hit",
         "got": "减脂",
-        "hit1": false,
-        "hit2": false,
-        "score": 0.7418,
-        "note": "新库没有减脂期营养（层B）",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7414,
+        "note": "0.9969 · 补 lose-02 后改判（原：库内没有减脂期营养）",
         "tier": ""
       },
       {
@@ -7679,7 +7679,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5645,
+        "score": 0.5646,
         "note": "新库不涉及品牌（层B）",
         "tier": ""
       },
@@ -7690,7 +7690,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.6397,
+        "score": 0.6393,
         "note": "新库没有生酮（层B）",
         "tier": ""
       },
@@ -7701,7 +7701,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.6206,
+        "score": 0.6214,
         "note": "无康复医学内容，只有换动作建议（层B）",
         "tier": ""
       },
@@ -7712,7 +7712,7 @@
         "got": "推日",
         "hit1": false,
         "hit2": false,
-        "score": 0.6709,
+        "score": 0.671,
         "note": "完全无关（层A）",
         "tier": ""
       },
@@ -7723,7 +7723,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5302,
+        "score": 0.53,
         "note": "完全无关（层A）",
         "tier": ""
       },
@@ -7734,7 +7734,7 @@
         "got": "肩部训练",
         "hit1": false,
         "hit2": false,
-        "score": 0.6423,
+        "score": 0.6424,
         "note": "shoulder-05 只说「正手前平举容易产生肩峰撞击」→ 讲的是预防不是治疗。问「怎么治」，库内零康复内容（层B，探针分 0.8466）",
         "tier": ""
       },
@@ -7745,7 +7745,7 @@
         "got": "硬拉",
         "hit1": false,
         "hit2": false,
-        "score": 0.6749,
+        "score": 0.6745,
         "note": "dead-03 只给「腰痛换臀桥」的症状级换动作建议。腰突是诊断，能不能练属医学禁忌症判断，资料够不着（层B，探针分 0.8397）",
         "tier": ""
       },
@@ -7756,7 +7756,7 @@
         "got": "卧推技术",
         "hit1": false,
         "hit2": false,
-        "score": 0.7098,
+        "score": 0.71,
         "note": "warm-01 提的是「卧推肩痛」不是腕痛；bench-02「腕中立不折腕」是预防。字面重叠（卧推 + 痛），问题不同（层C，探针分 0.7899）",
         "tier": ""
       },
@@ -7767,19 +7767,19 @@
         "got": "训练参数",
         "hit1": false,
         "hit2": false,
-        "score": 0.6826,
+        "score": 0.6828,
         "note": "全库无腹肌动作，仅 legs-05 提到侧腹（层C，探针分 0.6468）",
         "tier": ""
       },
       {
         "q": "减脂期蛋白质要吃更多吗",
-        "expect": null,
-        "kind": "refuse",
+        "expect": "减脂蛋白",
+        "kind": "hit",
         "got": "减脂蛋白",
-        "hit1": false,
-        "hit2": false,
-        "score": 0.72,
-        "note": "diet-02 只给增肌期 1.6-2.2g，未涉减脂（层B，探针分 0.5425）",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7353,
+        "note": "0.9983 · 补 diet-food-01（含 1.8~2.2g/kg 口径）后改判",
         "tier": ""
       },
       {
@@ -7789,7 +7789,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.6066,
+        "score": 0.6059,
         "note": "只出现史密斯实力推 / 史密斯负重，无卧推对比（层C，探针分 0.5378）",
         "tier": ""
       },
@@ -7800,7 +7800,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.6109,
+        "score": 0.6107,
         "note": "dead-01/02 讲髋铰链，零握法内容（层C，探针分 0.3807）",
         "tier": ""
       },
@@ -7811,7 +7811,7 @@
         "got": "深蹲",
         "hit1": false,
         "hit2": false,
-        "score": 0.6668,
+        "score": 0.6667,
         "note": "库内零装备内容（层C，探针分 0.2006）",
         "tier": ""
       },
@@ -7822,7 +7822,7 @@
         "got": "背训技术",
         "hit1": false,
         "hit2": false,
-        "score": 0.6733,
+        "score": 0.6737,
         "note": "lat / back 只把引体当名词提过，无进阶教学（层C，探针分 0.1989）",
         "tier": ""
       },
@@ -7833,7 +7833,7 @@
         "got": "背训技术",
         "hit1": false,
         "hit2": false,
-        "score": 0.6601,
+        "score": 0.6596,
         "note": "param-06 只讲时长，未讲休息期做什么（层C，探针分 0.1627）",
         "tier": ""
       },
@@ -7844,7 +7844,7 @@
         "got": "减脂",
         "hit1": false,
         "hit2": false,
-        "score": 0.6922,
+        "score": 0.6921,
         "note": "无减脂进度内容（层B，探针分 0.1483）",
         "tier": ""
       },
@@ -7855,7 +7855,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.6089,
+        "score": 0.609,
         "note": "无女性 / 周期内容（层B，探针分 0.1397）",
         "tier": ""
       },
@@ -7888,7 +7888,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.6231,
+        "score": 0.623,
         "note": "库内零护具内容（层C，探针分 0.0973）",
         "tier": ""
       },
@@ -7899,7 +7899,7 @@
         "got": "卧推技术",
         "hit1": false,
         "hit2": false,
-        "score": 0.6603,
+        "score": 0.6604,
         "note": "库内零护具 / 装备内容（层C，探针分 0.0666）",
         "tier": ""
       },
@@ -7910,7 +7910,7 @@
         "got": "新手上路",
         "hit1": false,
         "hit2": false,
-        "score": 0.6851,
+        "score": 0.686,
         "note": "warm-* 全是训练前热身，无训练后放松（层C，探针分 0.0495）",
         "tier": ""
       },
@@ -7921,7 +7921,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5732,
+        "score": 0.5733,
         "note": "无补剂内容（层B，探针分 0.0344）",
         "tier": ""
       },
@@ -7932,7 +7932,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5874,
+        "score": 0.5876,
         "note": "完全无关（层A，探针分 0.0259）",
         "tier": ""
       },
@@ -7943,7 +7943,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5447,
+        "score": 0.5448,
         "note": "无补剂 / 咖啡因内容（层B，探针分 0.0028）",
         "tier": ""
       },
@@ -7954,7 +7954,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5082,
+        "score": 0.5083,
         "note": "完全无关（层A，探针分 0.0002）",
         "tier": ""
       },
@@ -7965,7 +7965,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5564,
+        "score": 0.5563,
         "note": "无补剂内容（层B，探针分 0.0002）",
         "tier": ""
       },
@@ -7976,7 +7976,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.3703,
+        "score": 0.381,
         "note": "完全无关（层A，探针分 0.0001）",
         "tier": ""
       },
@@ -7987,7 +7987,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5092,
+        "score": 0.5089,
         "note": "完全无关（层A，探针分 0.0000）",
         "tier": ""
       },
@@ -8009,7 +8009,7 @@
         "got": "侧平举",
         "hit1": true,
         "hit2": true,
-        "score": 0.7321,
+        "score": 0.732,
         "note": "探针改判：lateral-02「控制得住的重量才叫有效重量」+ 12-15 次不耸肩，是完整的标准答案",
         "tier": ""
       },
@@ -8020,7 +8020,7 @@
         "got": "分化与频率",
         "hit1": false,
         "hit2": false,
-        "score": 0.7331,
+        "score": 0.7335,
         "note": "split-02/03 给三天与四天排法，无五天方案（层C，探针分 0.7165）",
         "tier": ""
       },
@@ -8031,7 +8031,7 @@
         "got": "训练参数",
         "hit1": false,
         "hit2": false,
-        "score": 0.6772,
+        "score": 0.6771,
         "note": "rear-03 讲后束薄弱与组数，未讲练不大之后的调整（层C，探针分 0.7149）",
         "tier": ""
       },
@@ -8042,7 +8042,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.6296,
+        "score": 0.6295,
         "note": "库内零肘部损伤内容（层B，探针分 0.6808）",
         "tier": ""
       },
@@ -8053,7 +8053,7 @@
         "got": "饮食配合",
         "hit1": false,
         "hit2": false,
-        "score": 0.6659,
+        "score": 0.6662,
         "note": "diet-03 只提蛋白粉是「方便」，无增肌粉（层B，探针分 0.6538）",
         "tier": ""
       },
@@ -8064,7 +8064,7 @@
         "got": "上胸",
         "hit1": false,
         "hit2": false,
-        "score": 0.6602,
+        "score": 0.6601,
         "note": "upper-01 讲凳角过高前束接管，未讲锁骨处疼痛（层C，探针分 0.6433）",
         "tier": ""
       },
@@ -8075,7 +8075,7 @@
         "got": "硬拉",
         "hit1": false,
         "hit2": false,
-        "score": 0.6556,
+        "score": 0.6558,
         "note": "dead-04 讲山羊挺身不要过度伸展，未回答硬拉后腰酸是否正常（层C，探针分 0.6247）",
         "tier": ""
       },
@@ -8086,7 +8086,7 @@
         "got": "深蹲",
         "hit1": false,
         "hit2": false,
-        "score": 0.7174,
+        "score": 0.7182,
         "note": "squat-01 讲杠铃放锁骨，未讲手腕不适与握法（层C，探针分 0.6052）",
         "tier": ""
       },
@@ -8097,7 +8097,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5359,
+        "score": 0.5354,
         "note": "bench-07 讲挺胸与塌腰的区别，未涉比赛规则 / 起桥合法性（层C，探针分 0.5991）",
         "tier": ""
       },
@@ -8119,7 +8119,7 @@
         "got": "饮食配合",
         "hit1": false,
         "hit2": false,
-        "score": 0.6506,
+        "score": 0.6509,
         "note": "新库无肌酸，亦无补剂搭配（层B，探针分 0.5650）",
         "tier": ""
       },
@@ -8130,7 +8130,7 @@
         "got": "分化与频率",
         "hit1": false,
         "hit2": false,
-        "score": 0.7089,
+        "score": 0.709,
         "note": "split 四条只讲推拉腿与频率，未讲同日多部位（层C，探针分 0.5522）",
         "tier": ""
       },
@@ -8141,7 +8141,7 @@
         "got": "训练参数",
         "hit1": false,
         "hit2": false,
-        "score": 0.6508,
+        "score": 0.6509,
         "note": "库内零保护 / 力竭处理内容（层C，探针分 0.5091）",
         "tier": ""
       },
@@ -8152,7 +8152,7 @@
         "got": "分化与频率",
         "hit1": false,
         "hit2": false,
-        "score": 0.6687,
+        "score": 0.6683,
         "note": "库内零拉伤处理与恢复周期（层B，探针分 0.5047）",
         "tier": ""
       },
@@ -8174,7 +8174,7 @@
         "got": "上胸",
         "hit1": false,
         "hit2": false,
-        "score": 0.6665,
+        "score": 0.6664,
         "note": "库内史密斯只出现在实力推与负重辅助（层C，探针分 0.4515）",
         "tier": ""
       },
@@ -8185,7 +8185,7 @@
         "got": "新手上路",
         "hit1": false,
         "hit2": false,
-        "score": 0.7174,
+        "score": 0.7173,
         "note": "newbie-01 讲起始重量定法，无绝对重量标准（层C，探针分 0.4350）",
         "tier": ""
       },
@@ -8196,7 +8196,7 @@
         "got": "新手上路",
         "hit1": false,
         "hit2": false,
-        "score": 0.6697,
+        "score": 0.6703,
         "note": "lateral-02 说「不能耸肩作弊」，未讲已经斜方酸怎么纠正（层C，探针分 0.4340）",
         "tier": ""
       },
@@ -8207,7 +8207,7 @@
         "got": "深蹲",
         "hit1": false,
         "hit2": false,
-        "score": 0.7256,
+        "score": 0.7254,
         "note": "squat-04 讲膝盖位置与内扣，未讲弹响（层C，探针分 0.4331）",
         "tier": ""
       },
@@ -8218,7 +8218,7 @@
         "got": "训练参数",
         "hit1": false,
         "hit2": false,
-        "score": 0.7169,
+        "score": 0.7171,
         "note": "库内零游泳内容（层B，探针分 0.3851）",
         "tier": ""
       },
@@ -8229,7 +8229,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5969,
+        "score": 0.5966,
         "note": "库内零产后内容（层B，探针分 0.3174）",
         "tier": ""
       },
@@ -8240,7 +8240,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5871,
+        "score": 0.5869,
         "note": "完全无关（层A，探针分 0.3167）",
         "tier": ""
       },
@@ -8251,7 +8251,7 @@
         "got": "深蹲",
         "hit1": false,
         "hit2": false,
-        "score": 0.6589,
+        "score": 0.6587,
         "note": "squat-01 只给「膝盖痛换腿举」，无具体诊断（层B，探针分 0.3022）",
         "tier": ""
       },
@@ -8262,19 +8262,19 @@
         "got": "硬拉",
         "hit1": false,
         "hit2": false,
-        "score": 0.6819,
+        "score": 0.6816,
         "note": "库内零握力训练，dead 四条都在讲髋与背（层C，探针分 0.2636）",
         "tier": ""
       },
       {
         "q": "减脂期怎么保住力量",
-        "expect": null,
-        "kind": "refuse",
+        "expect": "减脂",
+        "kind": "hit",
         "got": "减脂",
-        "hit1": false,
-        "hit2": false,
-        "score": 0.7514,
-        "note": "库内零减脂期训练安排（层B，探针分 0.1960）",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7507,
+        "note": "0.9996 · 补 lose-02 后改判（原：库内零减脂期训练安排）",
         "tier": ""
       },
       {
@@ -8284,7 +8284,7 @@
         "got": "高位下拉",
         "hit1": false,
         "hit2": false,
-        "score": 0.6534,
+        "score": 0.6537,
         "note": "shoulder-02 讲斜方代偿练脖子，lat 四条未结合下拉纠正（层C，探针分 0.1932）",
         "tier": ""
       },
@@ -8295,7 +8295,7 @@
         "got": "减脂三餐",
         "hit1": false,
         "hit2": false,
-        "score": 0.6604,
+        "score": 0.6597,
         "note": "库内零进食时机与食物选择（层B，探针分 0.1782）",
         "tier": ""
       },
@@ -8317,7 +8317,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.6172,
+        "score": 0.6173,
         "note": "库内零睡眠内容（层B，探针分 0.1105）",
         "tier": ""
       },
@@ -8328,19 +8328,19 @@
         "got": "减脂三餐",
         "hit1": false,
         "hit2": false,
-        "score": 0.7001,
+        "score": 0.7,
         "note": "改判（2026-11-23，生成层兜底实测暴露）：diet-02「把一天蛋白质总量拆成三到四餐」直接回答了餐数。原标 refuse 的理由是「未比较餐数」，但用户没让比较，问的就是几餐",
         "tier": ""
       },
       {
         "q": "减脂期要不要做力量训练",
-        "expect": null,
-        "kind": "refuse",
+        "expect": "减脂",
+        "kind": "hit",
         "got": "减脂",
-        "hit1": false,
-        "hit2": false,
-        "score": 0.7353,
-        "note": "diet 两条只讲增肌期热量与蛋白（层B，探针分 0.1095）",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.7347,
+        "note": "0.9991 · 补 lose-02 后改判",
         "tier": ""
       },
       {
@@ -8350,7 +8350,7 @@
         "got": "有氧",
         "hit1": false,
         "hit2": false,
-        "score": 0.6531,
+        "score": 0.6529,
         "note": "库内零有氧 / 跑步内容（层B，探针分 0.1084）",
         "tier": ""
       },
@@ -8361,7 +8361,7 @@
         "got": "饮食配合",
         "hit1": false,
         "hit2": false,
-        "score": 0.6479,
+        "score": 0.6482,
         "note": "diet-03 说粉只是方便，未涉时间窗口（层C，探针分 0.1072）",
         "tier": ""
       },
@@ -8372,7 +8372,7 @@
         "got": "训练参数",
         "hit1": false,
         "hit2": false,
-        "score": 0.6878,
+        "score": 0.6881,
         "note": "库内零其他运动内容（层B，探针分 0.0870）",
         "tier": ""
       },
@@ -8383,7 +8383,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.6103,
+        "score": 0.6105,
         "note": "库内零性别差异内容（层B，探针分 0.0712）",
         "tier": ""
       },
@@ -8394,7 +8394,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.6383,
+        "score": 0.639,
         "note": "diet-02 讲 1.6-2.2g 上限无额外好处，未涉肾脏安全（层C，探针分 0.0690）",
         "tier": ""
       },
@@ -8405,7 +8405,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.6194,
+        "score": 0.619,
         "note": "库内零年龄相关内容（层B，探针分 0.0566）",
         "tier": ""
       },
@@ -8416,7 +8416,7 @@
         "got": "减脂饮食",
         "hit1": false,
         "hit2": false,
-        "score": 0.7538,
+        "score": 0.7535,
         "note": "diet 只给蛋白克数，无碳水（层B，探针分 0.0562）",
         "tier": ""
       },
@@ -8427,7 +8427,7 @@
         "got": "减脂碳水",
         "hit1": false,
         "hit2": false,
-        "score": 0.6821,
+        "score": 0.6819,
         "note": "库内零营养窗口内容（层B，探针分 0.0557）",
         "tier": ""
       },
@@ -8438,7 +8438,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5904,
+        "score": 0.5903,
         "note": "dead-01 说膝盖只微屈，未讲顶端锁膝（层C，探针分 0.0487）",
         "tier": ""
       },
@@ -8449,7 +8449,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5807,
+        "score": 0.5808,
         "note": "库内零补剂内容（层B，探针分 0.0462）",
         "tier": ""
       },
@@ -8471,7 +8471,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5633,
+        "score": 0.5637,
         "note": "完全无关（层A，探针分 0.0394）",
         "tier": ""
       },
@@ -8482,7 +8482,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5854,
+        "score": 0.5848,
         "note": "库内零进食时间内容（层B，探针分 0.0379）",
         "tier": ""
       },
@@ -8493,7 +8493,7 @@
         "got": "分化与频率",
         "hit1": false,
         "hit2": false,
-        "score": 0.6524,
+        "score": 0.6525,
         "note": "库内零碳水循环 / 减脂期营养（层B，探针分 0.0369）",
         "tier": ""
       },
@@ -8504,7 +8504,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.6149,
+        "score": 0.6148,
         "note": "库内零腕部损伤内容（层B，探针分 0.0361）",
         "tier": ""
       },
@@ -8515,7 +8515,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5258,
+        "score": 0.5263,
         "note": "库内零补剂内容（层B，探针分 0.0342）",
         "tier": ""
       },
@@ -8526,7 +8526,7 @@
         "got": "有氧",
         "hit1": false,
         "hit2": false,
-        "score": 0.6892,
+        "score": 0.6888,
         "note": "库内零有氧内容（层B，探针分 0.0314）",
         "tier": ""
       },
@@ -8537,7 +8537,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.6363,
+        "score": 0.6365,
         "note": "库内零关节弹响内容（层B，探针分 0.0300）",
         "tier": ""
       },
@@ -8548,7 +8548,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5271,
+        "score": 0.5272,
         "note": "shoulder-04 提到「超级组」但未解释定义与用法（层C，探针分 0.0177）",
         "tier": ""
       },
@@ -8559,7 +8559,7 @@
         "got": "减脂",
         "hit1": false,
         "hit2": false,
-        "score": 0.6734,
+        "score": 0.6739,
         "note": "库内零减脂内容（层B，探针分 0.0176）",
         "tier": ""
       },
@@ -8570,7 +8570,7 @@
         "got": "训练参数",
         "hit1": false,
         "hit2": false,
-        "score": 0.6703,
+        "score": 0.6705,
         "note": "库内零睡眠内容（param-05 只提睡不好是减载信号）（层B，探针分 0.0155）",
         "tier": ""
       },
@@ -8581,7 +8581,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.6356,
+        "score": 0.6354,
         "note": "param-06 只给时长，未讲休息期该做什么（层C，探针分 0.0142）",
         "tier": ""
       },
@@ -8592,7 +8592,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4679,
+        "score": 0.4676,
         "note": "库内零药理内容（层B，探针分 0.0099）",
         "tier": ""
       },
@@ -8614,7 +8614,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5812,
+        "score": 0.5806,
         "note": "库内零补剂内容（层B，探针分 0.0076）",
         "tier": ""
       },
@@ -8625,7 +8625,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.6319,
+        "score": 0.6315,
         "note": "库内零腰带内容（层B，探针分 0.0059）",
         "tier": ""
       },
@@ -8636,7 +8636,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5153,
+        "score": 0.515,
         "note": "完全无关（层A，探针分 0.0043）",
         "tier": ""
       },
@@ -8647,7 +8647,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.6126,
+        "score": 0.6129,
         "note": "库内零装备内容（层B，探针分 0.0043）",
         "tier": ""
       },
@@ -8669,7 +8669,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5611,
+        "score": 0.5608,
         "note": "完全无关（层A，探针分 0.0011）",
         "tier": ""
       },
@@ -8680,7 +8680,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5339,
+        "score": 0.5343,
         "note": "完全无关（层A，探针分 0.0007）",
         "tier": ""
       },
@@ -8691,7 +8691,7 @@
         "got": "中胸",
         "hit1": false,
         "hit2": false,
-        "score": 0.6666,
+        "score": 0.6673,
         "note": "完全无关（层A，探针分 0.0003）",
         "tier": ""
       },
@@ -8702,7 +8702,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.3367,
+        "score": 0.3366,
         "note": "完全无关（层A，探针分 0.0001）",
         "tier": ""
       },
@@ -8713,7 +8713,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4358,
+        "score": 0.4356,
         "note": "完全无关（层A，探针分 0.0000）",
         "tier": ""
       },
@@ -8724,7 +8724,7 @@
         "got": "肩部训练",
         "hit1": false,
         "hit2": false,
-        "score": 0.7622,
+        "score": 0.7625,
         "note": "upper-02/03 讲选哑铃的理由和推的轨迹，零起铃 / 收铃手法。0.96 分是因为通篇在讲上斜哑铃，主题重度重叠（层C，探针分 0.9632）",
         "tier": ""
       },
@@ -8735,7 +8735,7 @@
         "got": "腿日",
         "hit1": false,
         "hit2": false,
-        "score": 0.6806,
+        "score": 0.6805,
         "note": "squat-01 只有「膝盖有痛感直接换腿举」这一句替代关系，没有比较两者取舍。问哪个好，答的是什么时候换（层C，探针分 0.9548）",
         "tier": ""
       },
@@ -8746,7 +8746,7 @@
         "got": "肩部训练",
         "hit1": false,
         "hit2": false,
-        "score": 0.6944,
+        "score": 0.6947,
         "note": "shoulder-06 说肩袖压力小，warm-01 说弹力肩外展能改善卧推肩痛 —— 两条都是预防，无损伤后的康复训练（层B，探针分 0.9182）",
         "tier": ""
       },
@@ -8754,10 +8754,10 @@
         "q": "肩部一周练几次",
         "expect": null,
         "kind": "refuse",
-        "got": "肩部训练",
+        "got": "分化与频率",
         "hit1": false,
         "hit2": false,
-        "score": 0.7212,
+        "score": 0.7209,
         "note": "shoulder 六条讲肩部日内部顺序与组次；split-01 的频率是全身肌群口径（一周一到两次），未单独给肩的频率（层C，探针分 0.9179）",
         "tier": ""
       },
@@ -8768,7 +8768,7 @@
         "got": "热身与激活",
         "hit1": false,
         "hit2": false,
-        "score": 0.6757,
+        "score": 0.6761,
         "note": "命中 rear-03（后束是圆肩和肩痛的根源），讲的是机理；shoulder-06 只讲 RPE。推举动作中的疼痛缓解，库里没有（层C，探针分 0.8698）",
         "tier": ""
       },
@@ -8801,7 +8801,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.7634,
+        "score": 0.7637,
         "note": "探针改判：bench-03 给了触胸点与停顿，param-07 补了必要性「半程只有全程六成效果」——问的是要不要，答的是要",
         "tier": ""
       },
@@ -8812,7 +8812,7 @@
         "got": "卧推技术",
         "hit1": false,
         "hit2": true,
-        "score": 0.7098,
+        "score": 0.71,
         "note": "探针改判：push-04 原文「说不出来说明涨的其实是三头和前束，动作早就跑偏了，该退回去减重量重新找感觉」，直接答了不正常以及怎么办",
         "tier": ""
       },
@@ -8823,7 +8823,7 @@
         "got": "背训技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.6818,
+        "score": 0.6822,
         "note": "探针改判：back-05「一旦靠躯干后仰甩重量，练完是腰酸而不是背胀；一组做完先感觉到腰，说明重量超了或躯干在动」——给了病因和处方",
         "tier": ""
       },
@@ -8834,7 +8834,7 @@
         "got": "分化与频率",
         "hit1": true,
         "hit2": true,
-        "score": 0.6659,
+        "score": 0.667,
         "note": "探针改判：split-01 讲三分化的坏处是「对频率要求高的人不够」，等于回答了「什么时候该往上加分化」",
         "tier": ""
       },
@@ -8845,7 +8845,7 @@
         "got": "深蹲",
         "hit1": false,
         "hit2": false,
-        "score": 0.7306,
+        "score": 0.7307,
         "note": "探针改判：newbie-05「连续两周无法在主项增加重量就是平台期，可以调整动作顺序或换一两个辅助动作」，直接答了",
         "tier": ""
       }
@@ -8854,12 +8854,12 @@
   "rerank": {
     "summary": {
       "n": 200,
-      "hit1": 0.9278350515463918,
-      "hit2": 0.9484536082474226,
-      "refuse": 0.7184466019417476,
-      "acc": 0.82,
-      "hit_n": 97,
-      "ref_n": 103
+      "hit1": 0.9320388349514563,
+      "hit2": 0.9514563106796117,
+      "refuse": 0.7628865979381443,
+      "acc": 0.85,
+      "hit_n": 103,
+      "ref_n": 97
     },
     "rows": [
       {
@@ -8913,7 +8913,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.9985,
+        "score": 0.9984,
         "note": "",
         "tier": ""
       },
@@ -8946,7 +8946,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.9986,
+        "score": 0.9987,
         "note": "",
         "tier": ""
       },
@@ -8979,7 +8979,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.9993,
+        "score": 0.9994,
         "note": "",
         "tier": ""
       },
@@ -9089,7 +9089,7 @@
         "got": "下胸与中缝",
         "hit1": true,
         "hit2": true,
-        "score": 0.9998,
+        "score": 0.9997,
         "note": "",
         "tier": ""
       },
@@ -9122,7 +9122,7 @@
         "got": "下胸与中缝",
         "hit1": true,
         "hit2": true,
-        "score": 0.9948,
+        "score": 0.9944,
         "note": "",
         "tier": ""
       },
@@ -9133,7 +9133,7 @@
         "got": "绳索夹胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.9995,
+        "score": 0.9996,
         "note": "",
         "tier": ""
       },
@@ -9243,7 +9243,7 @@
         "got": "背训技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.9997,
+        "score": 0.9998,
         "note": "",
         "tier": ""
       },
@@ -9265,7 +9265,7 @@
         "got": "高位下拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.9991,
+        "score": 0.9992,
         "note": "",
         "tier": ""
       },
@@ -9309,7 +9309,7 @@
         "got": "肩部训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.9887,
+        "score": 0.9879,
         "note": "",
         "tier": ""
       },
@@ -9320,7 +9320,7 @@
         "got": "肩部训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.999,
+        "score": 0.9991,
         "note": "",
         "tier": ""
       },
@@ -9386,7 +9386,7 @@
         "got": "后束",
         "hit1": true,
         "hit2": true,
-        "score": 0.9983,
+        "score": 0.9981,
         "note": "",
         "tier": ""
       },
@@ -9452,7 +9452,7 @@
         "got": "腿日",
         "hit1": true,
         "hit2": true,
-        "score": 0.9989,
+        "score": 0.9988,
         "note": "",
         "tier": ""
       },
@@ -9485,7 +9485,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.9989,
+        "score": 0.999,
         "note": "",
         "tier": ""
       },
@@ -9496,7 +9496,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.9993,
+        "score": 0.9994,
         "note": "",
         "tier": ""
       },
@@ -9551,7 +9551,7 @@
         "got": "单腿训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.9996,
+        "score": 0.9995,
         "note": "",
         "tier": ""
       },
@@ -9573,7 +9573,7 @@
         "got": "单腿训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.9959,
+        "score": 0.9961,
         "note": "",
         "tier": ""
       },
@@ -9639,7 +9639,7 @@
         "got": "训练参数",
         "hit1": true,
         "hit2": true,
-        "score": 0.9996,
+        "score": 0.9995,
         "note": "",
         "tier": ""
       },
@@ -9661,7 +9661,7 @@
         "got": "训练参数",
         "hit1": true,
         "hit2": true,
-        "score": 0.9992,
+        "score": 0.9991,
         "note": "",
         "tier": ""
       },
@@ -9672,7 +9672,7 @@
         "got": "训练参数",
         "hit1": true,
         "hit2": true,
-        "score": 0.9988,
+        "score": 0.9989,
         "note": "",
         "tier": ""
       },
@@ -9705,7 +9705,7 @@
         "got": "分化与频率",
         "hit1": true,
         "hit2": true,
-        "score": 0.9997,
+        "score": 0.9996,
         "note": "",
         "tier": ""
       },
@@ -9716,7 +9716,7 @@
         "got": "分化与频率",
         "hit1": true,
         "hit2": true,
-        "score": 0.9999,
+        "score": 0.9998,
         "note": "",
         "tier": ""
       },
@@ -9749,7 +9749,7 @@
         "got": "新手上路",
         "hit1": true,
         "hit2": true,
-        "score": 0.9963,
+        "score": 0.9964,
         "note": "",
         "tier": ""
       },
@@ -9815,7 +9815,7 @@
         "got": "热身与激活",
         "hit1": true,
         "hit2": true,
-        "score": 0.9763,
+        "score": 0.976,
         "note": "",
         "tier": ""
       },
@@ -9837,7 +9837,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.2153,
+        "score": 0.2119,
         "note": "新库没有补剂内容（层B）",
         "tier": ""
       },
@@ -9848,41 +9848,41 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0076,
+        "score": 0.0087,
         "note": "新库没有补剂内容（层B）",
         "tier": ""
       },
       {
         "q": "减脂期每天吃多少卡",
-        "expect": null,
-        "kind": "refuse",
+        "expect": "减脂饮食",
+        "kind": "hit",
         "got": "减脂饮食",
-        "hit1": false,
-        "hit2": false,
-        "score": 0.9986,
-        "note": "新库只讲增肌热量盈余，没有减脂缺口（层B）",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.9983,
+        "note": "0.9983 · 补 lose-diet-01 后改判（原：库内零减脂缺口）",
         "tier": ""
       },
       {
         "q": "空腹有氧更减脂吗",
-        "expect": null,
-        "kind": "refuse",
-        "got": "有氧",
-        "hit1": false,
-        "hit2": false,
-        "score": 0.9749,
-        "note": "新库没有有氧与减脂（层B）",
+        "expect": "有氧时机",
+        "kind": "hit",
+        "got": "有氧时机",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.9998,
+        "note": "0.9998 · 2026-11-24 补 cardio-when-01 后改判（原：库内零有氧与减脂）",
         "tier": ""
       },
       {
         "q": "减脂会不会掉肌肉",
-        "expect": null,
-        "kind": "refuse",
+        "expect": "减脂",
+        "kind": "hit",
         "got": "减脂",
-        "hit1": false,
-        "hit2": false,
-        "score": 0.9969,
-        "note": "新库没有减脂期营养（层B）",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.997,
+        "note": "0.9969 · 补 lose-02 后改判（原：库内没有减脂期营养）",
         "tier": ""
       },
       {
@@ -9892,7 +9892,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0088,
+        "score": 0.0082,
         "note": "新库不涉及品牌（层B）",
         "tier": ""
       },
@@ -9914,7 +9914,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.014,
+        "score": 0.0136,
         "note": "无康复医学内容，只有换动作建议（层B）",
         "tier": ""
       },
@@ -9936,7 +9936,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0042,
+        "score": 0.004,
         "note": "完全无关（层A）",
         "tier": ""
       },
@@ -9947,7 +9947,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5104,
+        "score": 0.4859,
         "note": "shoulder-05 只说「正手前平举容易产生肩峰撞击」→ 讲的是预防不是治疗。问「怎么治」，库内零康复内容（层B，探针分 0.8466）",
         "tier": ""
       },
@@ -9958,7 +9958,7 @@
         "got": "硬拉",
         "hit1": false,
         "hit2": false,
-        "score": 0.9986,
+        "score": 0.9985,
         "note": "dead-03 只给「腰痛换臀桥」的症状级换动作建议。腰突是诊断，能不能练属医学禁忌症判断，资料够不着（层B，探针分 0.8397）",
         "tier": ""
       },
@@ -9969,7 +9969,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.9359,
+        "score": 0.9305,
         "note": "warm-01 提的是「卧推肩痛」不是腕痛；bench-02「腕中立不折腕」是预防。字面重叠（卧推 + 痛），问题不同（层C，探针分 0.7899）",
         "tier": ""
       },
@@ -9980,19 +9980,19 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.1134,
+        "score": 0.1112,
         "note": "全库无腹肌动作，仅 legs-05 提到侧腹（层C，探针分 0.6468）",
         "tier": ""
       },
       {
         "q": "减脂期蛋白质要吃更多吗",
-        "expect": null,
-        "kind": "refuse",
+        "expect": "减脂蛋白",
+        "kind": "hit",
         "got": "减脂蛋白",
-        "hit1": false,
-        "hit2": false,
-        "score": 0.9917,
-        "note": "diet-02 只给增肌期 1.6-2.2g，未涉减脂（层B，探针分 0.5425）",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.9984,
+        "note": "0.9983 · 补 diet-food-01（含 1.8~2.2g/kg 口径）后改判",
         "tier": ""
       },
       {
@@ -10002,7 +10002,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4837,
+        "score": 0.4829,
         "note": "只出现史密斯实力推 / 史密斯负重，无卧推对比（层C，探针分 0.5378）",
         "tier": ""
       },
@@ -10013,7 +10013,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5751,
+        "score": 0.5573,
         "note": "dead-01/02 讲髋铰链，零握法内容（层C，探针分 0.3807）",
         "tier": ""
       },
@@ -10024,7 +10024,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0781,
+        "score": 0.0825,
         "note": "库内零装备内容（层C，探针分 0.2006）",
         "tier": ""
       },
@@ -10035,7 +10035,7 @@
         "got": "下胸与中缝",
         "hit1": false,
         "hit2": false,
-        "score": 0.9634,
+        "score": 0.966,
         "note": "lat / back 只把引体当名词提过，无进阶教学（层C，探针分 0.1989）",
         "tier": ""
       },
@@ -10046,7 +10046,7 @@
         "got": "训练参数",
         "hit1": false,
         "hit2": false,
-        "score": 0.9785,
+        "score": 0.978,
         "note": "param-06 只讲时长，未讲休息期做什么（层C，探针分 0.1627）",
         "tier": ""
       },
@@ -10057,7 +10057,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.9041,
+        "score": 0.9059,
         "note": "无减脂进度内容（层B，探针分 0.1483）",
         "tier": ""
       },
@@ -10068,7 +10068,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.183,
+        "score": 0.1943,
         "note": "无女性 / 周期内容（层B，探针分 0.1397）",
         "tier": ""
       },
@@ -10079,7 +10079,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.9444,
+        "score": 0.9462,
         "note": "只有罗马尼亚 / 单腿 / 山羊挺身，无相扑（层C，探针分 0.1395）",
         "tier": ""
       },
@@ -10090,7 +10090,7 @@
         "got": "有氧",
         "hit1": false,
         "hit2": false,
-        "score": 0.9843,
+        "score": 0.984,
         "note": "库内零有氧内容（层C，探针分 0.1339）",
         "tier": ""
       },
@@ -10101,7 +10101,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.8221,
+        "score": 0.8196,
         "note": "库内零护具内容（层C，探针分 0.0973）",
         "tier": ""
       },
@@ -10112,7 +10112,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.7504,
+        "score": 0.7564,
         "note": "库内零护具 / 装备内容（层C，探针分 0.0666）",
         "tier": ""
       },
@@ -10123,7 +10123,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.1414,
+        "score": 0.1343,
         "note": "warm-* 全是训练前热身，无训练后放松（层C，探针分 0.0495）",
         "tier": ""
       },
@@ -10189,7 +10189,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0,
+        "score": 0.0001,
         "note": "完全无关（层A，探针分 0.0001）",
         "tier": ""
       },
@@ -10222,7 +10222,7 @@
         "got": "侧平举",
         "hit1": true,
         "hit2": true,
-        "score": 0.9858,
+        "score": 0.9872,
         "note": "探针改判：lateral-02「控制得住的重量才叫有效重量」+ 12-15 次不耸肩，是完整的标准答案",
         "tier": ""
       },
@@ -10244,7 +10244,7 @@
         "got": "后束",
         "hit1": false,
         "hit2": false,
-        "score": 0.9909,
+        "score": 0.9911,
         "note": "rear-03 讲后束薄弱与组数，未讲练不大之后的调整（层C，探针分 0.7149）",
         "tier": ""
       },
@@ -10255,7 +10255,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0014,
+        "score": 0.0013,
         "note": "库内零肘部损伤内容（层B，探针分 0.6808）",
         "tier": ""
       },
@@ -10266,7 +10266,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0315,
+        "score": 0.0305,
         "note": "diet-03 只提蛋白粉是「方便」，无增肌粉（层B，探针分 0.6538）",
         "tier": ""
       },
@@ -10277,7 +10277,7 @@
         "got": "上胸",
         "hit1": false,
         "hit2": false,
-        "score": 0.9795,
+        "score": 0.9791,
         "note": "upper-01 讲凳角过高前束接管，未讲锁骨处疼痛（层C，探针分 0.6433）",
         "tier": ""
       },
@@ -10288,7 +10288,7 @@
         "got": "硬拉",
         "hit1": false,
         "hit2": false,
-        "score": 0.9992,
+        "score": 0.9991,
         "note": "dead-04 讲山羊挺身不要过度伸展，未回答硬拉后腰酸是否正常（层C，探针分 0.6247）",
         "tier": ""
       },
@@ -10299,7 +10299,7 @@
         "got": "深蹲",
         "hit1": false,
         "hit2": false,
-        "score": 0.9902,
+        "score": 0.9892,
         "note": "squat-01 讲杠铃放锁骨，未讲手腕不适与握法（层C，探针分 0.6052）",
         "tier": ""
       },
@@ -10310,7 +10310,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.8826,
+        "score": 0.891,
         "note": "bench-07 讲挺胸与塌腰的区别，未涉比赛规则 / 起桥合法性（层C，探针分 0.5991）",
         "tier": ""
       },
@@ -10332,7 +10332,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0934,
+        "score": 0.092,
         "note": "新库无肌酸，亦无补剂搭配（层B，探针分 0.5650）",
         "tier": ""
       },
@@ -10343,7 +10343,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.6739,
+        "score": 0.6748,
         "note": "split 四条只讲推拉腿与频率，未讲同日多部位（层C，探针分 0.5522）",
         "tier": ""
       },
@@ -10354,7 +10354,7 @@
         "got": "卧推技术",
         "hit1": false,
         "hit2": false,
-        "score": 0.9586,
+        "score": 0.9577,
         "note": "库内零保护 / 力竭处理内容（层C，探针分 0.5091）",
         "tier": ""
       },
@@ -10365,7 +10365,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.6174,
+        "score": 0.6157,
         "note": "库内零拉伤处理与恢复周期（层B，探针分 0.5047）",
         "tier": ""
       },
@@ -10376,7 +10376,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.2598,
+        "score": 0.2521,
         "note": "库内零断食内容（层B，探针分 0.4819）",
         "tier": ""
       },
@@ -10387,7 +10387,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.3443,
+        "score": 0.3869,
         "note": "库内史密斯只出现在实力推与负重辅助（层C，探针分 0.4515）",
         "tier": ""
       },
@@ -10409,7 +10409,7 @@
         "got": "侧平举",
         "hit1": false,
         "hit2": false,
-        "score": 0.9769,
+        "score": 0.9754,
         "note": "lateral-02 说「不能耸肩作弊」，未讲已经斜方酸怎么纠正（层C，探针分 0.4340）",
         "tier": ""
       },
@@ -10420,7 +10420,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.9296,
+        "score": 0.9251,
         "note": "squat-04 讲膝盖位置与内扣，未讲弹响（层C，探针分 0.4331）",
         "tier": ""
       },
@@ -10431,7 +10431,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0068,
+        "score": 0.0069,
         "note": "库内零游泳内容（层B，探针分 0.3851）",
         "tier": ""
       },
@@ -10442,7 +10442,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0292,
+        "score": 0.031,
         "note": "库内零产后内容（层B，探针分 0.3174）",
         "tier": ""
       },
@@ -10453,7 +10453,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0,
+        "score": 0.0001,
         "note": "完全无关（层A，探针分 0.3167）",
         "tier": ""
       },
@@ -10464,7 +10464,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.948,
+        "score": 0.9495,
         "note": "squat-01 只给「膝盖痛换腿举」，无具体诊断（层B，探针分 0.3022）",
         "tier": ""
       },
@@ -10475,19 +10475,19 @@
         "got": "硬拉",
         "hit1": false,
         "hit2": false,
-        "score": 0.9835,
+        "score": 0.9823,
         "note": "库内零握力训练，dead 四条都在讲髋与背（层C，探针分 0.2636）",
         "tier": ""
       },
       {
         "q": "减脂期怎么保住力量",
-        "expect": null,
-        "kind": "refuse",
+        "expect": "减脂",
+        "kind": "hit",
         "got": "减脂",
-        "hit1": false,
-        "hit2": false,
+        "hit1": true,
+        "hit2": true,
         "score": 0.9996,
-        "note": "库内零减脂期训练安排（层B，探针分 0.1960）",
+        "note": "0.9996 · 补 lose-02 后改判（原：库内零减脂期训练安排）",
         "tier": ""
       },
       {
@@ -10508,7 +10508,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.9133,
+        "score": 0.8555,
         "note": "库内零进食时机与食物选择（层B，探针分 0.1782）",
         "tier": ""
       },
@@ -10519,7 +10519,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0413,
+        "score": 0.0408,
         "note": "库内零备赛内容（层B，探针分 0.1114）",
         "tier": ""
       },
@@ -10530,7 +10530,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0794,
+        "score": 0.0742,
         "note": "库内零睡眠内容（层B，探针分 0.1105）",
         "tier": ""
       },
@@ -10541,19 +10541,19 @@
         "got": null,
         "hit1": false,
         "hit2": false,
-        "score": 0.3645,
+        "score": 0.3686,
         "note": "改判（2026-11-23，生成层兜底实测暴露）：diet-02「把一天蛋白质总量拆成三到四餐」直接回答了餐数。原标 refuse 的理由是「未比较餐数」，但用户没让比较，问的就是几餐",
         "tier": ""
       },
       {
         "q": "减脂期要不要做力量训练",
-        "expect": null,
-        "kind": "refuse",
+        "expect": "减脂",
+        "kind": "hit",
         "got": "减脂",
-        "hit1": false,
-        "hit2": false,
+        "hit1": true,
+        "hit2": true,
         "score": 0.999,
-        "note": "diet 两条只讲增肌期热量与蛋白（层B，探针分 0.1095）",
+        "note": "0.9991 · 补 lose-02 后改判",
         "tier": ""
       },
       {
@@ -10563,7 +10563,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.3362,
+        "score": 0.3493,
         "note": "库内零有氧 / 跑步内容（层B，探针分 0.1084）",
         "tier": ""
       },
@@ -10574,7 +10574,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.2072,
+        "score": 0.151,
         "note": "diet-03 说粉只是方便，未涉时间窗口（层C，探针分 0.1072）",
         "tier": ""
       },
@@ -10585,7 +10585,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0384,
+        "score": 0.0373,
         "note": "库内零其他运动内容（层B，探针分 0.0870）",
         "tier": ""
       },
@@ -10596,7 +10596,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0222,
+        "score": 0.0228,
         "note": "库内零性别差异内容（层B，探针分 0.0712）",
         "tier": ""
       },
@@ -10618,7 +10618,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0049,
+        "score": 0.005,
         "note": "库内零年龄相关内容（层B，探针分 0.0566）",
         "tier": ""
       },
@@ -10629,7 +10629,7 @@
         "got": "减脂饮食",
         "hit1": false,
         "hit2": false,
-        "score": 0.9719,
+        "score": 0.9755,
         "note": "diet 只给蛋白克数，无碳水（层B，探针分 0.0562）",
         "tier": ""
       },
@@ -10640,7 +10640,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0778,
+        "score": 0.0943,
         "note": "库内零营养窗口内容（层B，探针分 0.0557）",
         "tier": ""
       },
@@ -10651,7 +10651,7 @@
         "got": "硬拉",
         "hit1": false,
         "hit2": false,
-        "score": 0.9688,
+        "score": 0.9682,
         "note": "dead-01 说膝盖只微屈，未讲顶端锁膝（层C，探针分 0.0487）",
         "tier": ""
       },
@@ -10673,7 +10673,7 @@
         "got": null,
         "hit1": false,
         "hit2": false,
-        "score": 0.8865,
+        "score": 0.8883,
         "note": "改判（2026-11-23，生成层兜底实测暴露）：pull-03「弹力带面拉 2 组 15 次，激活肩后束和上背」直接回答了练哪里。原标 refuse 的理由是「只作为动作名、无要领」，但用户问的是练哪里，不是要领",
         "tier": ""
       },
@@ -10684,7 +10684,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0008,
+        "score": 0.0007,
         "note": "完全无关（层A，探针分 0.0394）",
         "tier": ""
       },
@@ -10695,7 +10695,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0033,
+        "score": 0.0041,
         "note": "库内零进食时间内容（层B，探针分 0.0379）",
         "tier": ""
       },
@@ -10706,7 +10706,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.3596,
+        "score": 0.73,
         "note": "库内零碳水循环 / 减脂期营养（层B，探针分 0.0369）",
         "tier": ""
       },
@@ -10717,7 +10717,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0278,
+        "score": 0.0307,
         "note": "库内零腕部损伤内容（层B，探针分 0.0361）",
         "tier": ""
       },
@@ -10728,7 +10728,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0023,
+        "score": 0.0022,
         "note": "库内零补剂内容（层B，探针分 0.0342）",
         "tier": ""
       },
@@ -10739,7 +10739,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.3596,
+        "score": 0.3551,
         "note": "库内零有氧内容（层B，探针分 0.0314）",
         "tier": ""
       },
@@ -10750,7 +10750,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.7589,
+        "score": 0.765,
         "note": "库内零关节弹响内容（层B，探针分 0.0300）",
         "tier": ""
       },
@@ -10761,7 +10761,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.14,
+        "score": 0.1463,
         "note": "shoulder-04 提到「超级组」但未解释定义与用法（层C，探针分 0.0177）",
         "tier": ""
       },
@@ -10772,7 +10772,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.3136,
+        "score": 0.3199,
         "note": "库内零减脂内容（层B，探针分 0.0176）",
         "tier": ""
       },
@@ -10783,7 +10783,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0003,
+        "score": 0.0002,
         "note": "库内零睡眠内容（param-05 只提睡不好是减载信号）（层B，探针分 0.0155）",
         "tier": ""
       },
@@ -10794,7 +10794,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.3329,
+        "score": 0.3258,
         "note": "param-06 只给时长，未讲休息期该做什么（层C，探针分 0.0142）",
         "tier": ""
       },
@@ -10860,7 +10860,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0014,
+        "score": 0.0013,
         "note": "库内零装备内容（层B，探针分 0.0043）",
         "tier": ""
       },
@@ -10937,7 +10937,7 @@
         "got": "上胸",
         "hit1": false,
         "hit2": false,
-        "score": 0.9984,
+        "score": 0.9982,
         "note": "upper-02/03 讲选哑铃的理由和推的轨迹，零起铃 / 收铃手法。0.96 分是因为通篇在讲上斜哑铃，主题重度重叠（层C，探针分 0.9632）",
         "tier": ""
       },
@@ -10981,7 +10981,7 @@
         "got": "热身与激活",
         "hit1": false,
         "hit2": false,
-        "score": 0.9829,
+        "score": 0.9841,
         "note": "命中 rear-03（后束是圆肩和肩痛的根源），讲的是机理；shoulder-06 只讲 RPE。推举动作中的疼痛缓解，库里没有（层C，探针分 0.8698）",
         "tier": ""
       },
@@ -10992,7 +10992,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.8468,
+        "score": 0.8434,
         "note": "reranker 被「臀」「推」两个字骗了，命中 bench-01（卧推六步）。dead-03 有臀桥（仰卧屈膝顶髋），不是杠铃臀推（层C，探针分 0.8364）",
         "tier": ""
       },
@@ -11003,7 +11003,7 @@
         "got": "深蹲",
         "hit1": false,
         "hit2": false,
-        "score": 0.9816,
+        "score": 0.9804,
         "note": "命中 iso-02（腿弯举外旋位），误命中。legs-04 有髋部热身，但没针对下蹲受限的成因（踝背屈、髋屈曲）给方案（层C，探针分 0.7819）",
         "tier": ""
       },
@@ -11025,7 +11025,7 @@
         "got": "卧推技术",
         "hit1": false,
         "hit2": true,
-        "score": 0.9983,
+        "score": 0.9984,
         "note": "探针改判：push-04 原文「说不出来说明涨的其实是三头和前束，动作早就跑偏了，该退回去减重量重新找感觉」，直接答了不正常以及怎么办",
         "tier": ""
       },
@@ -11036,7 +11036,7 @@
         "got": null,
         "hit1": false,
         "hit2": false,
-        "score": 0.9338,
+        "score": 0.9347,
         "note": "探针改判：back-05「一旦靠躯干后仰甩重量，练完是腰酸而不是背胀；一组做完先感觉到腰，说明重量超了或躯干在动」——给了病因和处方",
         "tier": ""
       },
@@ -11047,7 +11047,7 @@
         "got": null,
         "hit1": false,
         "hit2": false,
-        "score": 0.9044,
+        "score": 0.9045,
         "note": "探针改判：split-01 讲三分化的坏处是「对频率要求高的人不够」，等于回答了「什么时候该往上加分化」",
         "tier": ""
       },
@@ -11058,7 +11058,7 @@
         "got": "深蹲",
         "hit1": false,
         "hit2": false,
-        "score": 0.9978,
+        "score": 0.9979,
         "note": "探针改判：newbie-05「连续两周无法在主项增加重量就是平台期，可以调整动作顺序或换一两个辅助动作」，直接答了",
         "tier": ""
       }
@@ -11067,12 +11067,12 @@
   "oral": {
     "summary": {
       "n": 200,
-      "hit1": 0.9690721649484536,
-      "hit2": 0.9896907216494846,
-      "refuse": 0.39805825242718446,
-      "acc": 0.675,
-      "hit_n": 97,
-      "ref_n": 103
+      "hit1": 0.970873786407767,
+      "hit2": 0.9902912621359223,
+      "refuse": 0.4329896907216495,
+      "acc": 0.71,
+      "hit_n": 103,
+      "ref_n": 97
     },
     "rows": [
       {
@@ -11126,7 +11126,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.9985,
+        "score": 0.9984,
         "note": "",
         "tier": ""
       },
@@ -11159,7 +11159,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.9986,
+        "score": 0.9987,
         "note": "",
         "tier": ""
       },
@@ -11192,7 +11192,7 @@
         "got": "卧推技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.9993,
+        "score": 0.9994,
         "note": "",
         "tier": ""
       },
@@ -11302,7 +11302,7 @@
         "got": "下胸与中缝",
         "hit1": true,
         "hit2": true,
-        "score": 0.9998,
+        "score": 0.9997,
         "note": "",
         "tier": ""
       },
@@ -11335,7 +11335,7 @@
         "got": "下胸与中缝",
         "hit1": true,
         "hit2": true,
-        "score": 0.9948,
+        "score": 0.9944,
         "note": "",
         "tier": ""
       },
@@ -11346,7 +11346,7 @@
         "got": "绳索夹胸",
         "hit1": true,
         "hit2": true,
-        "score": 0.9995,
+        "score": 0.9996,
         "note": "",
         "tier": ""
       },
@@ -11456,7 +11456,7 @@
         "got": "背训技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.9997,
+        "score": 0.9998,
         "note": "",
         "tier": ""
       },
@@ -11478,7 +11478,7 @@
         "got": "高位下拉",
         "hit1": true,
         "hit2": true,
-        "score": 0.9991,
+        "score": 0.9992,
         "note": "",
         "tier": ""
       },
@@ -11522,7 +11522,7 @@
         "got": "肩部训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.9887,
+        "score": 0.9879,
         "note": "",
         "tier": ""
       },
@@ -11533,7 +11533,7 @@
         "got": "肩部训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.999,
+        "score": 0.9991,
         "note": "",
         "tier": ""
       },
@@ -11599,7 +11599,7 @@
         "got": "后束",
         "hit1": true,
         "hit2": true,
-        "score": 0.9983,
+        "score": 0.9981,
         "note": "",
         "tier": ""
       },
@@ -11665,7 +11665,7 @@
         "got": "腿日",
         "hit1": true,
         "hit2": true,
-        "score": 0.9989,
+        "score": 0.9988,
         "note": "",
         "tier": ""
       },
@@ -11698,7 +11698,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.9989,
+        "score": 0.999,
         "note": "",
         "tier": ""
       },
@@ -11709,7 +11709,7 @@
         "got": "深蹲",
         "hit1": true,
         "hit2": true,
-        "score": 0.9993,
+        "score": 0.9994,
         "note": "",
         "tier": ""
       },
@@ -11764,7 +11764,7 @@
         "got": "单腿训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.9996,
+        "score": 0.9995,
         "note": "",
         "tier": ""
       },
@@ -11786,7 +11786,7 @@
         "got": "单腿训练",
         "hit1": true,
         "hit2": true,
-        "score": 0.9959,
+        "score": 0.9961,
         "note": "",
         "tier": ""
       },
@@ -11852,7 +11852,7 @@
         "got": "训练参数",
         "hit1": true,
         "hit2": true,
-        "score": 0.9996,
+        "score": 0.9995,
         "note": "",
         "tier": ""
       },
@@ -11874,7 +11874,7 @@
         "got": "训练参数",
         "hit1": true,
         "hit2": true,
-        "score": 0.9992,
+        "score": 0.9991,
         "note": "",
         "tier": ""
       },
@@ -11885,7 +11885,7 @@
         "got": "训练参数",
         "hit1": true,
         "hit2": true,
-        "score": 0.9988,
+        "score": 0.9989,
         "note": "",
         "tier": ""
       },
@@ -11918,7 +11918,7 @@
         "got": "分化与频率",
         "hit1": true,
         "hit2": true,
-        "score": 0.9997,
+        "score": 0.9996,
         "note": "",
         "tier": ""
       },
@@ -11929,7 +11929,7 @@
         "got": "分化与频率",
         "hit1": true,
         "hit2": true,
-        "score": 0.9999,
+        "score": 0.9998,
         "note": "",
         "tier": ""
       },
@@ -11962,7 +11962,7 @@
         "got": "新手上路",
         "hit1": true,
         "hit2": true,
-        "score": 0.9963,
+        "score": 0.9964,
         "note": "",
         "tier": ""
       },
@@ -12028,7 +12028,7 @@
         "got": "热身与激活",
         "hit1": true,
         "hit2": true,
-        "score": 0.9763,
+        "score": 0.976,
         "note": "",
         "tier": ""
       },
@@ -12050,7 +12050,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.2153,
+        "score": 0.2119,
         "note": "新库没有补剂内容（层B）",
         "tier": ""
       },
@@ -12061,41 +12061,41 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0076,
+        "score": 0.0087,
         "note": "新库没有补剂内容（层B）",
         "tier": ""
       },
       {
         "q": "减脂期每天吃多少卡",
-        "expect": null,
-        "kind": "refuse",
+        "expect": "减脂饮食",
+        "kind": "hit",
         "got": "减脂饮食",
-        "hit1": false,
-        "hit2": false,
-        "score": 0.9986,
-        "note": "新库只讲增肌热量盈余，没有减脂缺口（层B）",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.9983,
+        "note": "0.9983 · 补 lose-diet-01 后改判（原：库内零减脂缺口）",
         "tier": ""
       },
       {
         "q": "空腹有氧更减脂吗",
-        "expect": null,
-        "kind": "refuse",
-        "got": "有氧",
-        "hit1": false,
-        "hit2": false,
-        "score": 0.9749,
-        "note": "新库没有有氧与减脂（层B）",
+        "expect": "有氧时机",
+        "kind": "hit",
+        "got": "有氧时机",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.9998,
+        "note": "0.9998 · 2026-11-24 补 cardio-when-01 后改判（原：库内零有氧与减脂）",
         "tier": ""
       },
       {
         "q": "减脂会不会掉肌肉",
-        "expect": null,
-        "kind": "refuse",
+        "expect": "减脂",
+        "kind": "hit",
         "got": "减脂",
-        "hit1": false,
-        "hit2": false,
-        "score": 0.9969,
-        "note": "新库没有减脂期营养（层B）",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.997,
+        "note": "0.9969 · 补 lose-02 后改判（原：库内没有减脂期营养）",
         "tier": ""
       },
       {
@@ -12105,7 +12105,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0088,
+        "score": 0.0082,
         "note": "新库不涉及品牌（层B）",
         "tier": ""
       },
@@ -12127,7 +12127,7 @@
         "got": "训练参数",
         "hit1": false,
         "hit2": false,
-        "score": 0.9565,
+        "score": 0.9585,
         "note": "无康复医学内容，只有换动作建议（层B）",
         "tier": ""
       },
@@ -12149,7 +12149,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.6654,
+        "score": 0.6849,
         "note": "完全无关（层A）",
         "tier": ""
       },
@@ -12160,7 +12160,7 @@
         "got": "肩部训练",
         "hit1": false,
         "hit2": false,
-        "score": 0.999,
+        "score": 0.9991,
         "note": "shoulder-05 只说「正手前平举容易产生肩峰撞击」→ 讲的是预防不是治疗。问「怎么治」，库内零康复内容（层B，探针分 0.8466）",
         "tier": ""
       },
@@ -12171,7 +12171,7 @@
         "got": "硬拉",
         "hit1": false,
         "hit2": false,
-        "score": 0.9986,
+        "score": 0.9985,
         "note": "dead-03 只给「腰痛换臀桥」的症状级换动作建议。腰突是诊断，能不能练属医学禁忌症判断，资料够不着（层B，探针分 0.8397）",
         "tier": ""
       },
@@ -12182,7 +12182,7 @@
         "got": "卧推技术",
         "hit1": false,
         "hit2": false,
-        "score": 0.9947,
+        "score": 0.9946,
         "note": "warm-01 提的是「卧推肩痛」不是腕痛；bench-02「腕中立不折腕」是预防。字面重叠（卧推 + 痛），问题不同（层C，探针分 0.7899）",
         "tier": ""
       },
@@ -12199,13 +12199,13 @@
       },
       {
         "q": "减脂期蛋白质要吃更多吗",
-        "expect": null,
-        "kind": "refuse",
+        "expect": "减脂蛋白",
+        "kind": "hit",
         "got": "减脂蛋白",
-        "hit1": false,
-        "hit2": false,
-        "score": 0.9917,
-        "note": "diet-02 只给增肌期 1.6-2.2g，未涉减脂（层B，探针分 0.5425）",
+        "hit1": true,
+        "hit2": true,
+        "score": 0.9984,
+        "note": "0.9983 · 补 diet-food-01（含 1.8~2.2g/kg 口径）后改判",
         "tier": ""
       },
       {
@@ -12215,7 +12215,7 @@
         "got": "训练参数",
         "hit1": false,
         "hit2": false,
-        "score": 0.9596,
+        "score": 0.9611,
         "note": "只出现史密斯实力推 / 史密斯负重，无卧推对比（层C，探针分 0.5378）",
         "tier": ""
       },
@@ -12226,7 +12226,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.7596,
+        "score": 0.761,
         "note": "dead-01/02 讲髋铰链，零握法内容（层C，探针分 0.3807）",
         "tier": ""
       },
@@ -12237,7 +12237,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.6973,
+        "score": 0.6922,
         "note": "库内零装备内容（层C，探针分 0.2006）",
         "tier": ""
       },
@@ -12248,7 +12248,7 @@
         "got": "下胸与中缝",
         "hit1": false,
         "hit2": false,
-        "score": 0.9634,
+        "score": 0.966,
         "note": "lat / back 只把引体当名词提过，无进阶教学（层C，探针分 0.1989）",
         "tier": ""
       },
@@ -12259,7 +12259,7 @@
         "got": "训练参数",
         "hit1": false,
         "hit2": false,
-        "score": 0.9785,
+        "score": 0.978,
         "note": "param-06 只讲时长，未讲休息期做什么（层C，探针分 0.1627）",
         "tier": ""
       },
@@ -12270,7 +12270,7 @@
         "got": "减脂",
         "hit1": false,
         "hit2": false,
-        "score": 0.9916,
+        "score": 0.992,
         "note": "无减脂进度内容（层B，探针分 0.1483）",
         "tier": ""
       },
@@ -12281,7 +12281,7 @@
         "got": "腿日",
         "hit1": false,
         "hit2": false,
-        "score": 0.9935,
+        "score": 0.994,
         "note": "无女性 / 周期内容（层B，探针分 0.1397）",
         "tier": ""
       },
@@ -12292,7 +12292,7 @@
         "got": "训练参数",
         "hit1": false,
         "hit2": false,
-        "score": 0.9963,
+        "score": 0.9964,
         "note": "只有罗马尼亚 / 单腿 / 山羊挺身，无相扑（层C，探针分 0.1395）",
         "tier": ""
       },
@@ -12303,7 +12303,7 @@
         "got": "有氧",
         "hit1": false,
         "hit2": false,
-        "score": 0.9843,
+        "score": 0.984,
         "note": "库内零有氧内容（层C，探针分 0.1339）",
         "tier": ""
       },
@@ -12314,7 +12314,7 @@
         "got": "硬拉",
         "hit1": false,
         "hit2": false,
-        "score": 0.9555,
+        "score": 0.9583,
         "note": "库内零护具内容（层C，探针分 0.0973）",
         "tier": ""
       },
@@ -12325,7 +12325,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.9147,
+        "score": 0.911,
         "note": "库内零护具 / 装备内容（层C，探针分 0.0666）",
         "tier": ""
       },
@@ -12336,7 +12336,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.3241,
+        "score": 0.3398,
         "note": "warm-* 全是训练前热身，无训练后放松（层C，探针分 0.0495）",
         "tier": ""
       },
@@ -12347,7 +12347,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0051,
+        "score": 0.0045,
         "note": "无补剂内容（层B，探针分 0.0344）",
         "tier": ""
       },
@@ -12358,7 +12358,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.3582,
+        "score": 0.3656,
         "note": "完全无关（层A，探针分 0.0259）",
         "tier": ""
       },
@@ -12369,7 +12369,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0175,
+        "score": 0.0167,
         "note": "无补剂 / 咖啡因内容（层B，探针分 0.0028）",
         "tier": ""
       },
@@ -12380,7 +12380,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.2677,
+        "score": 0.2705,
         "note": "完全无关（层A，探针分 0.0002）",
         "tier": ""
       },
@@ -12391,7 +12391,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4682,
+        "score": 0.4673,
         "note": "无补剂内容（层B，探针分 0.0002）",
         "tier": ""
       },
@@ -12402,7 +12402,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0061,
+        "score": 0.0063,
         "note": "完全无关（层A，探针分 0.0001）",
         "tier": ""
       },
@@ -12413,7 +12413,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0161,
+        "score": 0.0171,
         "note": "完全无关（层A，探针分 0.0000）",
         "tier": ""
       },
@@ -12435,7 +12435,7 @@
         "got": "侧平举",
         "hit1": true,
         "hit2": true,
-        "score": 0.9858,
+        "score": 0.9872,
         "note": "探针改判：lateral-02「控制得住的重量才叫有效重量」+ 12-15 次不耸肩，是完整的标准答案",
         "tier": ""
       },
@@ -12457,7 +12457,7 @@
         "got": "后束",
         "hit1": false,
         "hit2": false,
-        "score": 0.9909,
+        "score": 0.9911,
         "note": "rear-03 讲后束薄弱与组数，未讲练不大之后的调整（层C，探针分 0.7149）",
         "tier": ""
       },
@@ -12468,7 +12468,7 @@
         "got": "肩部训练",
         "hit1": false,
         "hit2": false,
-        "score": 0.9766,
+        "score": 0.9769,
         "note": "库内零肘部损伤内容（层B，探针分 0.6808）",
         "tier": ""
       },
@@ -12479,7 +12479,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.2466,
+        "score": 0.2486,
         "note": "diet-03 只提蛋白粉是「方便」，无增肌粉（层B，探针分 0.6538）",
         "tier": ""
       },
@@ -12490,7 +12490,7 @@
         "got": "上胸",
         "hit1": false,
         "hit2": false,
-        "score": 0.9795,
+        "score": 0.9791,
         "note": "upper-01 讲凳角过高前束接管，未讲锁骨处疼痛（层C，探针分 0.6433）",
         "tier": ""
       },
@@ -12501,7 +12501,7 @@
         "got": "硬拉",
         "hit1": false,
         "hit2": false,
-        "score": 0.9992,
+        "score": 0.9991,
         "note": "dead-04 讲山羊挺身不要过度伸展，未回答硬拉后腰酸是否正常（层C，探针分 0.6247）",
         "tier": ""
       },
@@ -12512,7 +12512,7 @@
         "got": "深蹲",
         "hit1": false,
         "hit2": false,
-        "score": 0.9902,
+        "score": 0.9892,
         "note": "squat-01 讲杠铃放锁骨，未讲手腕不适与握法（层C，探针分 0.6052）",
         "tier": ""
       },
@@ -12523,7 +12523,7 @@
         "got": "卧推技术",
         "hit1": false,
         "hit2": false,
-        "score": 0.9624,
+        "score": 0.9606,
         "note": "bench-07 讲挺胸与塌腰的区别，未涉比赛规则 / 起桥合法性（层C，探针分 0.5991）",
         "tier": ""
       },
@@ -12545,7 +12545,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.2165,
+        "score": 0.2293,
         "note": "新库无肌酸，亦无补剂搭配（层B，探针分 0.5650）",
         "tier": ""
       },
@@ -12556,7 +12556,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.8831,
+        "score": 0.8818,
         "note": "split 四条只讲推拉腿与频率，未讲同日多部位（层C，探针分 0.5522）",
         "tier": ""
       },
@@ -12567,7 +12567,7 @@
         "got": "卧推技术",
         "hit1": false,
         "hit2": false,
-        "score": 0.9586,
+        "score": 0.9577,
         "note": "库内零保护 / 力竭处理内容（层C，探针分 0.5091）",
         "tier": ""
       },
@@ -12578,7 +12578,7 @@
         "got": "训练参数",
         "hit1": false,
         "hit2": false,
-        "score": 0.9838,
+        "score": 0.9848,
         "note": "库内零拉伤处理与恢复周期（层B，探针分 0.5047）",
         "tier": ""
       },
@@ -12600,7 +12600,7 @@
         "got": "上胸",
         "hit1": false,
         "hit2": false,
-        "score": 0.9909,
+        "score": 0.9912,
         "note": "库内史密斯只出现在实力推与负重辅助（层C，探针分 0.4515）",
         "tier": ""
       },
@@ -12622,7 +12622,7 @@
         "got": "侧平举",
         "hit1": false,
         "hit2": false,
-        "score": 0.9769,
+        "score": 0.9754,
         "note": "lateral-02 说「不能耸肩作弊」，未讲已经斜方酸怎么纠正（层C，探针分 0.4340）",
         "tier": ""
       },
@@ -12633,7 +12633,7 @@
         "got": "训练参数",
         "hit1": false,
         "hit2": false,
-        "score": 0.9923,
+        "score": 0.9918,
         "note": "squat-04 讲膝盖位置与内扣，未讲弹响（层C，探针分 0.4331）",
         "tier": ""
       },
@@ -12644,7 +12644,7 @@
         "got": "训练参数",
         "hit1": false,
         "hit2": false,
-        "score": 0.9955,
+        "score": 0.9956,
         "note": "库内零游泳内容（层B，探针分 0.3851）",
         "tier": ""
       },
@@ -12666,7 +12666,7 @@
         "got": "训练参数",
         "hit1": false,
         "hit2": false,
-        "score": 0.9864,
+        "score": 0.9853,
         "note": "完全无关（层A，探针分 0.3167）",
         "tier": ""
       },
@@ -12677,7 +12677,7 @@
         "got": "深蹲",
         "hit1": false,
         "hit2": false,
-        "score": 0.9805,
+        "score": 0.98,
         "note": "squat-01 只给「膝盖痛换腿举」，无具体诊断（层B，探针分 0.3022）",
         "tier": ""
       },
@@ -12688,19 +12688,19 @@
         "got": "硬拉",
         "hit1": false,
         "hit2": false,
-        "score": 0.9835,
+        "score": 0.9823,
         "note": "库内零握力训练，dead 四条都在讲髋与背（层C，探针分 0.2636）",
         "tier": ""
       },
       {
         "q": "减脂期怎么保住力量",
-        "expect": null,
-        "kind": "refuse",
+        "expect": "减脂",
+        "kind": "hit",
         "got": "减脂",
-        "hit1": false,
-        "hit2": false,
+        "hit1": true,
+        "hit2": true,
         "score": 0.9996,
-        "note": "库内零减脂期训练安排（层B，探针分 0.1960）",
+        "note": "0.9996 · 补 lose-02 后改判（原：库内零减脂期训练安排）",
         "tier": ""
       },
       {
@@ -12721,7 +12721,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.9133,
+        "score": 0.8836,
         "note": "库内零进食时机与食物选择（层B，探针分 0.1782）",
         "tier": ""
       },
@@ -12754,19 +12754,19 @@
         "got": "饮食配合",
         "hit1": true,
         "hit2": true,
-        "score": 0.9964,
+        "score": 0.9963,
         "note": "改判（2026-11-23，生成层兜底实测暴露）：diet-02「把一天蛋白质总量拆成三到四餐」直接回答了餐数。原标 refuse 的理由是「未比较餐数」，但用户没让比较，问的就是几餐",
         "tier": ""
       },
       {
         "q": "减脂期要不要做力量训练",
-        "expect": null,
-        "kind": "refuse",
+        "expect": "减脂",
+        "kind": "hit",
         "got": "减脂",
-        "hit1": false,
-        "hit2": false,
+        "hit1": true,
+        "hit2": true,
         "score": 0.999,
-        "note": "diet 两条只讲增肌期热量与蛋白（层B，探针分 0.1095）",
+        "note": "0.9991 · 补 lose-02 后改判",
         "tier": ""
       },
       {
@@ -12776,7 +12776,7 @@
         "got": "有氧",
         "hit1": false,
         "hit2": false,
-        "score": 0.9715,
+        "score": 0.9713,
         "note": "库内零有氧 / 跑步内容（层B，探针分 0.1084）",
         "tier": ""
       },
@@ -12809,7 +12809,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5893,
+        "score": 0.579,
         "note": "库内零性别差异内容（层B，探针分 0.0712）",
         "tier": ""
       },
@@ -12820,7 +12820,7 @@
         "got": "饮食配合",
         "hit1": false,
         "hit2": false,
-        "score": 0.9753,
+        "score": 0.9755,
         "note": "diet-02 讲 1.6-2.2g 上限无额外好处，未涉肾脏安全（层C，探针分 0.0690）",
         "tier": ""
       },
@@ -12842,7 +12842,7 @@
         "got": "减脂饮食",
         "hit1": false,
         "hit2": false,
-        "score": 0.9719,
+        "score": 0.9755,
         "note": "diet 只给蛋白克数，无碳水（层B，探针分 0.0562）",
         "tier": ""
       },
@@ -12853,7 +12853,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4912,
+        "score": 0.6921,
         "note": "库内零营养窗口内容（层B，探针分 0.0557）",
         "tier": ""
       },
@@ -12864,7 +12864,7 @@
         "got": "硬拉",
         "hit1": false,
         "hit2": false,
-        "score": 0.9688,
+        "score": 0.9682,
         "note": "dead-01 说膝盖只微屈，未讲顶端锁膝（层C，探针分 0.0487）",
         "tier": ""
       },
@@ -12875,7 +12875,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.1182,
+        "score": 0.1168,
         "note": "库内零补剂内容（层B，探针分 0.0462）",
         "tier": ""
       },
@@ -12886,7 +12886,7 @@
         "got": "拉日",
         "hit1": true,
         "hit2": true,
-        "score": 0.9955,
+        "score": 0.9957,
         "note": "改判（2026-11-23，生成层兜底实测暴露）：pull-03「弹力带面拉 2 组 15 次，激活肩后束和上背」直接回答了练哪里。原标 refuse 的理由是「只作为动作名、无要领」，但用户问的是练哪里，不是要领",
         "tier": ""
       },
@@ -12908,7 +12908,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5606,
+        "score": 0.5435,
         "note": "库内零进食时间内容（层B，探针分 0.0379）",
         "tier": ""
       },
@@ -12919,7 +12919,7 @@
         "got": "分化与频率",
         "hit1": false,
         "hit2": false,
-        "score": 0.9837,
+        "score": 0.9829,
         "note": "库内零碳水循环 / 减脂期营养（层B，探针分 0.0369）",
         "tier": ""
       },
@@ -12927,10 +12927,10 @@
         "q": "手腕腱鞘炎能练吗",
         "expect": null,
         "kind": "refuse",
-        "got": "训练参数",
-        "hit1": false,
-        "hit2": false,
-        "score": 0.952,
+        "got": null,
+        "hit1": true,
+        "hit2": true,
+        "score": 0.9489,
         "note": "库内零腕部损伤内容（层B，探针分 0.0361）",
         "tier": ""
       },
@@ -12941,7 +12941,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.027,
+        "score": 0.0257,
         "note": "库内零补剂内容（层B，探针分 0.0342）",
         "tier": ""
       },
@@ -12963,7 +12963,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.7589,
+        "score": 0.765,
         "note": "库内零关节弹响内容（层B，探针分 0.0300）",
         "tier": ""
       },
@@ -12985,7 +12985,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.5837,
+        "score": 0.566,
         "note": "库内零减脂内容（层B，探针分 0.0176）",
         "tier": ""
       },
@@ -12996,7 +12996,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.8605,
+        "score": 0.8549,
         "note": "库内零睡眠内容（param-05 只提睡不好是减载信号）（层B，探针分 0.0155）",
         "tier": ""
       },
@@ -13007,7 +13007,7 @@
         "got": "训练参数",
         "hit1": false,
         "hit2": false,
-        "score": 0.9777,
+        "score": 0.9784,
         "note": "param-06 只给时长，未讲休息期该做什么（层C，探针分 0.0142）",
         "tier": ""
       },
@@ -13029,7 +13029,7 @@
         "got": "肩部训练",
         "hit1": false,
         "hit2": false,
-        "score": 0.9896,
+        "score": 0.9894,
         "note": "完全无关（层A，探针分 0.0079）",
         "tier": ""
       },
@@ -13040,7 +13040,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4931,
+        "score": 0.4905,
         "note": "库内零补剂内容（层B，探针分 0.0076）",
         "tier": ""
       },
@@ -13051,7 +13051,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.8209,
+        "score": 0.8214,
         "note": "库内零腰带内容（层B，探针分 0.0059）",
         "tier": ""
       },
@@ -13062,7 +13062,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.8307,
+        "score": 0.8294,
         "note": "完全无关（层A，探针分 0.0043）",
         "tier": ""
       },
@@ -13084,7 +13084,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.0713,
+        "score": 0.0676,
         "note": "完全无关（层A，探针分 0.0025）",
         "tier": ""
       },
@@ -13095,7 +13095,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.6683,
+        "score": 0.6688,
         "note": "完全无关（层A，探针分 0.0011）",
         "tier": ""
       },
@@ -13117,7 +13117,7 @@
         "got": null,
         "hit1": true,
         "hit2": true,
-        "score": 0.4389,
+        "score": 0.5928,
         "note": "完全无关（层A，探针分 0.0003）",
         "tier": ""
       },
@@ -13150,7 +13150,7 @@
         "got": "上胸",
         "hit1": false,
         "hit2": false,
-        "score": 0.9984,
+        "score": 0.9982,
         "note": "upper-02/03 讲选哑铃的理由和推的轨迹，零起铃 / 收铃手法。0.96 分是因为通篇在讲上斜哑铃，主题重度重叠（层C，探针分 0.9632）",
         "tier": ""
       },
@@ -13194,7 +13194,7 @@
         "got": "热身与激活",
         "hit1": false,
         "hit2": false,
-        "score": 0.9829,
+        "score": 0.9841,
         "note": "命中 rear-03（后束是圆肩和肩痛的根源），讲的是机理；shoulder-06 只讲 RPE。推举动作中的疼痛缓解，库里没有（层C，探针分 0.8698）",
         "tier": ""
       },
@@ -13216,7 +13216,7 @@
         "got": "深蹲",
         "hit1": false,
         "hit2": false,
-        "score": 0.9816,
+        "score": 0.9804,
         "note": "命中 iso-02（腿弯举外旋位），误命中。legs-04 有髋部热身，但没针对下蹲受限的成因（踝背屈、髋屈曲）给方案（层C，探针分 0.7819）",
         "tier": ""
       },
@@ -13238,7 +13238,7 @@
         "got": "卧推技术",
         "hit1": false,
         "hit2": true,
-        "score": 0.9983,
+        "score": 0.9984,
         "note": "探针改判：push-04 原文「说不出来说明涨的其实是三头和前束，动作早就跑偏了，该退回去减重量重新找感觉」，直接答了不正常以及怎么办",
         "tier": ""
       },
@@ -13249,7 +13249,7 @@
         "got": "背训技术",
         "hit1": true,
         "hit2": true,
-        "score": 0.998,
+        "score": 0.9979,
         "note": "探针改判：back-05「一旦靠躯干后仰甩重量，练完是腰酸而不是背胀；一组做完先感觉到腰，说明重量超了或躯干在动」——给了病因和处方",
         "tier": ""
       },
@@ -13271,7 +13271,7 @@
         "got": "深蹲",
         "hit1": false,
         "hit2": false,
-        "score": 0.9978,
+        "score": 0.9979,
         "note": "探针改判：newbie-05「连续两周无法在主项增加重量就是平台期，可以调整动作顺序或换一两个辅助动作」，直接答了",
         "tier": ""
       }
@@ -13279,6 +13279,6 @@
   },
   "__meta": {
     "n_cases": 200,
-    "n_kb": 118
+    "n_kb": 119
   }
 }
