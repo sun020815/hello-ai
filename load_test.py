@@ -55,6 +55,14 @@ MODES = {
 }
 
 
+def discard_task(bag: set):
+    """task 完成后把自己从集合里摘掉。不摘的话集合只增不减，
+    inflight 就永远等于「历史总数」，看着像积压爆了。"""
+    def _cb(t):
+        bag.discard(t)
+    return _cb
+
+
 def pct(xs, p):
     """最近秩百分位。样本少的时候不做插值 —— 20 个样本算出来的 p99 就是最大值，
     插值会把它美化成一个不存在的中间值。"""
@@ -74,6 +82,11 @@ class Runner:
         # 不带它连 /meta 都是 403 —— 这也是「别拿压测器直接打公网」的原因之一：
         # 打到的第一层根本不是我的代码。
         self.query = query.lstrip("?")
+        self.stats_base = base.rstrip("/")
+        # soak 要边跑边看。最后才写 json 意味着跑一小时的中间过程全看不见，
+        # 所以每出一个桶就 append 一行（jsonl），跑挂了也留得住前面的数据。
+        self.save_rows = ""
+        self.fixed_ip = ""
         # 连接池要大于最大并发，否则 httpx 内部排队会把延迟算到「服务端」头上。
         # limits 是 httpx 客户端级的，每个档位重建一次客户端更干净。
         self._ip = 0
@@ -88,7 +101,13 @@ class Runner:
         )
 
     def next_ip(self) -> str:
-        """轮换来源 IP。压测时每个请求算不同的人，否则第二分钟就被自己的限流挡住。"""
+        """轮换来源 IP。压测时每个请求算不同的人，否则第二分钟就被自己的限流挡住。
+
+        --fixed-ip 时全部用同一个 IP：**验证限流本身**必须这么做，
+        否则测的是「10 个不同用户各自没超限」，而不是「同一个人被挡住」。
+        """
+        if self.fixed_ip:
+            return self.fixed_ip
         self._ip += 1
         n = self._ip
         return f"10.{(n >> 16) & 255}.{(n >> 8) & 255}.{n & 255}"
@@ -158,6 +177,141 @@ class Runner:
             "resp_kb": round(statistics.mean(sizes) / 1024, 1) if sizes else 0,
         }
 
+    async def open_loop(self, mode: str, rate: float, duration: float,
+                        bucket: float = 10.0, max_inflight: int = 4000,
+                        vary: bool = False) -> list[dict]:
+        """按固定速率灌流量，**不等回包**。
+
+        跟 closed-loop 的区别是本质的：closed-loop 里系统一慢，客户端自动减速
+        （上一个请求没回来就不发下一个），所以永远压不垮系统，只能看到「吞吐饱和 +
+        延迟上升」。它回答不了「上线会不会雪崩」。
+
+        open-loop 才是线上的形状：用户不管你处不处理得了，该来还是来。
+        判据不是 RPS，是**积压**（已发出、还没回来的请求数）：
+            - 积压在 0 附近抖 -> 系统跟得上
+            - 积压线性上涨   -> 已经过载，只是还没死；再跑下去就是超时、内存涨、雪崩
+        所以这里每 `bucket` 秒打一行，把积压和尾延迟放在一起看。
+
+        max_inflight 是客户端的自我保护：真过载时如果无限建 task，先炸的是压测机。
+        触发它就说明「服务端处理不过来」，这本身是要记录的数据（dropped）。
+        """
+        method, path, body, _ = MODES[mode]
+        c = self.client(max(64, int(min(rate, 512)) * 2))
+        t0 = time.perf_counter()
+        total = int(rate * duration)
+        sent = dropped = 0
+        tasks: set[asyncio.Task] = set()
+        done_q: asyncio.Queue = asyncio.Queue()
+
+        async def fire():
+            try:
+                r = await self.one(c, method, path,
+                                   ({**body, "question": f"{body['question']} {secrets.token_hex(4)}"}
+                                    if vary and body else body))
+            except Exception as e:                  # noqa: BLE001
+                r = (0.0, 0, f"client:{type(e).__name__}", 0)
+            done_q.put_nowait(r)
+
+        # 预热一次，理由同 level()：别让冷启动混进第一个桶
+        await self.one(c, method, path, body)
+
+        rows: list[dict] = []
+        win: list[float] = []
+        codes: dict[int, int] = {}
+        errs: dict[str, int] = {}
+        last = 0.0
+        peak_inflight = 0
+
+        def flush(now: float, force: bool = False) -> None:
+            nonlocal win, codes, errs, last, peak_inflight
+            dur = now - last
+            if dur < bucket and not force:
+                return
+            n = len(win)
+            row = {
+                "t": round(now, 1),
+                "window_s": round(dur, 1),
+                "sent": sent,
+                "done": n,
+                "rps": round(n / dur, 2) if dur > 0 else 0,
+                "p50": round(pct(win, 50), 1),
+                "p95": round(pct(win, 95), 1),
+                "p99": round(pct(win, 99), 1),
+                "max": round(max(win), 1) if win else 0,
+                "inflight": len(tasks),
+                "peak_inflight": peak_inflight,
+                "dropped": dropped,
+                "codes": {str(k): v for k, v in sorted(codes.items())},
+                "top_err": (sorted(errs.items(), key=lambda kv: -kv[1])[:1] or [("", 0)])[0],
+            }
+            rows.append(row)
+            print(f"[{row['t']:>7.1f}s] 发 {row['sent']:>6} 完 {row['done']:>6}  "
+                  f"实到 {row['rps']:>7.2f}/s  p50 {row['p50']:>6.0f}m  p95 {row['p95']:>7.0f}m  "
+                  f"积压 {row['inflight']:>5}" + (f" (峰值 {peak_inflight})" if peak_inflight else "")
+                  + (f"  丢 {dropped}" if dropped else "")
+                  + (f"  错 {row['top_err'][1]}×{row['top_err'][0][:40]}" if row["top_err"][1] else ""))
+            win, codes, errs, last, peak_inflight = [], {}, {}, now, len(tasks)
+
+        while True:
+            now = time.perf_counter() - t0
+            if now >= duration:
+                break
+            # 到此刻按速率应该一共发出多少个。用「应该发多少」而不是「每次 sleep 1/rate」，
+            # 是因为后者会累积误差：rate=2 时每轮 sleep 0.5s，加上循环本身的开销，
+            # 跑一小时能少发几十个请求。
+            due = min(total, int(now * rate) + 1)
+            while sent < due:
+                if len(tasks) >= max_inflight:
+                    dropped += 1
+                    sent += 1               # 算发过了，但客户端放弃了 —— 也是数据
+                    continue
+                t = asyncio.create_task(fire())
+                tasks.add(t)
+                t.add_done_callback(discard_task(tasks))
+                sent += 1
+            while not done_q.empty():
+                dt, st, err, _sz = done_q.get_nowait()
+                win.append(dt)
+                codes[st] = codes.get(st, 0) + 1
+                if err:
+                    errs[err] = errs.get(err, 0) + 1
+            peak_inflight = max(peak_inflight, len(tasks))
+            before = len(rows)
+            flush(now)
+            # 每出一个桶就顺手拉一次 /stats。soak 要看的不是内存的绝对值，
+            # 是它在几小时里有没有单调上涨 —— 所以必须和时间轴对齐记下来。
+            if len(rows) > before and self.stats_base:
+                st = await fetch_stats(self.stats_base, self.code)
+                if st:
+                    rows[-1]["rss_mb"] = st.get("rss_mb")
+                    rows[-1]["today_used"] = st.get("today_used")
+                    rows[-1]["log_dropped"] = st.get("log_dropped")
+                    print(f"{'':>10}内存 {st.get('rss_mb')} MB  今日计数 {st.get('today_used')}"
+                          f"  日志丢弃 {st.get('log_dropped')}")
+            if len(rows) > before and self.save_rows:
+                # 落盘放在采样之后：先写的话，文件里的行永远缺 rss（第一版就踩了，
+                # 内存列全是 null，而存在内存里的 rows 是有值的）。
+                try:
+                    with open(self.save_rows, "a", encoding="utf-8") as f:
+                        f.write(json.dumps(rows[-1], ensure_ascii=False) + "\n")
+                except OSError:
+                    pass
+            await asyncio.sleep(0.01)       # 10ms 粒度：rate 1000 时每轮 10 个请求
+
+        # 收尾：把还在飞的等回来（最多给 60 秒），否则超时的请求会被漏算
+        print(f"\n发送结束（{sent} 个，丢弃 {dropped}），等剩下的 {len(tasks)} 个回来…")
+        if tasks:
+            await asyncio.wait(set(tasks), timeout=60)
+        while not done_q.empty():
+            dt, st, err, _sz = done_q.get_nowait()
+            win.append(dt)
+            codes[st] = codes.get(st, 0) + 1
+            if err:
+                errs[err] = errs.get(err, 0) + 1
+        flush(time.perf_counter() - t0, force=True)
+        await c.aclose()
+        return rows
+
 
 async def fetch_stats(base, code):
     """拉服务端的自报数。压测器算出来 200 RPS，服务端说只处理了 40 个请求，
@@ -170,7 +324,8 @@ async def fetch_stats(base, code):
                 return None
             d = r.json()
             return {k: d.get(k) for k in
-                    ("requests", "cache_hits", "rate_limited", "llm_calls")}
+                    ("requests", "cache_hits", "rate_limited", "llm_calls",
+                     "rss_mb", "log_written", "log_dropped", "today_used")}
     except Exception:                               # noqa: BLE001
         return None
 
@@ -185,6 +340,7 @@ def delta(before, after):
 async def run(args):
     method, path, body, desc = MODES[args.mode]
     r = Runner(args.url, args.code, args.timeout, args.query)
+    r.fixed_ip = args.fixed_ip
     levels = [int(x) for x in args.levels.split(",") if x.strip()]
 
     print(f"目标    {args.url}{path}  [{args.mode}] {desc}")
@@ -192,6 +348,43 @@ async def run(args):
     print(f"口径    closed-loop / 每请求轮换来源 IP（绕过 per-IP 限流）/ 超时 {args.timeout}s"
           + ("  / 每请求换问题（绕开缓存）" if args.vary else ""))
     print()
+
+    if args.open_loop:
+        print(f"模式    OPEN-LOOP：按 {args.rate}/s 灌 {args.duration}s"
+              f"（共 {int(args.rate * args.duration)} 个），不等回包")
+        print(f"判据    积压（inflight）是否单调上涨；上涨 = 已过载，只是还没死\n")
+        if args.save and args.save.endswith(".jsonl"):
+            r.save_rows = args.save
+        rows = await r.open_loop(args.mode, args.rate, args.duration,
+                                 args.bucket, args.max_inflight, args.vary)
+        done = sum(x["done"] for x in rows)
+        fail = sum(v for x in rows for k, v in x["codes"].items() if k not in ("200", "0"))
+        print(f"\n总发出 {rows[-1]['sent']}  完成 {done}  客户端丢弃 {rows[-1]['dropped']}  "
+              f"非 200 共 {fail}")
+        # 判定只看「发送期间」，不能看最后一行：收尾阶段会把积压排空，
+        # 拿最后一行判会得出「跟得上」的相反结论（第一版就是这么错的）。
+        run_rows = rows[:-1] if len(rows) > 1 else rows
+        peak = max((x["peak_inflight"] for x in run_rows), default=0)
+        p95s = [x["p95"] for x in run_rows if x["p95"] > 0]
+        signals = []
+        if rows[-1]["dropped"]:
+            signals.append(f"客户端丢弃 {rows[-1]['dropped']} 个（发出去了但系统吃不下）")
+        if peak >= args.max_inflight * 0.9:
+            signals.append(f"积压打满上限 {peak}")
+        if len(p95s) >= 2 and p95s[-1] > p95s[0] * 3:
+            signals.append(f"p95 从 {p95s[0]:.0f}ms 涨到 {p95s[-1]:.0f}ms")
+        print("\n判定：" + ("；".join(signals) + "  -> 过载" if signals
+                            else "积压平稳、尾延迟稳定  -> 跟得上"))
+        rss = [x["rss_mb"] for x in rows if x.get("rss_mb")]
+        if len(rss) > 1:
+            print(f"内存：{rss[0]} -> {rss[-1]} MB（涨 {round(rss[-1] - rss[0], 1)}）")
+        if args.save:
+            with open(args.save, "w", encoding="utf-8") as f:
+                json.dump({"mode": args.mode, "open_loop": True, "rate": args.rate,
+                           "duration": args.duration, "rows": rows}, f,
+                          ensure_ascii=False, indent=1)
+            print(f"已存 {args.save}")
+        return rows
 
     head = f"{'并发':>4} {'请求':>5} {'耗时':>7} {'RPS':>8} {'p50':>8} {'p95':>8} {'p99':>8} {'max':>8} {'返回':>6}  状态码"
     print(head)
@@ -250,6 +443,14 @@ def main():
     ap.add_argument("--vary", action="store_true",
                     help="每个请求换一个问题（加随机后缀），绕开缓存去打上游。测链路用这个")
     ap.add_argument("--verify", action="store_true", help="压测前后拉 /stats 对账")
+    ap.add_argument("--open-loop", action="store_true",
+                    help="按固定速率灌流量、不等回包。看积压与雪崩点用这个")
+    ap.add_argument("--rate", type=float, default=2.0, help="open-loop 的目标速率（req/s）")
+    ap.add_argument("--duration", type=float, default=60.0, help="open-loop 持续时间（秒）")
+    ap.add_argument("--bucket", type=float, default=10.0, help="每多少秒打一行")
+    ap.add_argument("--max-inflight", type=int, default=4000,
+                    help="在飞请求上限（客户端自保，触发说明服务端处理不过来）")
+    ap.add_argument("--fixed-ip", default="", help="所有请求用同一个来源 IP（验证限流时用）")
     ap.add_argument("--query", default="", help="附加到每个请求的 query，如 sharecode=xxx")
     ap.add_argument("--save", default="")
     # 通用模式：压任意路径。验证「同步路由在线程池里跑」这类框架行为时用得上，

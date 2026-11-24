@@ -1398,6 +1398,17 @@ RATE_LIMIT_PER_MIN = int(os.getenv("RATE_LIMIT_PER_MIN", "12"))
 DAILY_QUOTA = int(os.getenv("DAILY_QUOTA", "300"))
 CACHE_MAX = int(os.getenv("CACHE_MAX", "500"))
 
+# 多 worker 的状态共享。默认 memory，走下面那套原有代码，行为一个字节都没变；
+# 只有显式 STATE_BACKEND=sqlite 才切到共享存储。
+# 为什么开多 worker 必须切：缓存、限流、日额度都是进程内变量，4 个 worker
+# 就是 4 份缓存、每人每分钟 48 次、日额度 1200 —— 限流失效比变快严重得多。
+STATE_BACKEND = os.getenv("STATE_BACKEND", "memory").strip().lower()
+STORE = None
+if STATE_BACKEND == "sqlite":
+    import shared_state
+
+    STORE = shared_state.SqliteStore(os.getenv("STATE_DB", ".state.db"), CACHE_MAX)
+
 _cache: "OrderedDict[str, dict]" = OrderedDict()      # 键 -> 完整返回体
 _cache_lock = threading.Lock()
 _rate: dict[str, deque] = {}                          # ip -> 请求时间戳
@@ -1444,6 +1455,11 @@ def cache_key(mode: str, fallback: bool, question: str) -> str:
 
 
 def cache_get(key: str) -> dict | None:
+    if STORE is not None:
+        body = STORE.cache_get(key)
+        if body is not None:
+            STATS["cache_hits"] += 1
+        return body
     with _cache_lock:
         body = _cache.get(key)
         if body is None:
@@ -1454,6 +1470,9 @@ def cache_get(key: str) -> dict | None:
 
 
 def cache_put(key: str, body: dict) -> None:
+    if STORE is not None:
+        STORE.cache_put(key, dict(body))
+        return
     with _cache_lock:
         _cache[key] = dict(body)
         _cache.move_to_end(key)
@@ -1467,6 +1486,11 @@ def rate_check(ip: str) -> float:
     用滑动窗口而不是固定窗口：固定窗口在整分钟边界上会放过 2 倍流量
     （59 秒打满 + 01 秒再打满），对「防刷」这种场景刚好是最坏的形状。
     """
+    if STORE is not None:
+        wait = STORE.rate_wait(ip, RATE_LIMIT_PER_MIN)
+        if wait > 0:
+            STATS["rate_limited"] += 1
+        return wait
     now = time.monotonic()
     with _rate_lock:
         q = _rate.setdefault(ip, deque())
@@ -1486,7 +1510,13 @@ def rate_check(ip: str) -> float:
 
 
 def daily_check() -> bool:
-    """全站每天的总配额。这是最后一道闸：前面两层都能被绕过，这个绕不过。"""
+    """全站每天的总配额。这是最后一道闸：前面两层都能被绕过，这个绕不过。
+
+    sqlite 后端下用一条 UPSERT + RETURNING，不会出现「两个 worker 同时
+    读到 299 都放行」的竞态；memory 后端下只有一个进程，锁就够。
+    """
+    if STORE is not None:
+        return STORE.daily_take(DAILY_QUOTA)
     today = time.strftime("%Y-%m-%d")
     with _rate_lock:
         if _day["date"] != today:
@@ -2060,6 +2090,42 @@ def queries(request: Request, limit: int = 100, refused: int = 0, fmt: str = "js
     }
 
 
+def _rss_mb() -> float | None:
+    """当前进程的常驻内存。soak 测试靠它回答「跑一小时会不会一直涨」。
+
+    不为一个数拉 psutil：两种平台的取值都只有几行。取不到就返回 None ——
+    监控字段不许把 /stats 弄成 500。
+    """
+    try:
+        if os.name == "nt":
+            import ctypes
+            from ctypes import wintypes
+
+            class _PMC(ctypes.Structure):
+                _fields_ = [("cb", wintypes.DWORD), ("PageFaultCount", wintypes.DWORD),
+                            ("PeakWorkingSetSize", ctypes.c_size_t),
+                            ("WorkingSetSize", ctypes.c_size_t),
+                            ("QuotaPeakPagedPoolUsage", ctypes.c_size_t),
+                            ("QuotaPagedPoolUsage", ctypes.c_size_t),
+                            ("QuotaPeakNonPagedPoolUsage", ctypes.c_size_t),
+                            ("QuotaNonPagedPoolUsage", ctypes.c_size_t),
+                            ("PagefileUsage", ctypes.c_size_t),
+                            ("PeakPagefileUsage", ctypes.c_size_t)]
+            pmc = _PMC()
+            pmc.cb = ctypes.sizeof(_PMC)
+            ok = ctypes.windll.psapi.GetProcessMemoryInfo(
+                ctypes.windll.kernel32.GetCurrentProcess(),
+                ctypes.byref(pmc), pmc.cb)
+            return round(pmc.WorkingSetSize / 1024 / 1024, 1) if ok else None
+        with open("/proc/self/status", encoding="utf-8") as f:
+            for line in f:
+                if line.startswith("VmRSS:"):
+                    return round(int(line.split()[1]) / 1024, 1)
+    except Exception:      # noqa: BLE001
+        return None
+    return None
+
+
 @app.get("/stats")
 def stats():
     """上线后看这个：缓存命中率、限流拦了多少、实际打了多少次上游、补全失败几次。
@@ -2070,15 +2136,20 @@ def stats():
     return {
         **STATS,
         "uptime_s": round(time.time() - STATS["started"], 1),
-        "cache_size": len(_cache),
+        # sqlite 后端下这几个数要从共享库取：本进程的 _cache 是空的，
+        # 报 0 会让人以为缓存没生效。
+        "state_backend": STATE_BACKEND,
+        "cache_size": STORE.cache_size() if STORE else len(_cache),
         "cache_max": CACHE_MAX,
         "cache_hit_rate": round(hit_rate, 3),
         "rate_limit_per_min": RATE_LIMIT_PER_MIN,
         "daily_quota": DAILY_QUOTA,
-        "today_used": _day["used"],
+        "today_used": STORE.daily_used() if STORE else _day["used"],
         "auth_required": bool(ACCESS_CODE),
         # token 消耗。只给数，不给钱 —— 单价按你自己的控制台乘（cost_report.py 有式子）。
         "cost": dict(COST),
+        # soak 用：内存是不是稳定。数字本身不重要，一小时内有没有单调上涨才重要。
+        "rss_mb": _rss_mb(),
         **session_stats(),
     }
 

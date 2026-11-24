@@ -122,3 +122,13 @@ prices.json
 .lt_*.json
 .qa_bench*.jsonl
 .r1.json
+
+# 共享状态库文件（多 worker 测试产物）
+.state*.db
+.state*.db-wal
+.state*.db-shm
+# soak / open-loop 的采样产物
+.soak.jsonl
+.soak_stats.csv
+.st.json
+.s.json
