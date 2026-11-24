@@ -89,6 +89,9 @@ def fresh():
 
 
 def lines():
+    # 日志改成后台线程攒批写了，断言文件内容前必须等它落盘，
+    # 否则测的是「写手还没跑到」——那不是 bug，是断言比实现快的时序错。
+    app.flush_query_log()
     if not TMP.exists():
         return []
     raw = TMP.read_text(encoding="utf-8").strip()
@@ -182,6 +185,9 @@ finally:
     app.ACCESS_CODE = ""
 
 print("\n【六、关掉就不写；写盘炸了不影响答题】")
+# 先把上一节残留的队列写空，再 clean。否则那批记录会在「关掉开关」之后才落盘，
+# 看着像「关掉了还在写」——实际上是关之前的，异步写的时序问题，不是逻辑问题。
+app.flush_query_log()
 fresh()
 app.QUERY_LOG_ON = False
 d = ask("深蹲膝盖要不要过脚尖")

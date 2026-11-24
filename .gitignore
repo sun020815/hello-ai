@@ -117,3 +117,8 @@ prices.json
 .plan_cost.json
 .plan_v2.json
 .server8021.log
+
+# 压测原始数据（每次跑都不同，结论在 docs/load_test.md 里）
+.lt_*.json
+.qa_bench*.jsonl
+.r1.json

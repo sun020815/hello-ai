@@ -1,6 +1,7 @@
 import hashlib
 import json
 import os
+import queue
 import random
 import re
 import threading
@@ -9,7 +10,10 @@ import uuid
 import urllib.error
 import urllib.request
 from collections import OrderedDict, deque
+from contextlib import asynccontextmanager
 from pathlib import Path
+
+import anyio.to_thread
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
@@ -29,7 +33,40 @@ except ImportError:      # pragma: no cover - 只在不装 numpy 的环境走到
 
 load_dotenv()
 
-app = FastAPI()
+# ---------- 同步路由的并发上限 ----------
+# /rag、/chat、/plan 都是同步 def，FastAPI 会把它们丢进 anyio 线程池执行，
+# 池子默认只有 40 个线程。这不是「建议值」，是硬墙：第 41 个请求开始排队，
+# 而排队时间会计进用户看到的延迟里。
+#
+# 压测实测（tp_limit.py，一个只 sleep 0.5 秒的同步路由）：
+#   并发 40 -> 73.7 RPS，p50 505ms          （40 个线程刚好够）
+#   并发 80 -> 76.0 RPS，p50 1003ms         （RPS 一点没涨，延迟翻倍 = 全在排队）
+#   池子调到 120，同样的 80 并发 -> 141 RPS，p50 511ms
+# 所以这个数是可以挪的，一个环境变量的事。
+#
+# 但默认不挪。原因有两层：
+#   1. 线程是稀缺资源，每个线程要栈；32 位解释器下把池子开到几百，内存先炸。
+#   2. 这个服务真正的瓶颈是上游模型（一次 5~10 秒），线程池放大只会让更多请求
+#      同时压到上游，触发对方的并发限制 —— 墙从「自己排队」变成「对面拒绝」，
+#      用户看到的东西没变好。
+# 要调就显式给 THREAD_LIMIT，并且先想清楚上面两条。
+THREAD_LIMIT = int(os.getenv("THREAD_LIMIT", "0"))
+
+
+@asynccontextmanager
+async def _lifespan(_app: FastAPI):
+    if THREAD_LIMIT:
+        anyio.to_thread.current_default_thread_limiter().total_tokens = THREAD_LIMIT
+    yield
+    # 正常退出（SIGTERM / Ctrl-C）时把队列里还没落盘的问法写完。
+    # 日志是异步写的，不 flush 就等于「每次重启丢掉最后几百毫秒的样本」。
+    try:
+        flush_query_log()
+    except Exception:      # noqa: BLE001 —— 退出路径上不许再抛
+        pass
+
+
+app = FastAPI(lifespan=_lifespan)
 
 LLM_API_KEY = os.getenv("LLM_API_KEY", "")
 LLM_BASE_URL = os.getenv("LLM_BASE_URL", "https://api.siliconflow.cn/v1")
@@ -1370,6 +1407,9 @@ STATS = {"requests": 0, "cache_hits": 0, "rate_limited": 0, "llm_calls": 0,
          "condense_calls": 0, "condense_failed": 0,
          "decomp_calls": 0, "decomp_failed": 0, "decomp_paths": 0,
          "plans": 0, "plan_tool_calls": 0, "plan_review": 0,
+         # 问法日志改成异步写之后，这三个数是它健康与否的唯一证据：
+         # 写成功多少、因队列满丢了多少、落盘失败了多少。
+         "log_written": 0, "log_dropped": 0, "log_write_failed": 0,
          "started": time.time()}
 
 
@@ -1511,7 +1551,94 @@ QUERY_LOG_ON = os.getenv("QUERY_LOG_ON", "1").strip() not in ("0", "false", "off
 QUERY_LOG = Path(os.getenv("QUERY_LOG", ".qa_log.jsonl"))
 QUERY_LOG_MAX_MB = float(os.getenv("QUERY_LOG_MAX_MB", "8"))
 QUERY_LOG_RING = deque(maxlen=500)
-_qlock = threading.Lock()
+
+# 问法日志原来是「每个请求在全局锁里 stat 一次文件、open 一次、write、close」。
+# 压测（load_test.py）量出来这件事的代价：热缓存路径 342 RPS，关掉日志后 693 RPS
+# —— 一个做统计的旁路功能，把整个服务的吞吐砍掉一半，而它连答案都不影响。
+# 根因不是 write 慢，是「每个请求都 open/close 一次文件」+「全站在同一把锁上排队」。
+#
+# 改成：请求线程只做两件内存操作（进 ring、进队列），文件由一个后台线程攒批写。
+# 一次 open 写 100 条，锁从「每请求一次」变成「每 100 条一次」，请求线程上不再有 IO。
+#
+# 代价要说清楚：进程被 kill 时，队列里还没落盘的那几十条会丢。这些是「用户问了什么」
+# 的统计样本，丢几十条不影响任何判断；而为了不丢它让每个用户多等 2ms，是笔亏本买卖。
+_logq: "queue.Queue[dict]" = queue.Queue(maxsize=int(os.getenv("QUERY_LOG_QUEUE", "5000")))
+_logq_thread: threading.Thread | None = None
+_logq_guard = threading.Lock()
+LOG_BATCH = int(os.getenv("QUERY_LOG_BATCH", "100"))      # 一批最多写多少条
+LOG_FLUSH_SEC = float(os.getenv("QUERY_LOG_FLUSH_SEC", "0.2"))  # 或者攒够 200ms 就先写
+
+
+def _flush_log(buf: list[dict]) -> None:
+    """把一批记录落到文件。整个函数只在后台线程里跑，所以不需要锁。"""
+    if not buf:
+        return
+    try:
+        size = QUERY_LOG.stat().st_size if QUERY_LOG.exists() else 0
+        if size > QUERY_LOG_MAX_MB * 1024 * 1024:
+            QUERY_LOG.replace(QUERY_LOG.with_name(QUERY_LOG.name + ".1"))
+        # 一次 open 写一批：这才是省下来的东西。逐条写的话 100 条要 100 次 open/close。
+        with QUERY_LOG.open("a", encoding="utf-8") as f:
+            f.write("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in buf))
+        STATS["log_written"] += len(buf)
+    except OSError as e:
+        STATS["log_write_failed"] += len(buf)
+        print(f"[qa_log] 落盘失败 {len(buf)} 条：{type(e).__name__}: {e}")
+
+
+def _log_writer() -> None:
+    """后台写手。攒批 + 超时就写，避免「流量小的时候日志一直卡在内存里」。"""
+    buf: list[dict] = []
+    while True:
+        try:
+            buf.append(_logq.get(timeout=1.0))
+        except queue.Empty:
+            continue
+        deadline = time.monotonic() + LOG_FLUSH_SEC
+        while len(buf) < LOG_BATCH:
+            left = deadline - time.monotonic()
+            if left <= 0:
+                break
+            try:
+                buf.append(_logq.get(timeout=left))
+            except queue.Empty:
+                break
+        _flush_log(buf)
+        buf = []
+
+
+def flush_query_log(timeout: float = 3.0) -> bool:
+    """等队列里的记录全部落盘。两处要用：进程正常退出前，和测试断言文件内容前。
+
+    判断标准不能是「队列空了」——队列空的那一刻，写手可能正拿着一批在写文件。
+    要「队列空」且「连续安静一个 flush 周期」，才算写完。
+    """
+    if _logq_thread is None or not _logq_thread.is_alive():
+        return True
+    end = time.monotonic() + timeout
+    quiet_since: float | None = None
+    while time.monotonic() < end:
+        if _logq.empty():
+            quiet_since = quiet_since or time.monotonic()
+            if time.monotonic() - quiet_since > LOG_FLUSH_SEC + 0.05:
+                return True
+        else:
+            quiet_since = None
+        time.sleep(0.02)
+    return False
+
+
+def _ensure_log_writer() -> None:
+    """懒启动写手线程。不在 import 时起，是为了 --reload 或测试里 import 模块
+    不会凭空多出一个线程；双重检查是为了并发首请求不会起两个。"""
+    global _logq_thread
+    if _logq_thread is not None and _logq_thread.is_alive():
+        return
+    with _logq_guard:
+        if _logq_thread is None or not _logq_thread.is_alive():
+            t = threading.Thread(target=_log_writer, name="query-log-writer", daemon=True)
+            t.start()
+            _logq_thread = t
 
 
 def log_query(body: dict, ctx: dict | None, mode: str = "", src: str = "",
@@ -1551,15 +1678,16 @@ def log_query(body: dict, ctx: dict | None, mode: str = "", src: str = "",
         # 补全过的才记 rq：两个字段都在时，「补歪了」是可以看出来的
         if resolved and resolved != raw:
             rec["rq"] = resolved
-        with _qlock:
-            QUERY_LOG_RING.append(rec)
-            try:
-                if QUERY_LOG.exists() and QUERY_LOG.stat().st_size > QUERY_LOG_MAX_MB * 1024 * 1024:
-                    QUERY_LOG.replace(QUERY_LOG.with_name(QUERY_LOG.name + ".1"))
-            except OSError:
-                pass
-            with QUERY_LOG.open("a", encoding="utf-8") as f:
-                f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+        # 请求线程上只允许出现内存操作：
+        #   deque.append 是 C 实现的原子操作，不需要锁，也不会有 IO 等待；
+        #   put_nowait 队列满时立刻抛满，不阻塞 —— 宁可丢日志，不可让请求卡住。
+        # _qlock 就此退场：它原来保护的是「ring + 文件」这一整段，现在那段只剩内存操作了。
+        QUERY_LOG_RING.append(rec)
+        _ensure_log_writer()
+        try:
+            _logq.put_nowait(rec)
+        except queue.Full:
+            STATS["log_dropped"] += 1
     except Exception as e:      # noqa: BLE001 —— 旁路功能，任何异常都不许往上冒
         print(f"[qa_log] 写日志失败（不影响答题）：{type(e).__name__}: {e}")
 
@@ -1582,9 +1710,22 @@ def tail_queries(n: int = 100) -> list[dict]:
             out.append(json.loads(line))
         except json.JSONDecodeError:
             continue
+    # 文件由后台线程攒批写，最多滞后 LOG_FLUSH_SEC（默认 200ms）。刚问完立刻看
+    # /queries 会看不到那一条，所以用内存 ring 把文件里还没有的补上。
+    # 去重键是 (时间, 问题)：rec 里没有唯一 id，而这两字段组合在实际使用中够用。
+    # copy() 是原子的，直接迭代 deque 会撞上「迭代期间被 append」而报错。
+    # 但 copy() 返回的还是 deque，deque 不支持切片 —— 所以再套一层 list。
+    recent = list(QUERY_LOG_RING.copy())
     if not out:
-        return list(QUERY_LOG_RING)[-n:]
-    return out
+        return recent[-n:]
+    seen = {(r.get("t"), r.get("q")) for r in out[-max(n, 500):]}
+    extra = []
+    for r in recent:
+        k = (r.get("t"), r.get("q"))
+        if k not in seen:
+            seen.add(k)
+            extra.append(r)
+    return (out + extra)[-n:]
 
 
 def finish(body: dict, key: str | None, ctx: dict | None = None) -> dict:
