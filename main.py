@@ -1792,8 +1792,9 @@ def finish(body: dict, key: str | None, ctx: dict | None = None) -> dict:
 #      资料以外的信息来源，会开始编。
 #   2. 补全是**有条件**的。每轮都补一次等于每轮多花一次调用（约 0.5 秒），
 #      而真实对话里「完整问题」远多于「省略追问」。所以先看这句话像不像追问。
-#   3. 会话状态是**进程内存**的。跟缓存、限流一个道理：单实例演示够用，
-#      多实例就得挪到 Redis。不假装它是持久化的。
+#   3. 会话状态是**进程内存**的。缓存和限流已经外置到 SQLite 了，会话没跟——
+#      会话天然绑定一段连续对话，多 worker 下靠 session affinity 就能解，
+#      外置它反而要每轮多一次读写。不假装它是持久化的。
 
 SESSION_MAX = int(os.getenv("SESSION_MAX", "200"))       # 最多同时保留多少个会话
 SESSION_TURNS = int(os.getenv("SESSION_TURNS", "6"))     # 每个会话保留最近几轮
