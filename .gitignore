@@ -32,6 +32,9 @@ wheels/
 # 微信接口临时 token，绝不能提交
 .wx_token.tmp
 
+# 覆盖菜单前自动留的旧菜单快照（含账号配置，别进公开仓库）
+.wechat_menu_backup.json
+
 # 从公众号拉下来的文章（派生内容，可用 pull_wechat_articles.py 重新生成）
 .wechat_pull/
 

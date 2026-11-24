@@ -23,12 +23,14 @@ import base64
 import json
 import os
 import sys
+import time
 import urllib.parse
 import urllib.request
 from pathlib import Path
 
 ENV_FILE = Path.home() / ".workbuddy" / "wechat-mp.env"
 DEFAULT_TOKEN_FILE = Path(".wx_token.tmp")
+BACKUP_FILE = Path(".wechat_menu_backup.json")
 API = "https://api.weixin.qq.com/cgi-bin"
 
 
@@ -97,6 +99,45 @@ def get_token(appid, secret, relay=""):
     return d["access_token"]
 
 
+def get_token_wait(appid, secret, relay="", timeout=1200, interval=15):
+    """等白名单生效。
+
+    后台改完白名单到真正生效之间有一段不确定的延迟（实测几分钟到十几分钟）。
+    与其让人反复手动跑脚本，不如让它自己等：失败只打一行进度，成功那一刻才说话。
+
+    只有 40164（IP 不在白名单）值得等。换 appid、secret 错了这类问题等多久都好不了，
+    立刻退出，别让人对着一个不会有结果的循环发呆。
+    """
+    t0 = time.time()
+    n = 0
+    while True:
+        n += 1
+        try:
+            d = call("GET", f"{API}/token?grant_type=client_credential"
+                            f"&appid={appid}&secret={secret}", None, relay)
+        except Exception as e:                     # 断网、超时：也算「还没好」，继续等
+            d = {"errcode": -1, "errmsg": f"{type(e).__name__}: {str(e)[:60]}"}
+        if d.get("access_token"):
+            print(f"  ✓ 白名单已生效（第 {n} 次尝试，等了 {time.time() - t0:.0f} 秒）\n")
+            return d["access_token"]
+
+        code = d.get("errcode")
+        left = timeout - (time.time() - t0)
+        if left <= 0:
+            print(f"  × 等了 {timeout} 秒仍是 {code}：{str(d.get('errmsg'))[:100]}")
+            print("\n  两个最可能的原因：")
+            print("   1. 白名单里填的 IP 不是微信看到的那个 ——"
+                  "浏览器里查到的「我的 IP」常常是代理的美国节点，")
+            print("      必须用报错里 invalid ip 后面那个（本次是 115.63.70.186）")
+            print("   2. 加完没点保存，或者要管理员扫码确认才生效")
+            sys.exit(1)
+        if code != 40164:
+            print(f"  × 不是白名单问题，不用等了：{code} {str(d.get('errmsg'))[:100]}")
+            sys.exit(1)
+        print(f"  … 还没生效（{left:.0f}s 内继续试，每 {interval}s 一次）")
+        time.sleep(interval)
+
+
 def build_menu(url: str, name: str):
     """一个按钮就够。名字必须 ≤ 16 字节，5 个汉字是上限。"""
     if len(name.encode("utf-8")) > 16:
@@ -126,6 +167,9 @@ def main():
     ap.add_argument("--dry-run", action="store_true", help="只打印要提交的 JSON")
     ap.add_argument("--delete", action="store_true", help="删除菜单")
     ap.add_argument("--force", action="store_true", help="确认覆盖现有菜单")
+    ap.add_argument("--wait", action="store_true",
+                    help="反复重试直到 IP 白名单生效（改完白名单用这个，不用干等）")
+    ap.add_argument("--wait-timeout", type=int, default=1200, help="最多等多少秒，默认 1200")
     args = ap.parse_args()
 
     q = {"sharecode": args.sharecode, "k": args.code, "src": args.src}
@@ -144,7 +188,8 @@ def main():
         return
 
     appid, secret = load_creds()
-    token = get_token(appid, secret, args.relay)
+    token = (get_token_wait(appid, secret, args.relay, args.wait_timeout)
+             if args.wait else get_token(appid, secret, args.relay))
 
     if args.show:
         show_menu(token, args.relay)
@@ -163,6 +208,20 @@ def main():
         print("\ncreate 会**整体覆盖**现有菜单，所以默认不写。")
         print("先跑 --show 看一眼现在的菜单，确认要覆盖后加 --force。")
         return
+
+    # 覆盖前先备份。create 是整体覆盖，万一把别的菜单冲掉了，
+    # 手里有这个 JSON 就能照着逐字填回去 —— 不然只能凭记忆重搭。
+    cur = call("GET", f"{API}/menu/get?access_token={token}", None, args.relay)
+    if not cur.get("errcode"):
+        BACKUP_FILE.write_text(json.dumps(cur.get("menu", {}), ensure_ascii=False, indent=2),
+                               encoding="utf-8")
+        print(f"已备份现有菜单 → {BACKUP_FILE}")
+        if (cur.get("menu") or {}).get("button"):
+            print("现有菜单（下面这个会被整体替换）：")
+            print(json.dumps(cur["menu"], ensure_ascii=False, indent=2))
+        else:
+            print("现有菜单是空的（没有会被冲掉的东西）")
+        print()
 
     d = call("POST", f"{API}/menu/create?access_token={token}", menu, args.relay)
     print("创建结果：", d)
