@@ -86,3 +86,6 @@ eval_cases.json.bak-*
 # 复合拆解：拆解结果与各路精排分（本地产物，重算要花钱）
 .eval_compound*.json
 .probe_decompose.json
+
+# 简历材料（含个人求职信息，不进公开仓库）
+docs/resume_project.md
