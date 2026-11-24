@@ -20,6 +20,7 @@ import argparse
 import json
 import re
 import sys
+import time
 import urllib.parse
 import urllib.request
 from collections import Counter
@@ -27,6 +28,11 @@ from pathlib import Path
 
 LOG = Path(".qa_log.jsonl")
 ORAL_CASES = Path("eval_cases_colloquial.json")
+
+# 判定门槛与精排抖动带。门槛必须跟 main.RERANK_THRESHOLD 一致，改了一边记得改另一边；
+# 不在脚本里 import main 是因为这个脚本要能脱离 .env / 模型依赖单独跑（分析日志是纯读操作）。
+THRESHOLD = 0.95
+JITTER_BAND = 0.02       # 实测同句重跑极差 0.0007~0.0055，取 0.02 留足余量
 OUT = Path(".query_candidates.json")
 
 PUNCT = re.compile(r"[\s，。！？、,.!?;:；：\"'“”‘’()（）\[\]【】…—~-]")
@@ -96,6 +102,9 @@ def main():
     ap.add_argument("--src", default="", help="只看某个来源（mp / h5 / api）")
     ap.add_argument("--file", default=str(LOG), help="日志文件路径（默认 .qa_log.jsonl）")
     ap.add_argument("--export", action="store_true", help="导出评测集没覆盖的拒答问法")
+    ap.add_argument("--since", default="",
+                    help="只看这个时间之后的提问，如 13:47 或 2026-11-24T13:47。"
+                         "补库/换模型之后看效果必须带，否则拿旧账当新问题")
     args = ap.parse_args()
 
     if args.file != str(LOG):
@@ -104,6 +113,12 @@ def main():
             if args.remote else load_local())
     if args.src:
         rows = [r for r in rows if (r.get("src") or "api") == args.src]
+    if args.since:
+        cut = args.since
+        if "T" not in cut:                      # 只给「13:47」就补成今天
+            cut = time.strftime("%Y-%m-%d") + "T" + cut
+        rows = [r for r in rows if (r.get("t") or "") >= cut]
+        print(f"只看 {cut} 之后的提问。")
     if not rows:
         sys.exit("没有可分析的记录。")
 
@@ -124,6 +139,15 @@ def main():
         for d in sorted(days):
             print(f"  {d}  {days[d]:>4}")
 
+    # 按小时看接住率：补库 / 换模型 / 改门槛之后，这一栏会直接跳一格。
+    # 有它才能判断「现在的版本到底行不行」，而不是拿历史累计的失败数吓自己。
+    print("【按小时 · 接住率】")
+    for h in sorted({(r.get("t") or "")[:13] for r in rows}):
+        sub = [r for r in rows if (r.get("t") or "")[:13] == h]
+        hit = sum(1 for r in sub if r.get("ret", r.get("ok")))
+        bar = "█" * round(hit / len(sub) * 20)
+        print(f"  {h[-2:]}时  {hit:>2}/{len(sub):<2} {hit / len(sub) * 100:>5.1f}%  {bar}")
+
     # ---- 2. 高频问题：同一个问题被问了几次 ----
     print("\n【高频问题】Top 10（同一个问题被反复问，说明这条内容最该做透）")
     cq = Counter(norm(r.get("q")) for r in rows)
@@ -141,9 +165,26 @@ def main():
     for r in gap[-40:]:
         top = f"{r['top']:.2f}" if r.get("top") is not None else "—"
         tag = "  【兜底救回，模型在硬撑】" if r.get("fb") else ""
-        print(f"  [{top}] {r.get('q')}{tag}")
+        print(f"  {(r.get('t') or '')[11:16]}  [{top}] {r.get('q')}{tag}")
         if r.get("rq"):
             print(f"        被理解成：{r['rq']}")
+
+    # ---- 3.5 踩线区：分数贴着门槛的题，判定本质上是抛硬币 ----
+    # 实测精排分同一句话重跑会抖 ±0.003（见 README「阈值附近的不确定性」）。
+    # 所以分数落在门槛下方一个抖动带里的题，答/拒取决于这一次调用，不能当结论用。
+    lo = THRESHOLD - JITTER_BAND
+    hi = THRESHOLD + JITTER_BAND
+    edge = [r for r in rows if isinstance(r.get("top"), (int, float)) and lo <= r["top"] < hi]
+    if edge:
+        answered = [r for r in edge if r["top"] >= THRESHOLD]
+        print(f"\n【踩线区 {lo:.2f}~{hi:.2f}】{len(edge)} 条 —— "
+              f"精排分抖动 ±0.003，这些题时答时拒，别拿单次结果下结论")
+        for r in sorted(edge, key=lambda x: x["top"]):
+            side = "刚过线" if r["top"] >= THRESHOLD else "差一点"
+            print(f"  {(r.get('t') or '')[11:16]}  {r['top']:.3f}  [{side}] {r.get('q')}")
+        print(f"  过线 {len(answered)} 条 / 未过线 {len(edge) - len(answered)} 条 —— "
+              f"同一个问题重跑可能换一边")
+
 
     # ---- 4. 与现有口语集的重合度 ----
     if ORAL_CASES.exists():

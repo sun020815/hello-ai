@@ -96,5 +96,7 @@ docs/resume_project.md
 # 真实问法日志（含他人提问原文，绝不进仓库）
 .qa_log.jsonl
 .qa_log.jsonl.1
+# 从线上拉下来的日志快照（同样含真实提问原文）
+.qa_pull.jsonl
 # analyze_queries.py --export 的候选评测题
 .query_candidates.json
