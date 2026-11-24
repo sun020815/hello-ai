@@ -51,7 +51,19 @@ VEC_TOP_K = 2
 # 库里只有 4 条时这个值等于「全召回」，reranker 没什么可挑的；
 # 扩到 40 条之后必须放宽到十几条，否则真正该用的那条压根进不了候选，精排再准也救不回来。
 RECALL_K = 12
-RERANK_TOP_K = 2
+# 精排过线之后，最多把几条资料塞进 prompt。
+#
+# 定 3 不是拍的，是 eval_compound.py 量出来的（35 条复合题 + 200 题老集）：
+#   2 -> 3：复合题话题覆盖率 74.1% -> 86.4%（+12.3），完整覆盖 51.9% -> 74.1%
+#   3 -> 4：覆盖率只再涨 1.3，完整覆盖不动
+# 而 200 题老集上 2/3/4 的 hit@1、拒答率**一模一样**（92.8% / 80.6%），
+# 平均过线条数从 0.86 只涨到 1.00 —— 因为门槛 0.95 很严，普通问题本来就只有
+# 一条资料能过线，top_k 调大对它们没有任何影响。**加条数只对复合问题生效**，
+# 对单意图问题既不帮忙也不添乱，所以这是一次零风险的改动。
+#
+# 3 而不是 4：4 的边际收益 1.3 个点，但塞进 prompt 的无关条目占比从 30.9% 涨到 32.4%，
+# 上下文变长、模型被带偏的概率上升。3 是拐点。
+RERANK_TOP_K = int(os.getenv("RERANK_TOP_K", "3"))
 # rerank 分数低于这个值就当「资料里没有」
 # 注意它和余弦相似度不是一个量纲：0.60 那一套完全不能套用。
 #
@@ -576,6 +588,7 @@ def meta():
         "rerank_model": RERANK_MODEL,
         "rerank_threshold": RERANK_THRESHOLD,
         "recall_k": RECALL_K,
+        "rerank_top_k": RERANK_TOP_K,
         "fallback_enabled": FALLBACK_ENABLED,
         "uncertain_band": UNCERTAIN_BAND,
         "auth_required": bool(ACCESS_CODE),
@@ -584,6 +597,10 @@ def meta():
         "condense_mode": CONDENSE_MODE,
         "session_ttl_s": SESSION_TTL,
         "session_max_turns": SESSION_TURNS,
+        # 复合拆解：默认 off。开着也只对「两个以上分句」的句子生效
+        "decomp_mode": DECOMP_MODE,
+        "decomp_max_subs": DECOMP_MAX_SUBS,
+        "multi_top_k": MULTI_TOP_K,
     }
 
 
@@ -1214,7 +1231,9 @@ _rate: dict[str, deque] = {}                          # ip -> 请求时间戳
 _rate_lock = threading.Lock()
 _day = {"date": "", "used": 0}
 STATS = {"requests": 0, "cache_hits": 0, "rate_limited": 0, "llm_calls": 0,
-         "condense_calls": 0, "condense_failed": 0, "started": time.time()}
+         "condense_calls": 0, "condense_failed": 0,
+         "decomp_calls": 0, "decomp_failed": 0, "decomp_paths": 0,
+         "started": time.time()}
 
 
 def client_ip(request: Request) -> str:
@@ -1317,6 +1336,13 @@ def mark_session(body: dict, ctx: dict | None) -> dict:
     body["resolved_question"] = ctx["resolved"]
     body["condensed"] = bool(ctx["condensed"])
     body["history_turns"] = ctx["hist"]
+    # 拆出来的子问题：这一轮是几路检索的、拆成了什么，直接给调用方看。
+    # 缓存命中时 ctx 里还没有 subs（拆解发生在算缓存键之后），
+    # 就保留缓存体里那份 —— 用 setdefault 而不是覆盖，避免把「2 路」写成「0 路」。
+    if ctx.get("subs"):
+        body["sub_questions"] = list(ctx["subs"])
+    else:
+        body.setdefault("sub_questions", [])
     if ctx.get("tim"):
         # 分阶段耗时：慢的时候能自己说明慢在哪，不用回头猜。
         # 多轮引入了一段「补全」，它跟检索、生成不是一回事，混在一起看不出来。
@@ -1335,9 +1361,13 @@ def finish(body: dict, key: str | None, ctx: dict | None = None) -> dict:
     把一次故障固化成永久的答案，后面所有人拿到的都是那段报错。
     """
     body.setdefault("cached", False)
-    if key and not body.get("degraded"):
-        cache_put(key, body)
-    return mark_session(body, ctx)
+    out = mark_session(body, ctx)
+    # 顺序：**先补齐字段，再写缓存**。反过来的话，缓存里存的是缺了
+    # sub_questions / timings 的版本，第二次命中时这些字段就是空的 ——
+    # 现象是「第一次问能看到拆了几路，再问一次就没了」，比不返回更迷惑人。
+    if key and not out.get("degraded"):
+        cache_put(key, out)
+    return out
 
 
 # ---------- 第七段：多轮会话 ----------
@@ -1501,7 +1531,7 @@ def _param_error(e: Exception) -> bool:
     return any(w in msg for w in _PARAM_ERR_HINTS)
 
 
-def condense_llm(messages):
+def condense_llm(messages, max_tokens: int | None = None):
     """补全专用的模型调用：**关推理、限长、短超时、不重试**。
 
     四个「不」各有理由，都是量出来的：
@@ -1523,7 +1553,8 @@ def condense_llm(messages):
         raise HTTPException(status_code=500, detail=".env 里的 LLM_API_KEY 还没填")
     STATS["llm_calls"] += 1
     fast = CONDENSE_FAST and _cond_fast_ok[0]
-    kw = {"max_tokens": CONDENSE_MAX_TOKENS, "extra_body": {"enable_thinking": False}} if fast else {}
+    n_tok = CONDENSE_MAX_TOKENS if max_tokens is None else max_tokens
+    kw = {"max_tokens": n_tok, "extra_body": {"enable_thinking": False}} if fast else {}
     try:
         return get_client(CONDENSE_TIMEOUT).chat.completions.create(
             model=LLM_MODEL, messages=messages, temperature=0, **kw)
@@ -1649,6 +1680,227 @@ def session_drop(sid: str):
     return {"deleted": session_clear(sid), "session_id": sid}
 
 
+# ---------- 第八段：复合问题拆解（做完了，但默认关着）----------
+# 起因是一类「一句话问两件事」的输入：
+#   「卧推的时候手该放多宽，高位下拉又该握多宽」
+#   「增肌一天要吃多少蛋白，一周练几次比较合适」
+# 单条 query 只有一个向量、一次精排，「手该放多宽」和「握多宽」会互相稀释，
+# 排到第一的只有一个，另一件事就被丢了。做法是把它拆成 2~3 条子查询、
+# 各自检索，再把结果合并进同一段上下文。
+#
+# **但这个功能默认是关的，因为量完之后发现它不划算。** 证据在 eval_compound.py
+# 和 .eval_compound.json，35 条复合题（另附 7 条单意图 + 8 条负例）上五组对照：
+#
+#   策略                 话题覆盖   完整覆盖   无关条目   拒答
+#   A 单路 2 条           74.1%     51.9%     33.3%    100%
+#   B 单路 3 条           86.4%     74.1%     30.9%    100%
+#   D 多路 4 条（轮流）    90.1%     81.5%     39.8%    100%
+#   E 多路 2 条（轮流）    75.9%     55.6%     37.0%    100%
+#
+# 读法：
+#   1. 从 2 条加到 3 条，白拿 +12.3 个点，不需要任何额外调用；
+#   2. 在同样的 2 条预算下（A vs E），拆解只值 +1.9 —— 这是「拆解本身」的价值，
+#      不含条数带来的好处；
+#   3. 拆解真正能多覆盖的 2.5 个点，代价是一路 LLM 调用（中位 0.8 秒，
+#      4 秒超时下实测 10/35 条失败）、每路一次 rerank、无关条目占比再涨 7 个点。
+#
+# 为什么在小库上不划算，这个原因比结论重要：
+# 库里只有 105 条 chunk，top4 就等于看了全库的 3.8%。随便什么问法都能撞上
+# 好几个话题，单路本来就「够宽」，拆解只是在已经够宽的召回面上再摊一次。
+# 库涨到几千条时 top4 只覆盖 0.1%，一条 query 只能咬住一个子问题 ——
+# 那时候拆解才是必需品。所以代码留着、开关留着，`mode=multi` 可以直接对比。
+#
+# 拒答没有被拆解稀释，这一点是设计出来的：每路**各自过绝对门槛**再融合，
+# 不是融合完再过门槛。反过来做的话，两路各 0.7 的弱相关项加分会盖过
+# 某一路 0.96 的真命中，而 0.7 本来是应该被拒掉的东西。实测 8 条负例
+# （含「生理期能不能练腿，要不要减量」这种拆开后极易误答的）全部仍然拒答。
+
+DECOMP_MODE = os.getenv("DECOMP_MODE", "off").strip().lower()      # off | auto | always
+DECOMP_MAX_SUBS = int(os.getenv("DECOMP_MAX_SUBS", "3"))
+DECOMP_TIMEOUT = float(os.getenv("DECOMP_TIMEOUT", "4"))
+# 拆解要输出 2~3 行，condense 那 64 token 卡在边界上，给到 96
+DECOMP_MAX_TOKENS = int(os.getenv("DECOMP_MAX_TOKENS", "96"))
+MULTI_TOP_K = int(os.getenv("MULTI_TOP_K", "4"))   # 多路融合后给模型几段
+
+DECOMP_PROMPT = """用户问了一句话。判断这句话里是不是**同时问了两个以上互不相干的问题**。
+
+如果是，把它拆成 2~3 个能各自独立去检索的子问题；如果不是，原样输出这一句。
+
+判断标准（很重要，别搞错）：
+- 两个问题各自有**不同的对象**（比如「卧推握多宽」和「下拉握多宽」），才算复合。
+- 同一个对象的两个侧面（比如「卧推下放几秒」和「卧推要不要停」）**不算**复合，不要拆。
+- 只是问得啰嗦、加了语气词、举了例子，都不算复合。
+
+硬约束：
+1. 子问题里**不许出现原句没有的对象、部位、数字**。原句没说「哑铃」，就不许在子问题里加「哑铃」。
+2. 每条子问题都要能被单独看懂，不许用「它」「这个」指代。
+3. 不改写原句的意思，不扩范围，不回答问题。
+4. 每行一条，行首写「- 」。最多 3 行。
+5. 如果不需要拆，只输出一行「- 原句」（把原句一个字不改抄一遍）。
+
+例一：原句「自由泳怎么换气，骑行的时候又该怎么呼吸」
+- 自由泳怎么换气
+- 骑行的时候怎么呼吸
+
+例二：原句「自由泳换气要练多久才能顺」
+- 自由泳换气要练多久才能顺
+
+例三：原句「帮我看看这段代码哪里错了」
+- 帮我看看这段代码哪里错了
+
+【原句】
+{question}"""
+
+
+def parse_subs(text: str) -> list[str]:
+    """解析「- xxx」行。解析不出就返回空列表，由上层退回单路。"""
+    out = []
+    for raw in (text or "").splitlines():
+        line = raw.strip()
+        if not line:
+            continue
+        for pre in ("- ", "-", "·", "•", "1.", "2.", "3."):
+            if line.startswith(pre):
+                line = line[len(pre):].strip()
+                break
+        line = line.strip("「」\"'。 ")
+        if line:
+            out.append(line)
+    return out
+
+
+DECOMP_HINTS = ("还", "又", "另外", "分别", "各", "顺便", "以及", "同时")
+# 疑问词：一句话里出现两次，基本就是两个问题（「吃多少蛋白」+「练几次」）。
+# 这一条是补丁，来源很具体：「增肌一天要吃多少蛋白，一周练几次比较合适」
+# 只有一个逗号、也没有「还」「又」，被前两条规则漏掉了。
+QWORDS = ("多少", "几次", "几组", "几个", "多久", "多宽", "多高", "多重",
+          "怎么", "要不要", "能不能", "哪些", "什么", "为什么", "是不是", "哪里")
+
+
+def need_decompose(question: str) -> bool:
+    """要不要为这句话花一次拆解调用。
+
+    这里只是**省调用**的预筛，不是判定器 —— 拆不拆最终由模型说了算。
+    所以线放得很松：宁可多调一次（代价 0.8 秒），也别把真复合题漏掉。
+    三种信号，任何一条命中就交给模型判断：
+      1. 至少两个分句（逗号/问号数 ≥ 2）；
+      2. 一个分句 + 并列连接词（「还」「又」「分别」这类）；
+      3. 一个分句 + 两个以上疑问词（「吃多少」+「练几次」）。
+    「练腿日隔多久练一次比较好」这种 12 个字、零分句的句子直接挡掉。
+
+    注意它**不管 DECOMP_MODE**：这个是「这句话像不像复合」的形态判断，
+    跟「这个功能开不开」是两件事，混在一起以后就没法单独调了。
+    """
+    q = question.strip()
+    if len(q) < 12:
+        return False                    # 12 个字装不下两个问题
+    clauses = q.count("，") + q.count(",") + q.count("；") + q.count(";") \
+        + q.count("？") + q.count("?")
+    if clauses >= 2:
+        return True
+    if clauses >= 1 and any(h in q for h in DECOMP_HINTS):
+        return True
+    return sum(q.count(w) for w in QWORDS) >= 2
+
+
+def decompose(question: str) -> list[str] | None:
+    """拆出子问题。**不拆、失败都返回 None**，上层一律退回单路。
+
+    失败率要说清楚：4 秒超时下实测 35 条里 10 条超时（28.6%），放到 8 秒
+    几乎全部成功 —— 说明不是模型慢，是长尾。所以这里跟 condense 一个策略：
+    短超时、不重试、失败静默退回。拆解是**锦上添花**的一层，
+    它不该有能力把一次本来能答的提问变慢或者变失败。
+    """
+    try:
+        STATS["decomp_calls"] += 1
+        resp = condense_llm([
+            {"role": "system", "content": "你只做句子拆分，不回答问题。"},
+            {"role": "user", "content": DECOMP_PROMPT.format(question=question)},
+        ], max_tokens=DECOMP_MAX_TOKENS)
+        subs = parse_subs(resp.choices[0].message.content or "")
+    except Exception:
+        STATS["decomp_failed"] += 1     # 超时、上游抖、key 没填 —— 一律退回单路
+        return None
+
+    if not subs or len(subs) > DECOMP_MAX_SUBS:
+        STATS["decomp_failed"] += 1
+        return None
+    # 模型判断「不用拆」，会原样抄一遍。抄得不完全一样也不算拆 ——
+    # 单条结果只可能有两种意思：要么不用拆，要么它自己就是那句原话。
+    if len(subs) == 1:
+        return None
+    if any(s == question.strip() for s in subs):
+        return None
+    STATS["decomp_paths"] += len(subs)
+    return subs
+
+
+def rrf_fuse(rankings):
+    """Reciprocal Rank Fusion：只用名次，不用原始分数来融合。
+
+    为什么不直接比 rerank 分数：每一路的分数分布不一样 ——
+    「卧推握多宽」的 top1 可能是 0.99，「腰疼能不能练」的 top1 可能只有 0.85，
+    直接取最大值等于让「分数虚高的那一路」绑架整个排序。
+    RRF 把每一路都压成名次，跨路可比。k=60 是常用常数，作用是压低头部名次的
+    绝对差距 —— 不设 k 的话第 1 名和第 2 名的权重差一倍，太陡。
+
+    实测在这个库上 RRF 和「每路轮流取一条」结果完全一样（见 eval_compound.py
+    的 C/D 两组都是 90.1%），因为大部分路只过门槛 1~2 条。留着 RRF 是因为
+    库变大后每路都会有多条，那时两者才会分叉。
+    """
+    agg = {}
+    for ranking in rankings:
+        for i, r in enumerate(ranking):
+            cur = agg.setdefault(r["id"], {"item": dict(r), "rrf": 0.0,
+                                           "best": 0.0, "hits": 0})
+            cur["rrf"] += 1.0 / (60 + i + 1)
+            cur["best"] = max(cur["best"], r["score"])
+            cur["hits"] += 1
+    return sorted(agg.values(), key=lambda x: (-x["rrf"], -x["best"]))
+
+
+def search_kb_multi(q: str, subs: list[str], top_k: int = MULTI_TOP_K):
+    """多路检索 + 融合。返回 (命中的资料, 用于判定的 ranking)。
+
+    **每路各自过绝对门槛，再融合** —— 顺序不能反，理由在第八段开头。
+    只要有一路过线就答，一路都不过线就拒。
+    """
+    paths = list(dict.fromkeys([q] + (subs or [])))     # 主查询永远算第一路，且排最前
+    rankings, passed = [], []
+    for p in paths:
+        rk = rank_one(p)
+        rankings.append(rk)
+        kept = pick_hits(rk, 99, RERANK_THRESHOLD)      # 只卡门槛，先不截断
+        if kept:
+            passed.append(kept)
+
+    if not passed:
+        return [], (rankings[0] if rankings else [])
+
+    picked, seen = [], set()
+    for it in rrf_fuse(passed):
+        topic = it["item"]["topic"]
+        if topic in seen:               # 同话题只留一条，跟 pick_hits 一个规矩
+            continue
+        seen.add(topic)
+        row = dict(it["item"])
+        row["score"] = round(it["best"], 4)      # 对外报 rerank 分，不报 RRF 分
+        row["paths"] = it["hits"]                # 这一条被几路同时命中
+        picked.append(row)
+        if len(picked) >= top_k:
+            break
+
+    # 判「答不答」用的是「最贴线的那一路」：多路的门是「或」，所以依据应该是
+    # 各路 top1 里最高的那个，不是主查询那一路。near_gate 只看 ranking[0]，
+    # 所以把分数最高的那条换到队首，后面的顺序不动。
+    ranking = rankings[0] if rankings else []
+    tops = [rk[0] for rk in rankings if rk]
+    if tops:
+        best = max(tops, key=lambda r: r["score"])
+        ranking = [best] + [r for r in ranking if r["id"] != best["id"]]
+    return picked, ranking
+
+
 @app.post("/chat")
 def chat(req: AskRequest, request: Request):
     # 这个口子没有检索、直接打模型，是最容易被拿来白嫖的一个 ——
@@ -1682,6 +1934,7 @@ def rag(req: AskRequest, request: Request, mode: str = "rerank", fallback: bool 
     mode=rewrite 先把问题改写成 3 条资料风格表述，再取最大相似度
     mode=oral    先改写成 3 条书面表述，再各走一遍精排，取最高分那次
     mode=keyword 老的关键词匹配，方便对比
+    mode=multi   复合问题拆解：拆成 2~3 条子查询各检索一遍再融合（默认关，理由见第八段）
     fallback=1   检索拒答后，把 top-2 弱相关资料交给生成层判断能不能答（生成层兜底）
 
     返回里的 uncertain 表示「这次的判定贴着门线」（|top1 - 门槛| < 0.006）：
@@ -1708,8 +1961,8 @@ def rag(req: AskRequest, request: Request, mode: str = "rerank", fallback: bool 
     # 这一轮属于谁、被理解成了什么、各段花了多久 —— 后面所有 return 都带着它，
     # 所以只在这里建一次。传六个位置参数那种写法已经不够用了。
     ctx = {"sid": sid, "raw": req.question, "resolved": query,
-           "hist": hist_n, "condensed": condensed,
-           "tim": {"condense_ms": (time.perf_counter() - t0) * 1000}}
+           "hist": hist_n, "condensed": condensed, "subs": [],
+           "tim": {"condense_ms": (time.perf_counter() - t0) * 1000, "decomp_ms": 0}}
 
     # 兜底开关在本函数内部被用过两次（决定缓存键、决定走不走兜底），
     # 所以先算一次：同一个值算两遍，迟早有一处忘了跟着改。
@@ -1734,9 +1987,22 @@ def rag(req: AskRequest, request: Request, mode: str = "rerank", fallback: bool 
 
     t1 = time.perf_counter()
     variants = []           # 只有 oral 模式有；放外面是为了三个 return 的字段一致
+    subs = []               # 只有 multi 模式有：拆出来的子问题
     # 全链路都用 query（补全后的问题）：检索、兜底、生成提问三处必须一致。
     # 只拿补全结果去检索、却拿原话去生成，模型会对着「那上斜呢」四个字打转。
-    if mode == "keyword":
+    if mode == "multi":
+        # 拆解要单独计时：它是这个模式里唯一一段「可能不发生」的耗时，
+        # 混进 retrieve_ms 就看不出来慢在拆还是在检索。
+        t_dec = time.perf_counter()
+        # mode=multi 是显式请求，所以这里不受 DECOMP_MODE=off 影响 ——
+        # 「全局默认关」管的是默认模式要不要自动拆，不是「这个功能坏没坏」。
+        # 想彻底关掉就把分支删了或者让前端不传 mode=multi。
+        if DECOMP_MODE == "always" or need_decompose(query):
+            subs = decompose(query) or []
+        ctx["tim"]["decomp_ms"] = (time.perf_counter() - t_dec) * 1000
+        ctx["subs"] = subs
+        hits, ranking = search_kb_multi(query, subs)
+    elif mode == "keyword":
         hits = search_kb_keyword(query)
         ranking = None
     elif mode == "rerank":

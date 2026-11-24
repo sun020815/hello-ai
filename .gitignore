@@ -82,3 +82,7 @@ eval_cases.json.bak-*
 # 多轮诊断的本地产物（检索缓存重算要花钱）
 .diag_multiturn*.json
 .diag_mt*.log
+
+# 复合拆解：拆解结果与各路精排分（本地产物，重算要花钱）
+.eval_compound*.json
+.probe_decompose.json

@@ -155,6 +155,18 @@
   .badge.mode{background:var(--accent-dim);color:#f07579;border-color:#3d1c1f}
   .metrics{margin-left:auto;font:12px/1 var(--mono);color:var(--muted);white-space:nowrap}
 
+  /* 复合拆解：这句话被拆成了哪几路。拆解模式唯一需要解释的东西，
+     不摊开的话用户只会看到「这次怎么慢了 1 秒」。 */
+  .subs{
+    display:flex;flex-wrap:wrap;align-items:center;gap:6px;
+    padding:0 18px 14px;
+  }
+  .subs-label{font-size:12px;color:var(--muted);margin-right:2px}
+  .sub-chip{
+    font-size:12px;padding:2px 8px;border-radius:5px;
+    background:rgba(229,72,77,.09);color:#f07579;border:1px solid #3d1c1f;
+  }
+
   .answer{padding:20px 18px;font-size:15.5px;line-height:1.9;color:var(--text);white-space:pre-wrap}
   .answer.refused{color:var(--muted);font-size:14px}
   /* 拒答时补一句「为什么拒」：只显示「资料不足」，看的人没法判断是
@@ -229,6 +241,7 @@
         检索
         <select id="mode">
           <option value="rerank">精排 rerank（默认）</option>
+          <option value="multi">复合拆解 multi</option>
           <option value="vector">纯向量 vector</option>
           <option value="oral">口语改写 oral</option>
         </select>
@@ -294,6 +307,14 @@
     return n;
   }
 
+  /* 模型爱输出 **加粗**，textContent 一排会导致正文里露出四个星号。
+     只认这一种标记：先转义再替换，不做完整 markdown ——
+     答案里真出现的 < 必须还是原文，不能变成标签。 */
+  function mdBold(node, text) {
+    var esc = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    node.innerHTML = esc.replace(/\*\*([^*\n]{1,40})\*\*/g, '<b>$1</b>');
+  }
+
   /* ---- 口令 ----
      为什么要 localStorage 而不是每次手输：链接会被转发，转发的人不该知道口令，
      但拿到「链接 + 口令」的人希望点开就能用。?k=xxx 进来一次就记住，
@@ -346,7 +367,10 @@
       '阈值 <b>' + m.rerank_threshold + '</b> · ' +
       '兜底 <b>' + (m.fallback_enabled ? '开启' : '关闭') + '</b>' +
       (m.multiturn ? ' · 多轮 <b>' +
-        (m.condense_mode === 'always' ? '每轮补全' : '按需补全') + '</b>' : ' · 多轮 <b>关闭</b>');
+        (m.condense_mode === 'always' ? '每轮补全' : '按需补全') + '</b>' : ' · 多轮 <b>关闭</b>') +
+      // 拆解默认是关的，但「检索」下拉里能手动选 multi，所以这里只报状态不报开关
+      (m.decomp_mode && m.decomp_mode !== 'off'
+        ? ' · 拆解 <b>' + m.decomp_mode + '</b>' : '');
     if (m.auth_required && !code) showCode('这台服务需要访问口令');
   }).catch(function () {
     $('#dot').className = 'dot err';
@@ -442,12 +466,30 @@
     if (d.timings && d.timings.condense_ms) {
       meta.push('其中补全 ' + (d.timings.condense_ms / 1000).toFixed(2) + 's');
     }
+    // 拆解也单独报：multi 模式慢的那一秒大概率花在这里，
+    // 混进总耗时里会让人以为「检索变慢了」。
+    if (d.timings && d.timings.decomp_ms) {
+      meta.push('其中拆解 ' + (d.timings.decomp_ms / 1000).toFixed(2) + 's');
+    }
     if (!refused) meta.push(srcs.length + ' 段');
     if (d.tokens) meta.push(d.tokens + ' tok');
     head.appendChild(el('span', 'metrics', meta.join('  ·  ')));
 
     card.appendChild(head);
-    card.appendChild(el('div', refused ? 'answer refused' : 'answer', d.answer || '（空）'));
+    var ans = el('div', refused ? 'answer refused' : 'answer');
+    mdBold(ans, d.answer || '（空）');
+    card.appendChild(ans);
+
+    // 拆成哪几路：拒答时也要显示。负例被拆成两路却仍然拒答，这件事本身
+    // 就说明了「拆解不会把拒答打开」—— 藏起来反而像它没生效。
+    if (d.sub_questions && d.sub_questions.length) {
+      var subs = el('div', 'subs');
+      subs.appendChild(el('span', 'subs-label', '拆成 ' + d.sub_questions.length + ' 路'));
+      d.sub_questions.forEach(function (s) {
+        subs.appendChild(el('span', 'sub-chip', s));
+      });
+      card.appendChild(subs);
+    }
     if (refused) card.appendChild(whyBox(d));
 
     if (!refused) {
@@ -577,7 +619,18 @@
 
   /* 支持 ?q=问题 直接提问，方便把「这个问题在这套系统里的表现」作为链接发给别人。
      支持重复多个 ?q=：按顺序问下去，问的就是**同一段多轮对话** ——
-     想跟人说明「追问到底有没有用」，发一条链接比截图强。 */
+     想跟人说明「追问到底有没有用」，发一条链接比截图强。
+     ?mode=multi 让链接直接落在拆解模式上：不然「对比两种模式」得让对方
+     自己去下拉框里找，十次有八次找错。 */
+  (function pickMode() {
+    var want = new URLSearchParams(location.search).get('mode');
+    if (!want) return;
+    var sel = $('#mode');
+    for (var i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].value === want) { sel.value = want; return; }
+    }
+  })();
+
   var presets = new URLSearchParams(location.search).getAll('q');
   (function runPreset(i) {
     if (i >= presets.length) return;
