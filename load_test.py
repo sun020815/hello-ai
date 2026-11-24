@@ -379,11 +379,15 @@ async def run(args):
         if len(rss) > 1:
             print(f"内存：{rss[0]} -> {rss[-1]} MB（涨 {round(rss[-1] - rss[0], 1)}）")
         if args.save:
-            with open(args.save, "w", encoding="utf-8") as f:
+            # --save 是 .jsonl 时，桶记录已经一行行 append 进去了，
+            # 这里再写一份汇总会把它整个覆盖成一份格式化 JSON —— 采过这个坑。
+            # 所以增量文件旁边另存一个 .summary.json。
+            target = (args.save[:-6] + ".summary.json") if args.save.endswith(".jsonl") else args.save
+            with open(target, "w", encoding="utf-8") as f:
                 json.dump({"mode": args.mode, "open_loop": True, "rate": args.rate,
                            "duration": args.duration, "rows": rows}, f,
                           ensure_ascii=False, indent=1)
-            print(f"已存 {args.save}")
+            print(f"已存 {target}")
         return rows
 
     head = f"{'并发':>4} {'请求':>5} {'耗时':>7} {'RPS':>8} {'p50':>8} {'p95':>8} {'p99':>8} {'max':>8} {'返回':>6}  状态码"
