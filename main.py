@@ -2,6 +2,7 @@ import hashlib
 import json
 import os
 import random
+import re
 import threading
 import time
 import uuid
@@ -2065,6 +2066,50 @@ def chat(req: AskRequest, request: Request):
     }
 
 
+# ---------- 寒暄和边界：不该进检索的那几句话 ----------
+
+# 为什么单独拎出来：真实问法日志里「你叫什么名字」被拒答成了
+# 「知识库里没有相关资料」。技术上没错——库里确实没有——但用户看到的是
+# 一个不会说人话的东西。寒暄、问用法、道谢这三类，答案根本不在知识库里，
+# 也不该让 reranker 去判断，直接给固定话术。
+#
+# 判据是**整句匹配**，不是包含：像「你好，推日练什么」这种半句寒暄半句正事，
+# 必须继续往下走去检索，否则真正的提问会被一句「在」吞掉。
+_SMALLTALK = [
+    (r"你(是)?(谁|啥|什么|叫什么(名字)?|是真人吗|是ai吗|是不是ai|是机器人吗)|你叫什么|介绍一下你(自己)?|你能干什么|你是干嘛的",
+     lambda: f"我是壮壮说健身的知识库问答。库里 {len(KB)} 条正文，讲的是三分化训练、"
+             f"动作细节、组次安排和饮食配合。问训练上的问题就行，比如「推日之后二头还练吗」。"
+             f"答不了的我会直接说没有，不瞎编。"),
+    (r"(这个|那个|它)?(怎么|如何)(用|使用|问|玩)|能问(什么|啥)|可以问(什么|啥)|(这个|那个)(是|能)(干|做)(什么|啥)|有什么(用|功能)|怎么提问",
+     lambda: "直接把问题打出来，越具体越好。可以说「深蹲膝盖要不要过脚尖」，"
+             "也可以说「推日先练胸还是先练肩」。库里没有的我会说没有，"
+             "你把想问的发到公众号，问得多的我先补。"),
+    (r"你好|您好|hi|hello|hey|在吗|在不在|有人吗",
+     lambda: "在。训练上有什么想问的直接说，推日拉日腿日、动作细节、组次安排、吃多少都能问。"),
+    (r"谢谢|多谢|感谢|谢了|好的|好|嗯|ok|收到|明白了|懂了|再见|拜拜|晚安",
+     lambda: "行。还有别的想问就直接打出来。"),
+]
+
+_PUNCT_RE = re.compile(r"[\s，。！？、,.!?;:；：\"'“”‘’()（）\[\]【】…—~-]")
+
+
+def smalltalk_reply(question: str):
+    """整句命中寒暄就返回固定话术，否则 None（继续走检索）。"""
+    q = _PUNCT_RE.sub("", (question or "")).lower()
+    q = re.sub(r"[啊呀呢嘛吧哦呗]+$", "", q)   # 句尾语气词不改变意思，「你是谁啊」和「你是谁」是一句
+    if not q or len(q) > 20:      # 太长的一定是真问题，别拦
+        return None
+    for pat, make in _SMALLTALK:
+        if re.fullmatch(pat, q):
+            return make()
+    return None
+
+
+# 拒答文案。原来那句「我无法基于资料回答」是技术口径，用户看到只会觉得被拒绝了。
+# 改成把拒答变成选题收集：告诉他这条我这儿没有，以及去哪儿说。
+REFUSAL_TEXT = ("这条我库里还没有。想问的可以发到公众号后台，问得多的我先补进去。")
+
+
 @app.post("/rag")
 def rag(req: AskRequest, request: Request, mode: str = "rerank",
         fallback: bool | None = None, src: str = ""):
@@ -2091,6 +2136,17 @@ def rag(req: AskRequest, request: Request, mode: str = "rerank",
     """
     check_code(request.headers.get("x-access-code"))
     STATS["requests"] += 1
+
+    # 寒暄、问用法、道谢：这三类的答案根本不在知识库里，走检索只会得到一个
+    # 「这条我库里还没有」。所以在这里就分出去，不进缓存、不进问法日志。
+    # 不进日志是刻意的：问法日志是**内容缺口清单**，「你叫什么名字」混进去会
+    # 让缺口看起来比实际严重，也会污染「高频问题」排序。
+    greet = smalltalk_reply(req.question)
+    if greet:
+        return {"answer": greet, "sources": [], "ranking": [], "mode": mode,
+                "variants": [], "tokens": 0, "degraded": False,
+                "fallback_used": False, "uncertain": False,
+                "smalltalk": True, "cached": False}
 
     # 多轮第一步：把省略的追问补成一句能独立检索的话。
     # **必须在算缓存键之前** —— 「那上斜呢」跟在推日后面和跟在拉日后面
@@ -2200,7 +2256,7 @@ def rag(req: AskRequest, request: Request, mode: str = "rerank",
             }, key, ctx)
 
         return finish({
-            "answer": "知识库里没有相关资料，我无法基于资料回答。",
+            "answer": REFUSAL_TEXT,
             "sources": [],
             "ranking": ranking,
             "mode": mode,
