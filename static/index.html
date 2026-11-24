@@ -90,6 +90,11 @@
   .cfgpane b{color:var(--text-2);font-weight:500}
   .cfgpane .close{float:right;cursor:pointer;color:var(--muted)}
   .cfgpane .close:hover{color:var(--text-2)}
+  .cfgpane .adv{
+    display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+    margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--line);
+  }
+  .cfgpane .advhint{color:var(--muted);opacity:.75}
 
   /* ---- 滚动区 ---- */
   main{flex:1;overflow-y:auto;overflow-x:hidden;scroll-behavior:smooth}
@@ -123,11 +128,6 @@
     transition:background .15s,border-color .15s;
   }
   .chip:hover{background:var(--panel-2);border-color:var(--line-2)}
-  .chip .tag{
-    flex:none;font-size:11px;line-height:18px;padding:0 6px;border-radius:5px;
-    background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent-line);
-    font-weight:500;
-  }
 
   /* ---- 对话 ---- */
   .turn{padding:14px 0}
@@ -303,12 +303,8 @@
   }
   .code-row button:hover{border-color:var(--line-2)}
   .code-row .hint{font-size:12px;color:var(--muted)}
-
-  .foot{
-    max-width:768px;margin:6px auto 0;text-align:center;
-    font-size:11.5px;color:var(--muted);
-  }
-  .foot code{font-family:var(--mono);font-size:11px}
+  /* 提示只在真出错时出现（比如口令不对）。常态为空，不占位、不啰嗦。 */
+  .code-row .hint:empty{display:none}
 
   @media (max-width:640px){
     .examples{grid-template-columns:1fr}
@@ -316,6 +312,18 @@
     .feed{padding:20px 14px 8px}
     .composer{padding:8px 12px 14px}
     .turn-q .bubble{max-width:90%}
+    /* 顶栏在 375px 上放不下四样东西：品牌名、状态、排计划、服务配置。
+       原来没有 nowrap，浏览器就把它们各自折成两行（「健身知识 / 库」
+       「服务正 / 常」），比挤在一起还难看。这里改成：一律不折行，
+       状态只留那个点（文字藏起来），内边距收窄。 */
+    .topbar{height:48px;padding:0 12px;gap:8px}
+    .brand,.top-right,.status,.cfg-btn{white-space:nowrap}
+    .brand{font-size:13px;gap:7px;min-width:0}
+    .brand span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis}
+    .logo{width:22px;height:22px;border-radius:6px;font-size:12px}
+    .top-right{gap:8px}
+    #status{display:none}
+    .cfg-btn{font-size:12px;padding:4px 8px}
   }
 </style>
 </head>
@@ -333,6 +341,21 @@
 <div class="cfgpane" id="cfgpane">
   <div class="inner">
     <span class="close" id="cfgclose">收起</span>
+    <div class="adv">
+      <span class="modewrap">
+        <select id="mode" aria-label="检索模式">
+          <option value="rerank">精排</option>
+          <option value="multi">复合拆解</option>
+          <option value="vector">纯向量</option>
+          <option value="oral">口语改写</option>
+        </select>
+      </span>
+      <label class="tgl" title="精排拒答后，把弱相关资料交给生成层判断能不能答">
+        <input type="checkbox" id="fb" checked>
+        生成层兜底
+      </label>
+      <span class="advhint">调参用，改这两个会直接影响命中率</span>
+    </div>
     <div id="cfg">正在读取服务配置…</div>
   </div>
 </div>
@@ -352,20 +375,9 @@
 
 <div class="composer">
   <div class="box">
-    <textarea id="q" rows="1" placeholder="问点什么，比如「深蹲膝盖要不要过脚尖」"></textarea>
+    <textarea id="q" rows="1" maxlength="500"
+              placeholder="问点什么，比如「深蹲膝盖要不要过脚尖」"></textarea>
     <div class="tools">
-      <span class="modewrap">
-        <select id="mode" aria-label="检索模式">
-          <option value="rerank">精排</option>
-          <option value="multi">复合拆解</option>
-          <option value="vector">纯向量</option>
-          <option value="oral">口语改写</option>
-        </select>
-      </span>
-      <label class="tgl" title="精排拒答后，把弱相关资料交给生成层判断能不能答">
-        <input type="checkbox" id="fb" checked>
-        生成层兜底
-      </label>
       <span class="spacer"></span>
       <button class="ghost" id="newchat" title="清空上文，从新的一段对话开始">新对话</button>
       <button class="send" id="go" title="发送（Enter）" aria-label="发送">
@@ -379,12 +391,8 @@
       <input id="code" type="password" placeholder="访问口令（转发链接时一起给）"
              autocomplete="off">
       <button id="codesave">保存</button>
-      <span class="hint" id="codetip">这台服务需要口令，浏览器会记住</span>
+      <span class="hint" id="codetip"></span>
     </div>
-  </div>
-  <div class="foot">
-    精排分数低于阈值判「资料不足」，兜底把 top-2 弱相关资料交给生成层终审 ·
-    <code>POST /rag</code>
   </div>
 </div>
 
@@ -408,11 +416,15 @@
     return 's' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
   }
 
+  /* 四个示例各代表一类，分类只留在代码里、不显示给用户：
+     正常书面问题 / 口语化问法 / 库外问题（演示拒答）/ 库边缘的争议问题。
+     原来把分类做成了小标签贴在按钮上，但「该拒」这种词用户看不懂，
+     还会以为页面出错。评测分组是给我看的，不是给用户看的。 */
   var EXAMPLES = [
-    { tag: '书面', q: '推日都练哪些部位？' },
-    { tag: '口语', q: '每次吸气要吸到多满才算够？' },
-    { tag: '该拒', q: '帮我写一首关于春天的诗' },
-    { tag: '边界', q: '深蹲膝盖要不要过脚尖？' }
+    { q: '推日都练哪些部位？' },
+    { q: '每次吸气要吸到多满才算够？' },
+    { q: '帮我写一首关于春天的诗' },
+    { q: '深蹲膝盖要不要过脚尖？' }
   ];
 
   function el(tag, cls, text) {
@@ -497,7 +509,7 @@
     code = v;
     localStorage.setItem(CODE_KEY, v);
     $('#codewrap').classList.remove('on');
-    $('#codetip').textContent = '这台服务需要口令，浏览器会记住';
+    $('#codetip').textContent = '';
     ta.focus();
   };
   $('#code').addEventListener('keydown', function (e) {
@@ -540,7 +552,6 @@
   /* ---- 示例 ---- */
   EXAMPLES.forEach(function (e) {
     var b = el('button', 'chip');
-    b.appendChild(el('span', 'tag', e.tag));
     b.appendChild(el('span', null, e.q));
     b.onclick = function () { ta.value = e.q; ask(e.q); };
     $('#examples').appendChild(b);

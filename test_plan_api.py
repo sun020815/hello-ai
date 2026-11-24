@@ -131,8 +131,34 @@ def test_stats():
     s = client.get("/stats", headers=H).json()
     check("plans 计数存在", "plans" in s, str([k for k in s if "plan" in k]))
     check("至少跑过 2 次", s.get("plans", 0) >= 2, str(s.get("plans")))
-    check("工具调用次数有累计", s.get("plan_tool_calls", 0) >= 0, str(s.get("plan_tool_calls")))
+    # 这里原来写的是 `>= 0`，恒真，等于没测。真正的对账放到 [6]，
+    # 那边会造一个真的走工具的剧本，用 trace 步数去比计数器的增量。
     check("cost 记账仍在", "cost" in s, str(list(s))[:80])
+
+
+def test_tool_call_counter():
+    """计数器必须和 trace 对得上。
+
+    之前的假模型直接吐最终 JSON、一步工具都不走，所以 plan_tool_calls 永远是 0，
+    而断言写的是 `>= 0`——把 `+=` 写成 `=` 甚至删掉这行，测试都是绿的。
+    """
+    print("\n[6] 工具调用计数器与 trace 对账")
+    before = client.get("/stats", headers=H).json()["plan_tool_calls"]
+    orig = main.call_llm
+    main.call_llm = scripted(
+        resp(calls=[tool_call("c1", "search_exercises", {"part": "胸"})]),
+        resp(content=json.dumps(GOOD, ensure_ascii=False)),
+    )
+    try:
+        body = {"goal": "增肌", "days": 3, "equipment": "健身房", "session_min": 60,
+                "level": "新手", "injuries": [], "note": "counter-test"}
+        d = client.post("/plan", json=body, headers=H).json()
+        n = len(d.get("trace") or [])
+        check("这次真的走了工具", n > 0, str([t.get("tool") for t in (d.get("trace") or [])]))
+        after = client.get("/stats", headers=H).json()["plan_tool_calls"]
+        check("计数增量等于 trace 步数", after - before == n, f"{before} -> {after}，trace={n}")
+    finally:
+        main.call_llm = orig
 
 
 def main_():
@@ -141,6 +167,7 @@ def main_():
     test_ok_and_cache()
     test_review_not_cached()
     test_stats()
+    test_tool_call_counter()
     print()
     if fails:
         print(f"失败 {len(fails)} 项：{fails}")

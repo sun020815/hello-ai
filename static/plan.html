@@ -154,7 +154,7 @@
       </div>
     </div>
     <div class="foot">
-      <input type="text" id="note" placeholder="补充：比如想保留肌肉 / 时间很紧 / 只有一对可调哑铃" style="flex:1;min-width:200px">
+      <input type="text" id="note" maxlength="200" placeholder="补充：比如想保留肌肉 / 时间很紧 / 只有一对可调哑铃" style="flex:1;min-width:200px">
       <button class="go" id="go" type="submit">排计划</button>
       <input type="password" id="code" class="code-in" placeholder="访问口令">
       <span class="note" id="hint">一次要查 5~8 次动作库，等 20~40 秒</span>
@@ -296,8 +296,12 @@ $('#f').onsubmit = async ev => {
       headers: { 'Content-Type': 'application/json', 'x-access-code': codeEl.value },
       body: JSON.stringify(body),
     });
-    const d = await r.json();
-    if (!r.ok) throw new Error(d.detail || ('HTTP ' + r.status));
+    // 响应不一定是 JSON：平台层的 403 会吐一整个 HTML 错误页。
+    // 直接 await r.json() 会抛 SyntaxError，用户看到的是
+    // 「Unexpected token '<'」——比错误本身更难懂。
+    let d = null;
+    try { d = await r.json(); } catch (_) { d = null; }
+    if (!r.ok) throw new Error(errText(r, d));
     render(d);
   } catch (e) {
     $('#res').innerHTML = `<div class="banner bad"><b>没排出来</b>${esc(e.message)}</div>`;
@@ -307,6 +311,23 @@ $('#f').onsubmit = async ev => {
     $('#go').disabled = false;
   }
 };
+
+/* FastAPI 的错误体有两种形状：自己 raise 的是字符串，
+   参数校验失败（422）是 {type, loc, msg} 数组。
+   原来直接 new Error(d.detail) —— 数组会被字符串化成 [object Object]，
+   用户把训练时长输成 999 就看到「没排出来 [object Object]」。 */
+function errText(r, d) {
+  const det = d && d.detail;
+  if (typeof det === 'string' && det) return det;
+  if (Array.isArray(det)) {
+    const parts = det.map(x => (x && (x.msg || x.type)) || '').filter(Boolean);
+    if (parts.length) return '填的内容有问题：' + parts.join('；');
+  }
+  if (r.status === 401) return '访问口令不对';
+  if (r.status === 429) return '排得太频繁了，等一会再试';
+  if (r.status === 503) return '排计划的模型服务暂时不稳定，等一下再试';
+  return 'HTTP ' + r.status;
+}
 
 fetch('/meta').then(r => r.json()).then(m => {
   const n = m.exercises || m.plan_exercises;

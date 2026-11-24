@@ -12,6 +12,7 @@ import urllib.request
 from collections import OrderedDict, deque
 from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import Annotated, Literal
 
 import anyio.to_thread
 
@@ -20,7 +21,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from openai import OpenAI, APIConnectionError, APITimeoutError, RateLimitError
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, StringConstraints
 
 import plan_agent
 
@@ -656,10 +657,16 @@ if STATIC_DIR.is_dir():
 @app.get("/")
 def read_root():
     """根路径直接给演示页。没有 static 目录就退回最简 JSON，
-    不让一个缺失的前端把整个服务变成 500。"""
+    不让一个缺失的前端把整个服务变成 500。
+
+    Cache-Control: no-cache 并不是「不缓存」，是「用之前必须回源校验」。
+    配合 FileResponse 自带的 ETag，没改版时是 304（一个来回，几十字节），
+    改版后立刻拿到新的。不加的话浏览器走启发式缓存，改完前端用户可能
+    还开着几天前的页面 —— 已经踩过一次：新加的入口在自己电脑上不显示。
+    """
     page = STATIC_DIR / "index.html"
     if page.is_file():
-        return FileResponse(page)
+        return FileResponse(page, headers={"Cache-Control": "no-cache"})
     return {"message": "hello", "demo": "static/index.html 不存在"}
 
 
@@ -710,22 +717,22 @@ def breaker_state():
     return {name: b.snapshot() for name, b in _breakers.items()}
 
 
-@app.get("/greet/{name}")
-def greet(name: str, city: str = "杭州"):
-    return {"message": f"你好，{name}", "city": city}
-
-
 class AskRequest(BaseModel):
-    question: str
-    top_k: int = 3
+    """问答请求。
+
+    question 必须限长。不设限是实测过的坑：3000 个重复的「深蹲」照样走完
+    向量化 + 精排 + 生成，4.5 秒、钱照花，而且精排给了 0.9931 的高分——
+    重复词把相似度堆上去了。500 字是真实口语问法（最长 40 字上下）的十倍，
+    再长就不是提问了。
+
+    session_id 也要限：它是会话表的 key，不设限就能拿 10 万个字符当 key 塞进去。
+    """
+    question: str = Field(min_length=1, max_length=500)
     # 多轮会话号。不传 = 单轮，行为跟以前完全一致（这是兼容性的底线：
     # 老的调用方、老的评测脚本一个字都不用改）。
-    session_id: str | None = None
-
-
-@app.post("/ask")
-def ask(req: AskRequest):
-    return {"received": req.question, "top_k": req.top_k}
+    session_id: str | None = Field(default=None, max_length=64)
+    # 曾经有个 top_k 字段，但 /rag 从来没读过它 —— 调用方传 999 也毫无作用。
+    # 参数不生效比没有参数更坏：它会让人以为自己在控制返回条数。已删。
 
 
 # 知识库从 kb.json 读，不再写死在代码里。
@@ -1269,7 +1276,13 @@ def search_kb_rewrite(q: str, top_k: int = VEC_TOP_K, threshold: float = REWRITE
 
 
 @app.get("/kb")
-def kb(q: str):
+def kb(q: str, request: Request):
+    """关键词检索，只返回命中的第一条。演示页已不用它，留着是给评测脚本做对照。
+
+    要口令：它等于把知识库挂成一个开放搜索框。内容本身是公开发过的文章，
+    但一个对外服务该关的门要一起关，否则审计时会问「为什么只有这个没锁」。
+    """
+    check_code(request.headers.get("x-access-code"))
     hits = search_kb_keyword(q)
     if not hits:
         return {"matched": None, "answer": "知识库里没有相关内容"}
@@ -2034,7 +2047,7 @@ def condense(question: str, history: list) -> str | None:
     return out
 
 
-def resolve_question(question: str, sid: str):
+def resolve_question(question: str, sid: str, hist: list | None = None):
     """返回 (用于检索的问题, 上一轮轮数, 是否改写过)。
 
     补全成功就用补全结果；补全失败（超时/上游抖）就退一步：
@@ -2043,8 +2056,12 @@ def resolve_question(question: str, sid: str):
     为什么退路不是「用原话」：「那做几组」四个字单独检索是没有对象的，
     拼上「推日上斜练哪些部位」至少把对象带回来了。代价是查询变长、
     可能干扰精排，但那比直接拒答好 —— 实测这一句用原话会答「资料不足」。
+
+    hist 可以由调用方先取好传进来：调用方需要先用 needs_condense 判断
+    「这次会不会真打上游」，那一步也要读会话，读两次没必要。
     """
-    hist = session_get(sid)
+    if hist is None:
+        hist = session_get(sid)
     if not needs_condense(question, hist):
         return question, len(hist), False
     out = condense(question, hist)
@@ -2128,11 +2145,16 @@ def _rss_mb() -> float | None:
 
 
 @app.get("/stats")
-def stats():
+def stats(request: Request):
     """上线后看这个：缓存命中率、限流拦了多少、实际打了多少次上游、补全失败几次。
 
     不加这个接口，「加了缓存有没有用」只能靠感觉；面试时也少一个能讲的数字。
+
+    **要口令。** 这里虽然没有用户原话，但有全站今天花了多少钱、额度还剩多少、
+    有多少人正在被限流 —— 这些是运营数据，不该跟着公开链接一起发出去。
+    原来漏了这道校验，公网上不带任何 header 就能把 cost 和 today_used 读走。
     """
+    check_code(request.headers.get("x-access-code"))
     hit_rate = STATS["cache_hits"] / STATS["requests"] if STATS["requests"] else 0.0
     return {
         **STATS,
@@ -2156,16 +2178,27 @@ def stats():
 
 
 @app.get("/session/{sid}")
-def session_info(sid: str):
+def session_info(sid: str, request: Request):
     """看某个会话记了什么。多轮最容易出的 bug 是「记错了」而不是「没记」，
-    所以把内部状态直接暴露出来 —— 调试时不用猜。"""
+    所以把内部状态直接暴露出来 —— 调试时不用猜。
+
+    要口令：turns 里是用户的原话。sid 是 12 位随机串，猜不到，
+    但「猜不到」不等于「不该锁」—— 链接会被转发，日志会被贴进聊天记录。
+    """
+    check_code(request.headers.get("x-access-code"))
     turns = session_get(sid)
     return {"session_id": sid, "turns": turns, "n": len(turns),
             "ttl_s": SESSION_TTL, "max_turns": SESSION_TURNS}
 
 
 @app.delete("/session/{sid}")
-def session_drop(sid: str):
+def session_drop(sid: str, request: Request):
+    """清空一个会话。前端「新对话」按钮调它，请求里已经带了口令头。
+
+    要口令的理由比读更硬：这是删除操作。不校验的话，任何人拿到 sid
+    就能把别人的上下文清掉，而 sid 曾经是写在返回体里、可能被转发出去的。
+    """
+    check_code(request.headers.get("x-access-code"))
     return {"deleted": session_clear(sid), "session_id": sid}
 
 
@@ -2461,7 +2494,8 @@ REFUSAL_TEXT = ("这条我库里还没有。想问的可以发到公众号后台
 
 
 @app.post("/rag")
-def rag(req: AskRequest, request: Request, mode: str = "rerank",
+def rag(req: AskRequest, request: Request,
+        mode: Literal["rerank", "vector", "hybrid", "rewrite", "oral", "keyword", "multi"] = "rerank",
         fallback: bool | None = None, src: str = ""):
     """mode=rerank 向量召回 + reranker 精排（默认，200 题整体 88% / 拒答 81%）
     mode=vector 纯向量检索（整体 86% / 拒答 70%）
@@ -2481,11 +2515,15 @@ def rag(req: AskRequest, request: Request, mode: str = "rerank",
     上游调用（约 0.27 秒），换来的主要不是排序变好，而是**判别力**——
     reranker 的分数在单一体系语料上能把「该答的」和「该拒的」切开，余弦相似度切不开。
 
-    上线三层（口令 -> 缓存 -> 限流）都在这个函数入口，顺序不能换，原因见上面那段注释。
+    上线三层（口令 -> 缓存 -> 限流）都在这个函数入口。缓存排在限流前面的理由
+    见上面那段注释；唯一的例外是补全：它会真打一次上游，所以限额要提前到它之前。
     缓存命中直接返回，`cached: true` 且 `tokens: 0` —— 缓存命中没收钱，就别报钱。
     """
     check_code(request.headers.get("x-access-code"))
     STATS["requests"] += 1
+    # src 是埋点来源，会原样写进问法日志。不截断的话，一个 1MB 的 src
+    # 能让每次请求都往日志里写 1MB —— 这个参数的长相就决定了它不该超过几十字节。
+    src = (src or "")[:32]
 
     # 寒暄、问用法、道谢：这三类的答案根本不在知识库里，走检索只会得到一个
     # 「这条我库里还没有」。所以在这里就分出去，不进缓存、不进问法日志。
@@ -2503,7 +2541,27 @@ def rag(req: AskRequest, request: Request, mode: str = "rerank",
     # 是两个完全不同的问题，拿原话当键，第二个会话会直接吃到第一个的答案。
     sid = (req.session_id or "").strip()
     t0 = time.perf_counter()
-    query, hist_n, condensed = resolve_question(req.question, sid)
+
+    # 补全会真的打一次上游模型（中位 0.79 秒）。所以限流和日额度必须**在它之前**
+    # 过闸，不能等走到检索阶段再查 —— 这条路径原来能被绕过，实测过：
+    # 「短问句 + 每次换一个 X-Forwarded-For + 随机 session_id」可以让服务无限次
+    # 替调用方调模型，而每分钟限流和每天 300 的额度都在补全之后才判，
+    # 等于额度只拦得住生成、拦不住补全。补全花了钱，就该在花钱前拦。
+    hist_now = session_get(sid)
+    prepaid = False
+    if needs_condense(req.question, hist_now):
+        pre_wait = rate_check(client_ip(request))
+        if pre_wait > 0:
+            raise HTTPException(
+                status_code=429,
+                detail=f"问得太快了，{int(pre_wait) + 1} 秒后再试（每分钟 {RATE_LIMIT_PER_MIN} 次）",
+                headers={"Retry-After": str(int(pre_wait) + 1)},
+            )
+        if not daily_check():
+            raise HTTPException(status_code=429, detail="今天的演示额度用完了，明天再来")
+        prepaid = True        # 已经扣过这份额度，下面不要再扣第二次
+
+    query, hist_n, condensed = resolve_question(req.question, sid, hist=hist_now)
     # 这一轮属于谁、被理解成了什么、各段花了多久 —— 后面所有 return 都带着它，
     # 所以只在这里建一次。传六个位置参数那种写法已经不够用了。
     ctx = {"sid": sid, "raw": req.question, "resolved": query,
@@ -2525,15 +2583,18 @@ def rag(req: AskRequest, request: Request, mode: str = "rerank",
         log_query(out, ctx, mode, src, (time.perf_counter() - t0) * 1000, cached=True)
         return out
 
-    wait = rate_check(client_ip(request))
-    if wait > 0:
-        raise HTTPException(
-            status_code=429,
-            detail=f"问得太快了，{int(wait) + 1} 秒后再试（每分钟 {RATE_LIMIT_PER_MIN} 次）",
-            headers={"Retry-After": str(int(wait) + 1)},
-        )
-    if not daily_check():
-        raise HTTPException(status_code=429, detail="今天的演示额度用完了，明天再来")
+    # 补全那条路径上面已经扣过额度了，这里不再扣第二次 —— 一次请求一份额度，
+    # 否则一句「那上斜呢」会被算成两次，用户莫名其妙被限。
+    if not prepaid:
+        wait = rate_check(client_ip(request))
+        if wait > 0:
+            raise HTTPException(
+                status_code=429,
+                detail=f"问得太快了，{int(wait) + 1} 秒后再试（每分钟 {RATE_LIMIT_PER_MIN} 次）",
+                headers={"Retry-After": str(int(wait) + 1)},
+            )
+        if not daily_check():
+            raise HTTPException(status_code=429, detail="今天的演示额度用完了，明天再来")
 
     t1 = time.perf_counter()
     variants = []           # 只有 oral 模式有；放外面是为了三个 return 的字段一致
@@ -2696,7 +2757,10 @@ class PlanRequest(BaseModel):
     equipment: str = Field("健身房", max_length=20)
     session_min: int = Field(60, ge=20, le=180)
     level: str = Field("新手", max_length=10)
-    injuries: list[str] = Field(default_factory=list, max_length=4)
+    # 元素也要限长。`list[str]` 只限了列表长度，单个元素随便多长，
+    # 塞一万字的「膝」进去照样会进模型上下文 —— 它最终是拼进 prompt 的。
+    injuries: list[Annotated[str, StringConstraints(max_length=20)]] = Field(
+        default_factory=list, max_length=4)
     note: str = Field("", max_length=200)
 
 
@@ -2713,6 +2777,7 @@ def plan(req: PlanRequest, request: Request, src: str = ""):
     """
     check_code(request.headers.get("x-access-code"))
     STATS["requests"] += 1
+    src = (src or "")[:32]      # 同 /rag：埋点参数不该有任意长度
     prof = req.model_dump()
     t0 = time.perf_counter()
 

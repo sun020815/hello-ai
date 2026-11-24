@@ -211,6 +211,30 @@ check("降级返回 200 且 degraded=True",
 check("降级结果没写进缓存", len(app._cache) == 0, len(app._cache))
 app.get_client = orig_get_client
 
+# ---------- 七、补全也要花钱，额度必须在它之前判 ----------
+# 修复前 resolve_question 跑在 rate_check / daily_check 之前：短问句会先调一次
+# 补全模型，然后才轮到额度判断。结果是「额度只拦得住生成，拦不住补全」——
+# 伪造 X-Forwarded-For 再换 session_id，就能无限次让服务替调用方调模型。
+print("\n【七、额度用尽时，补全不该先花一次钱】")
+app.session_append("guard-sid", "推日练哪些部位", "推日练哪些部位", "推日")
+called = []
+orig_condense = app.condense
+orig_daily = app.daily_check
+app.get_client = lambda timeout: FakeClient()
+app.condense = lambda q, hist: (called.append(q), "补全后的问题")[1]
+app.daily_check = lambda: False
+try:
+    # 换个 XFF，避开前面几组测试已经用掉的每分钟额度，确保拦它的是「日额度」
+    r = client.post("/rag", json={"question": "那上斜呢", "session_id": "guard-sid"},
+                    headers={"X-Forwarded-For": "10.77.77.77"})
+    check("额度满了返回 429", r.status_code == 429, r.status_code)
+    check("condense 一次都没被调用（钱没花）", len(called) == 0, called)
+finally:
+    app.condense = orig_condense
+    app.daily_check = orig_daily
+    app.get_client = orig_get_client
+    app.session_clear("guard-sid")
+
 print()
 if fails:
     print(f"失败 {len(fails)} 项：")
